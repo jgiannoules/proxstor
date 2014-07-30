@@ -5,6 +5,10 @@
  */
 package com.giannoules.proxstor.device;
 
+import com.giannoules.proxstor.user.UserDao;
+import java.util.ArrayList;
+import java.util.List;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -17,30 +21,34 @@ import javax.ws.rs.core.MediaType;
  *
  * @author James_Giannoules
  */
-@Path("/users/{userid}/devices/{devid}")
 public class DeviceResource {
 
+    private String userId;
+    private String devId;
+
+    public DeviceResource(String userId, String devId) {
+        this.userId = userId;
+        this.devId = devId;
+    }
+
     @GET
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public String getDevice(
-            @PathParam("userid") String userId,
-            @PathParam("devid") String devId) {
-        return "{ userid " + userId + "'s device " + devId + " coming your way }";
+    @Produces(MediaType.APPLICATION_JSON)
+    public Device getDevice() {
+        return DeviceDao.instance.getDevice(userId, devId);
     }
 
     @PUT
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public String postDevice(
-            @PathParam("userid") String userId,
-            @PathParam("devid") String devId) {
-        return "{ updating user " + userId + "'s device id " + devId + " }";
+    @Consumes(MediaType.APPLICATION_JSON)
+    public boolean putDevice(Device dev) {
+        if (dev.getDevId() != null && devId.equals(dev.getDevId())) {
+            return DeviceDao.instance.updateDevice(userId, dev);
+        }
+        return false;
     }
 
     @DELETE
-    @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public String deleteDevice(
-            @PathParam("userid") String userId,
-            @PathParam("devid") String devId) {
-        return "{ deleting user " + userId + "'s device id " + devId + " }";
+    public boolean deleteDevice() {
+        return DeviceDao.instance.deleteDevice(userId, devId);
     }
+
 }
