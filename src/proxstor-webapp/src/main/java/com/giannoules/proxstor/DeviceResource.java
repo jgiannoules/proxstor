@@ -17,24 +17,30 @@ import javax.ws.rs.core.MediaType;
  *
  * @author James_Giannoules
  */
-@Path("/devices/{devid}")
+@Path("/users/{userid}/devices/{devid}")
 public class DeviceResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public String getDevice(@PathParam("devid") String devId) {
-        return "{ device " + devId + " coming your way }";
+    public String getDevice(
+            @PathParam("userid") String userId,
+            @PathParam("devid") String devId) {
+        return "{ userid " + userId + "'s device " + devId + " coming your way }";
     }
 
     @PUT
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public String postDevice(@PathParam("devid") String devId) {
-        return "{ updating device id " + devId + " }";
+    public String postDevice(
+            @PathParam("userid") String userId,
+            @PathParam("devid") String devId) {
+        return "{ updating user " + userId + "'s device id " + devId + " }";
     }
 
     @DELETE
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public String deleteDevice(@PathParam("devid") String devId) {
-        return "{ deleting device id " + devId + " }";
+    public String deleteDevice(
+            @PathParam("userid") String userId,
+            @PathParam("devid") String devId) {
+        return "{ deleting user " + userId + "'s device id " + devId + " }";
     }
 }

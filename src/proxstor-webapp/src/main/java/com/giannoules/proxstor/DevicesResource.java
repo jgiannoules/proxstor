@@ -8,6 +8,7 @@ package com.giannoules.proxstor;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -15,18 +16,18 @@ import javax.ws.rs.core.MediaType;
  *
  * @author James_Giannoules
  */
-@Path("/devices")
+@Path("/users/{userid}/devices")
 public class DevicesResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public String getDevices() {
-        return "{ all devices coming your way }";
+    public String getDevices(@PathParam("userid") String userId) {
+        return "{ all userId " + userId + "'s devices coming your way }";
     }
 
     @POST
     @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN})
-    public String postDevice() {
-        return "{ adding device }";
+    public String postDevice(@PathParam("userid") String userId) {
+        return "{ adding device to userId " + userId + "}";
     }
 }
