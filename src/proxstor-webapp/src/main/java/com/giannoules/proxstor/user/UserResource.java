@@ -28,27 +28,21 @@ public class UserResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public User getUser() {
-        User u = UserDao.instance.getModel().get(userId);
+        User u = UserDao.instance.getUser(userId);
         return u;
     }
     
     @PUT    
     @Consumes(MediaType.APPLICATION_JSON)
-    public String putUser(User u) {    
-        if (UserDao.instance.getModel().containsKey(userId) &&
-                u.getUserId().equals(userId)) {
-            UserDao.instance.getModel().put(u.userId, u);
-            return "Success";
+    public boolean putUser(User u) {
+        if ((u.getUserId() != null) && u.getUserId().equals(userId)) {
+            return UserDao.instance.updateUser(u);            
         }
-        return "Fail";
+        return false;
     }
     
-    @DELETE    
-    public String deleteUser() {        
-        if (UserDao.instance.getModel().containsKey(userId)) {
-            UserDao.instance.getModel().remove(userId);
-            return "Success";
-        }
-        return "Fail";
+    @DELETE
+    public boolean deleteUser() {
+        return UserDao.instance.deleteUser(userId);
     }
 }

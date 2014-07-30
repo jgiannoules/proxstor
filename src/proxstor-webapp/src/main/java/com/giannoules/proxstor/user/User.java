@@ -6,6 +6,7 @@
 
 package com.giannoules.proxstor.user;
 
+import java.util.UUID;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -21,8 +22,7 @@ public class User {
     
     public User() {}
     
-    public User(String userId, String firstName, String lastName, String address) {
-        this.userId = userId;
+    public User(String firstName, String lastName, String address) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;

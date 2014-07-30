@@ -28,23 +28,27 @@ public class UsersResource {
         return new UserResource(userId);
     }    
     
-    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<User> getUsers() {
         List<User> users = new ArrayList<>();        
-        users.addAll(UserDao.instance.getModel().values());
+        //users.addAll(UserDao.instance.getModel().values());
+        users.addAll(UserDao.instance.getAllUsers());
         return users;
     }
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public String postUser(User u) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public User postUser(User u) {
+        /*
         if (!UserDao.instance.getModel().containsKey(u.getUserId())) {
             UserDao.instance.getModel().put(u.getUserId(), u);
             return "Success";
         }
         return "Duplicate";
+                */
+        return UserDao.instance.addUser(u);
     }  
     
 }
