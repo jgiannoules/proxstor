@@ -26,6 +26,7 @@
 
 package com.giannoules.proxstor;
 
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.GraphFactory;
 import com.tinkerpop.blueprints.Vertex;
@@ -36,28 +37,42 @@ import java.util.Map;
  *
  * @author jim
  * 
- *  hold ProxStor instance-wide reference to Graph
+ * hold ProxStor instance-wide reference to Graph
  * 
  */
 public enum ProxStorGraph {
     instance;
     
     private Graph graph;
+   
     
+    /*
+     * must use createGraph(...)
+     */
     ProxStorGraph() { }
    
+    /*
+     * preferred use of GraphFactory
+     */
     public void createGraph(Map<String, String> conf) {
         graph = GraphFactory.open(conf);
     }
    
+  
     public void createGraph(Graph g) {
         graph = g;
     }
-    
+  
+    /*
+     * default to simple TinkerGraph
+     */
     public void createGraph() {
         graph = new TinkerGraph();
     }
     
+    /*
+     * shutting down Graph instance should flush all commits to disk
+     */
     public void shutdown() {
         if (graph != null) {
             graph.shutdown();
@@ -65,22 +80,25 @@ public enum ProxStorGraph {
         }
     }
     
-    public ProxStorGraph getInstance() {
-        return instance;
-    }
-    
     public Graph getGraph() {
         return instance.graph;
     }
     
+    /*
+     * "running" is whether non-null Graph instance exists
+     */
     public boolean isRunning() {
         return (graph != null);
     }
     
-    public Vertex getNewVertex() {
+    public Vertex newVertex() {
         return graph.addVertex(null);
-    }   
+    }
     
+    public Edge newEdge(Vertex outVertex, Vertex inVertex, String label) {
+        return graph.addEdge(null, outVertex, inVertex, label);
+    }
+     
     @Override
     public String toString() {
         return graph.toString();
