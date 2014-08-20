@@ -2,6 +2,7 @@ package com.giannoules.proxstor.knows;
 
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.user.User;
+import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
@@ -30,7 +31,7 @@ public class KnowsResource {
         List<User> knows = new ArrayList<>();
         Vertex v = ProxStorGraph.instance.getVertex(userId);
         for (Edge e : v.getEdges(OUT, "knows")) {
-            knows.add(new User(e.getVertex(IN)));
+            knows.add(UserDao.instance.vertexToUser(e.getVertex(IN)));
         }
         return knows;
     }

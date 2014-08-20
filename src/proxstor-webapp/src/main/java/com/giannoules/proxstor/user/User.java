@@ -20,6 +20,8 @@ public class User {
     
     public User() {}
     
+    
+    /*
     public User(Vertex v) {
          firstName = v.getProperty("firstName");
          lastName = v.getProperty("lastName");
@@ -32,6 +34,7 @@ public class User {
          }
         
     }
+    */
     
     public User(String firstName, String lastName, String address) {
         this.firstName = firstName;

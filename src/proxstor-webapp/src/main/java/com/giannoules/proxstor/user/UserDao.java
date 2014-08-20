@@ -22,20 +22,33 @@ public enum UserDao {
 
     private UserDao() {
     }
+    
+    public User vertexToUser(Vertex v) {
+         User u = new User();
+         u.setFirstName((String) v.getProperty("firstName"));
+         u.setLastName((String) v.getProperty("lastName"));
+         u.setAddress((String) v.getProperty("address"));
+         Object id = v.getId();
+         if (id instanceof Long) {            
+            u.setUserId(Long.toString((Long) v.getId()));
+         } else {
+             u.setUserId(v.getId().toString());
+         }
+         return u;
+    }
 
     public User getUser(String userId) {
         Vertex v = ProxStorGraph.instance.getVertex(userId);
         if (v != null) {
-            return new User(v);
+            return vertexToUser(v);
         }
         return null;
     }
 
     public Collection<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        for (Vertex v : ProxStorGraph.instance.getGraph().getVertices("_type", "user")) {
-            User u = new User(v);
-            users.add(u);
+        for (Vertex v : ProxStorGraph.instance.getGraph().getVertices("_type", "user")) {            
+            users.add(vertexToUser(v));
         }
         return users;
     }
