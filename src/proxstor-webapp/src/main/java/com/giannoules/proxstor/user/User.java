@@ -1,18 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.giannoules.proxstor.user;
 
-import java.util.UUID;
+import com.tinkerpop.blueprints.Vertex;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/**
+/*
+ * JAXB representation of a ProxStor user
+ *      @TODO move out to separate package/jar for client use as well
  *
- * @author James_Giannoules
+ * 2014/08/19 - updated to accept com.tinkerpop.blueprints.Vertex in constructor
  */
+
+
 @XmlRootElement
 public class User {
     public String userId;
@@ -21,6 +19,19 @@ public class User {
     public String address;
     
     public User() {}
+    
+    public User(Vertex v) {
+         firstName = v.getProperty("firstName");
+         lastName = v.getProperty("lastName");
+         address = v.getProperty("address");
+         Object id = v.getId();
+         if (id instanceof Long) {            
+            userId = Long.toString((Long) v.getId());
+         } else {
+             userId = v.getId().toString();
+         }
+        
+    }
     
     public User(String firstName, String lastName, String address) {
         this.firstName = firstName;

@@ -1,22 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.giannoules.proxstor.user;
 
+import com.giannoules.proxstor.knows.KnowsResource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-/**
- *
- * @author James_Giannoules
- */
 public class UserResource {
     
     private String userId;
@@ -45,4 +37,10 @@ public class UserResource {
     public boolean deleteUser() {
         return UserDao.instance.deleteUser(userId);
     }
+   
+    @Path("/knows")
+    public KnowsResource getKnowsResource() {
+        return new KnowsResource(userId);
+    }    
+       
 }
