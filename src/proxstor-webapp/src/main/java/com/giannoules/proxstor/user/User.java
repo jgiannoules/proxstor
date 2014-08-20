@@ -6,8 +6,8 @@ import javax.xml.bind.annotation.XmlRootElement;
  * JAXB representation of a ProxStor user
  *      @TODO move out to separate package/jar for client use as well
  *
- * 2014/08/19 - updated to accept com.tinkerpop.blueprints.Vertex in constructor
  */
+
 @XmlRootElement
 public class User {
 
