@@ -1,0 +1,7 @@
+digraph data_model_1 {
+		a -> b [label="Knows"];
+		a [shape=box, label="Bob"];
+		b [shape=box, label="Sally"];
+
+		c [shape=box; label="User"];
+}
