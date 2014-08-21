@@ -16,7 +16,7 @@ public class UsersResource {
     @Path("{userid}")
     public UserResource getUserResource(@PathParam("userid") String userId) {
         return new UserResource(userId);
-    }    
+    }   
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
