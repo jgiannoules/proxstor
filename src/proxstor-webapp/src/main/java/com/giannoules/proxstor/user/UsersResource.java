@@ -13,10 +13,10 @@ import javax.ws.rs.core.MediaType;
 @Path("/users")
 public class UsersResource {
   
-    @Path("{userid}")
+    @Path("{userid: [0-9]*}")
     public UserResource getUserResource(@PathParam("userid") String userId) {
         return new UserResource(userId);
-    }   
+    }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)

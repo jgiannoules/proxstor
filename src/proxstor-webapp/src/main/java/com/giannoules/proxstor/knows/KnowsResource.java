@@ -36,7 +36,7 @@ public class KnowsResource {
         return knows;
     }
 
-    @Path("/{knownUserId}")
+    @Path("/{knownUserId: [0-9]*}")
     @POST
     @Produces(MediaType.TEXT_PLAIN)
     public boolean postUserKnows(@PathParam("knownUserId") String knownUserId) {
@@ -46,7 +46,7 @@ public class KnowsResource {
         return true;
     }
 
-    @Path("/{knownUserId}")
+    @Path("/{knownUserId: [0-9]*}")
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)
     public boolean deleteUserKnows(@PathParam("knownUserId") String knownUserId) {
