@@ -2,6 +2,12 @@ package com.giannoules.proxstor.device;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/*
+ * JAXB representation of a ProxStor device
+ *      @TODO move out to separate package/jar for client use as well
+ *
+ */
+
 @XmlRootElement
 public class Device {
     private String devId;

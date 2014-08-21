@@ -23,8 +23,7 @@ public class DevicesResource {
     }
 
     @Path("{devid}")
-    public DeviceResource getDeviceResource(
-            @PathParam("devid") String devId) {
+    public DeviceResource getDeviceResource(@PathParam("devid") String devId) {
         if (validUserId) {
             return new DeviceResource(userId, devId);
         }
@@ -47,7 +46,7 @@ public class DevicesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Device postDevice(Device dev) {
         if (validUserId) {
-            return DeviceDao.instance.addDevice(userId, dev);
+            return DeviceDao.instance.addDevice(dev);
         }
         return null;
     }

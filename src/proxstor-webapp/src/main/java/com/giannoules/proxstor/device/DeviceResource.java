@@ -27,14 +27,14 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public boolean putDevice(Device dev) {
         if (dev.getDevId() != null && devId.equals(dev.getDevId())) {
-            return DeviceDao.instance.updateDevice(userId, dev);
+            return DeviceDao.instance.updateDevice(dev);
         }
         return false;
     }
 
     @DELETE
     public boolean deleteDevice() {
-        return DeviceDao.instance.deleteDevice(userId, devId);
+        return DeviceDao.instance.deleteDevice(userId);
     }
 
 }
