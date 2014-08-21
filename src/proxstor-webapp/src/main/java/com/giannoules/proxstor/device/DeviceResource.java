@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.device;
 
+import java.util.Collection;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -19,8 +20,8 @@ public class DeviceResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Device getDevice() {
-        return DeviceDao.instance.getDevice(userId, devId);
+    public Collection<Device> getAllDevices() {
+        return DeviceDao.instance.getAllUserDevices(userId);
     }
 
     @PUT

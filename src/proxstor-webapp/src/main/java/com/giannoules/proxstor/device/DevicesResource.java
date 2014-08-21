@@ -1,22 +1,15 @@
 package com.giannoules.proxstor.device;
 
-import com.giannoules.proxstor.user.UserDao;
-import java.util.ArrayList;
-import java.util.List;
-import javax.ws.rs.Consumes;
+import java.util.Collection;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
-@Path("/users/{userid}/devices")
+@Path("/devices")
 public class DevicesResource {
 
-    private boolean validUserId;
-    private String userId;
-
+    
+    /*
     public DevicesResource(@PathParam("userid") String userId) {
         this.userId = userId;
         this.validUserId = UserDao.instance.validUserId(userId);
@@ -46,8 +39,19 @@ public class DevicesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Device postDevice(Device dev) {
         if (validUserId) {
-            return DeviceDao.instance.addDevice(dev);
+            return DeviceDao.instance.addDevice(UserDao.instance.getUser(userId), dev);
         }
         return null;
+    }
+    */
+    
+    @GET
+    public Collection<Device> getAllDevices() {
+        return DeviceDao.instance.getAllDevices();
+    }
+    
+    @Path("{devid}")
+    public Device getDevice(@PathParam("devid") String devId) {
+        return DeviceDao.instance.getDevice(devId);
     }
 }
