@@ -1,7 +1,7 @@
 package com.giannoules.proxstor.user;
 
 import com.giannoules.proxstor.device.DeviceResource;
-import com.giannoules.proxstor.knows.KnowsResource;
+import com.giannoules.proxstor.knows.KnowResource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -49,8 +49,8 @@ public class UserResource {
     }
    
     @Path("knows")
-    public KnowsResource getKnowsResource() {
-        return new KnowsResource(userId);
+    public KnowResource getKnowsResource() {
+        return new KnowResource(userId);
     }    
        
 }

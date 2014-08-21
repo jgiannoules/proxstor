@@ -17,11 +17,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-public class KnowsResource {
+public class KnowResource {
 
     private String userId;
     
-    public KnowsResource(String userId) {
+    public KnowResource(String userId) {
         this.userId = userId;
     }
     
