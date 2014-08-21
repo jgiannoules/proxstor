@@ -31,7 +31,7 @@ public class KnowResource {
         List<User> knows = new ArrayList<>();
         Vertex v = ProxStorGraph.instance.getVertex(userId);
         for (Edge e : v.getEdges(OUT, "knows")) {
-            knows.add(UserDao.instance.vertexToUser(e.getVertex(IN)));
+            knows.add(UserDao.instance.getUser(e.getVertex(IN)));
         }
         return knows;
     }
