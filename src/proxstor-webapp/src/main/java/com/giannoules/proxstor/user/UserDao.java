@@ -6,6 +6,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /*
@@ -93,6 +94,6 @@ public enum UserDao {
 
     public boolean validUserId(String userId) {
         Vertex v = ProxStorGraph.instance.getVertex(userId);
-        return v != null;
+        return (v != null) && (v.getProperty("_type").equals("user"));
     }
 }
