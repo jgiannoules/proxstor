@@ -7,7 +7,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -21,7 +20,7 @@ public class UserResource {
     }
     
     @Path("devices")
-     public DeviceResource getDeviceResource() {
+    public DeviceResource getDeviceResource() {
         return new DeviceResource(userId);
     }       
     
@@ -49,7 +48,7 @@ public class UserResource {
         return UserDao.instance.deleteUser(userId);
     }
    
-    @Path("/knows")
+    @Path("knows")
     public KnowsResource getKnowsResource() {
         return new KnowsResource(userId);
     }    
