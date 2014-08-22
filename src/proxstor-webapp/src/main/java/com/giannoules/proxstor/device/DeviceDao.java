@@ -5,6 +5,7 @@ import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,7 +73,7 @@ public enum DeviceDao {
         if ((userId == null) || (devId == null)) {
             return false;
         }
-        Device d = getDevice(devId);
+        Device d = getDeviceById(devId);
         if (d == null) {    // conditions 1 & 3
             return false;
         }
@@ -104,7 +105,7 @@ public enum DeviceDao {
      *   - vertex is not of type device
      *
      */
-    public Device getDevice(String devId) {
+    public Device getDeviceById(String devId) {
         if (devId == null) {
             return null;
         }
@@ -115,6 +116,23 @@ public enum DeviceDao {
         return null;
     }
 
+    
+    /*
+     * returns all devices in database with description desc
+     */
+    public List<Device> getDevicesByDescription(String desc) {
+        List<Device> devices = new ArrayList<>();
+        GraphQuery q = ProxStorGraph.instance.getGraph().query();
+        q.has("_type", "device");
+        q.has("description", desc);
+        for (Vertex v : q.vertices()) {
+            if (validDeviceVertex(v)) {
+                devices.add(vertexToDevice(v));
+            }
+        }
+        return devices;
+    }
+    
     /*
      * returns Device devId owned by User userId
      *
@@ -123,7 +141,7 @@ public enum DeviceDao {
      */
     public Device getUserDevice(String userId, String devId) {
         if (validUserDevice(userId, devId)) {
-            return getDevice(devId);
+            return getDeviceById(devId);
         }
         return null;
     }

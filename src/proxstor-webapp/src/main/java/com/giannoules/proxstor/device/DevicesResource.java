@@ -26,6 +26,6 @@ public class DevicesResource {
     @Path("{devid: [0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
     public Device getDevice(@PathParam("devid") String devId) {        
-        return DeviceDao.instance.getDevice(devId);
+        return DeviceDao.instance.getDeviceById(devId);
     } 
 }

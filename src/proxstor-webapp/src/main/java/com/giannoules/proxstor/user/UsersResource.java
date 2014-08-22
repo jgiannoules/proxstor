@@ -1,5 +1,7 @@
 package com.giannoules.proxstor.user;
 
+import com.giannoules.proxstor.device.Device;
+import com.giannoules.proxstor.device.DeviceDao;
 import com.giannoules.proxstor.knows.KnowsUserResource;
 import java.util.Collection;
 import javax.ws.rs.Consumes;
@@ -30,6 +32,16 @@ public class UsersResource {
         return new KnowsUserResource(userId);
     }
     
+    /*
+     * returns all devices with identical descriptions
+     */
+    @Path("devices/{description}")
+    @GET    
+    @Produces(MediaType.APPLICATION_JSON)
+    public Collection<Device> getAllSimilarDevices(@PathParam("description") String devDesc) {
+        return DeviceDao.instance.getDevicesByDescription(devDesc);
+    }
+     
     /*
      * returns all users system-wide!
      */
