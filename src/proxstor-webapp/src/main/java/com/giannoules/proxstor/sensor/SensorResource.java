@@ -1,4 +1,4 @@
-package com.giannoules.proxstor;
+package com.giannoules.proxstor.sensor;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
