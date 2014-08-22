@@ -50,7 +50,7 @@ public class DeviceResource {
      *   - user doesn't own device
      *   - Device devId doesn't match devid @PathParam
      */
-    @Path("{devid: [0-9]*}")
+    @Path("{devid: [0-9]+}")
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)    
     public Response putDeviceDevId(@PathParam("devid") String devId, Device dev) {
@@ -65,7 +65,7 @@ public class DeviceResource {
      * retrieve userId's device with devId
      * return 404 if not found
      */
-    @Path("{devid: [0-9]*}")
+    @Path("{devid: [0-9]+}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDevice(@PathParam("devid") String devId) {
@@ -79,7 +79,7 @@ public class DeviceResource {
     /*
      * remove userId's Device devId from Graph
      */
-    @Path("{devid: [0-9]*}")
+    @Path("{devid: [0-9]+}")
     @DELETE
     public boolean deleteDevice(@PathParam("devid") String devId) {
         return DeviceDao.instance.deleteUserDevice(userId, devId);

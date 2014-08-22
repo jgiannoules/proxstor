@@ -1,7 +1,7 @@
 package com.giannoules.proxstor.user;
 
 import com.giannoules.proxstor.device.DeviceResource;
-import com.giannoules.proxstor.knows.KnowResource;
+import com.giannoules.proxstor.knows.UserKnowsResource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -13,17 +13,35 @@ import javax.ws.rs.core.MediaType;
 
 public class UserResource {
     
-    private String userId;
+    private final String userId;
     
+    /*
+     * all these Paths assume userId context, so stash in constructor
+     */
     public UserResource(String userId) {
         this.userId = userId;
     }
     
+    /*
+     * return DeviceResource handler for specified user
+     */
     @Path("devices")
     public DeviceResource getDeviceResource() {
         return new DeviceResource(userId);
-    }       
+    }
     
+    /*
+     * return KnowResource handler for specified user
+     */
+    @Path("knows")
+    public UserKnowsResource getKnowsResource() {
+        return new UserKnowsResource(userId);
+    } 
+    
+    /*
+     * return the specified userId User
+     * if the userId is invalid throw 404
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public User getUser() {
@@ -34,6 +52,11 @@ public class UserResource {
         return u;
     }
     
+    /*
+     * update user
+     * userId path must match userId inside JSON (and be valid ID)
+     * if not, return false
+     */
     @PUT    
     @Consumes(MediaType.APPLICATION_JSON)
     public boolean putUser(User u) {
@@ -43,14 +66,14 @@ public class UserResource {
         return false;
     }
     
+    /*
+     * remove userId from database
+     *
+     * if userId is not valid user return false
+     */
     @DELETE
     public boolean deleteUser() {
         return UserDao.instance.deleteUser(userId);
     }
-   
-    @Path("knows")
-    public KnowResource getKnowsResource() {
-        return new KnowResource(userId);
-    }    
-       
+    
 }

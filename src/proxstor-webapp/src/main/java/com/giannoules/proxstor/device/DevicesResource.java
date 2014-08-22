@@ -10,7 +10,6 @@ import javax.ws.rs.core.MediaType;
 @Path("/devices")
 public class DevicesResource {
 
-    
     /*
      * returns all devices system-wide!
      */
@@ -24,7 +23,7 @@ public class DevicesResource {
      * returns specified devid device, otherwise 404
      * @TODO fix me
      */
-    @Path("{devid: [0-9]*}")
+    @Path("{devid: [0-9]+}")
     @Produces(MediaType.APPLICATION_JSON)
     public Device getDevice(@PathParam("devid") String devId) {        
         return DeviceDao.instance.getDevice(devId);

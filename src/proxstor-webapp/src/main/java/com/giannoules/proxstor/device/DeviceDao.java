@@ -166,7 +166,7 @@ public enum DeviceDao {
      *    - userId is invalid
      */
     public Device addUserDevice(String userId, Device d) {
-        if ((userId == null) || (d == null) || !UserDao.instance.validUserId(userId)) {
+        if ((userId == null) || (d == null) || (UserDao.instance.getUser(userId) == null)) {
             return null;
         }
         Vertex out = ProxStorGraph.instance.getVertex(userId);

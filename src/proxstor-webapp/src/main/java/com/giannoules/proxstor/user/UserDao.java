@@ -1,6 +1,9 @@
 package com.giannoules.proxstor.user;
 
 import com.giannoules.proxstor.ProxStorGraph;
+import static com.tinkerpop.blueprints.Direction.IN;
+import static com.tinkerpop.blueprints.Direction.OUT;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +23,7 @@ public enum UserDao {
 
     private UserDao() {
     }
-    
+
     /*
      * converts vertex into User object
      *
@@ -35,14 +38,14 @@ public enum UserDao {
         u.setLastName((String) v.getProperty("lastName"));
         u.setAddress((String) v.getProperty("address"));
         Object id = v.getId();
-         if (id instanceof Long) {            
+        if (id instanceof Long) {
             u.setUserId(Long.toString((Long) v.getId()));
-         } else {
-             u.setUserId(v.getId().toString());
-         }
-         return u;
+        } else {
+            u.setUserId(v.getId().toString());
+        }
+        return u;
     }
-    
+
     /*
      * test Vertex for USer-ness
      */
@@ -53,11 +56,10 @@ public enum UserDao {
     /*
      * test user id for User-ness
      */
-    // @TODO make this private in next commit
-    public boolean validUserId(String userId) {
+    private boolean validUserId(String userId) {
         return (userId != null) && validUserVertex(ProxStorGraph.instance.getVertex(userId));
     }
-    
+
     /*
      * abstract away setting of Vertex User type
      */
@@ -100,7 +102,7 @@ public enum UserDao {
         }
         return null;
     }
-        
+
     /*
      * returns all Users in database
      */
@@ -110,6 +112,76 @@ public enum UserDao {
             devices.add(vertexToUser(v));
         }
         return devices;
+    }
+
+    /*
+     * returns all Users userId *knows*
+     *
+     * returns null if:
+     *   - userId is not valid User
+     */
+    public List<User> getUserKnows(String userId) {
+        if ((userId != null) && validUserId(userId)) {
+            List<User> knows = new ArrayList<>();
+            Vertex v = ProxStorGraph.instance.getVertex(userId);
+            for (Edge e : v.getEdges(OUT, "knows")) {
+                knows.add(UserDao.instance.getUser(e.getVertex(IN)));
+            }
+            return knows;
+        }
+        return null;
+    }
+
+    /*
+     * returns all *Users who know* userId
+     *
+     * returns null if:
+     *   - userId is not valid User
+     */
+    public List<User> getKnowsUser(String userId) {
+        if ((userId != null) && validUserId(userId)) {
+            List<User> knows = new ArrayList<>();
+            Vertex v = ProxStorGraph.instance.getVertex(userId);
+            for (Edge e : v.getEdges(IN, "knows")) {
+                knows.add(UserDao.instance.getUser(e.getVertex(OUT)));
+            }
+            return knows;
+        }
+        return null;
+    }
+    /*
+     * establish a Knows relationship from fromUser -> toUser
+     *
+     * returns true if both IDs are valid Users, false otherwise
+     */
+    public boolean addKnows(String fromUser, String toUser) {
+        if (validUserId(fromUser) && validUserId(toUser)) {
+            Vertex out = ProxStorGraph.instance.getVertex(fromUser);
+            Vertex in = ProxStorGraph.instance.getVertex(toUser);
+            ProxStorGraph.instance.newEdge(out, in, "knows");
+            return true;
+        }
+        return false;
+    }
+
+    /*
+     * removes an established Knows relationship from fromUser -> toUser
+     *
+     * returns true if succesful
+     * returns false if either user ID is invalid or if a Knows relationship
+     * was not already established fromUser -> toUser
+     */
+    public boolean removeKnows(String fromUser, String toUser) {
+        if (validUserId(fromUser) && validUserId(toUser)) {
+            Vertex v = ProxStorGraph.instance.getVertex(fromUser);            
+            for (Edge e : v.getEdges(OUT, "knows")) {
+                if (e.getVertex(IN).getId().toString().equals(toUser)) {
+                    e.remove();
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     /* 
@@ -129,7 +201,7 @@ public enum UserDao {
         setVertexToUserType(v);
         ProxStorGraph.instance.commit();
         u.setUserId(v.getId().toString());
-        return u;        
+        return u;
     }
 
     /*
@@ -150,9 +222,9 @@ public enum UserDao {
             ProxStorGraph.instance.commit();
             return true;
         }
-        return false;        
+        return false;
     }
-    
+
     /* 
      * remove userId from graph
      *
