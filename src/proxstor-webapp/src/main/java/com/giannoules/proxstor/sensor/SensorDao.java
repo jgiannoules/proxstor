@@ -30,7 +30,7 @@ public enum SensorDao {
         }
         Sensor s = new Sensor();
         s.setDescription((String) v.getProperty("description"));
-        s.setType((SensorType) v.getProperty("type"));
+        s.setType(SensorType.valueOf((String) v.getProperty("type")));
         Object id = v.getId();
         if (id instanceof Long) {
             s.setSensorId(Long.toString((Long) v.getId()));
@@ -48,7 +48,7 @@ public enum SensorDao {
     }
 
     /*
-     * test device id for Sensor-ness
+     * test sensorid for Sensor-ness
      */
     private boolean validSensorId(String sensorId) {
         return (sensorId != null) && validSensorVertex(ProxStorGraph.instance.getVertex(sensorId));
@@ -88,7 +88,7 @@ public enum SensorDao {
      */
     private void setVertexToSensorType(Vertex v) {
         if (v != null) {
-            v.setProperty("_type", "device");
+            v.setProperty("_type", "sensor");
         }
     }
 
@@ -116,16 +116,16 @@ public enum SensorDao {
      * returns all sensor in database with description desc
      */
     public List<Sensor> getSensorsByDescription(String desc) {
-        List<Sensor> devices = new ArrayList<>();
+        List<Sensor> sensors = new ArrayList<>();
         GraphQuery q = ProxStorGraph.instance.getGraph().query();
-        q.has("_type", "device");
+        q.has("_type", "sensor");
         q.has("description", desc);
         for (Vertex v : q.vertices()) {
             if (validSensorVertex(v)) {
-                devices.add(vertexToSensor(v));
+                sensors.add(vertexToSensor(v));
             }
         }
-        return devices;
+        return sensors;
     }
     
     /*
@@ -134,7 +134,7 @@ public enum SensorDao {
      * returns null if for any reason the locId is invalid,
      * sensorId is invalid, or sensor isn't contained within location     
      */
-    public Sensor getULocationSensor(String locId, String sensorId) {
+    public Sensor getLocationSensor(String locId, String sensorId) {
         if (validLocationSensor(locId, sensorId)) {
             return getSensorById(sensorId);
         }
@@ -142,7 +142,7 @@ public enum SensorDao {
     }
 
     /*
-     *
+     * @TODO too fragile - need to validate locIds
      */
     public Collection<Sensor> getAllLocationSensors(String locId) {
         if (locId == null) {
@@ -188,7 +188,7 @@ public enum SensorDao {
         Vertex out = ProxStorGraph.instance.getVertex(locId);
         Vertex in = ProxStorGraph.instance.newVertex();
         in.setProperty("description", s.getDescription());
-        in.setProperty("type", s.getType());
+        in.setProperty("type", s.getType().toString());
         setVertexToSensorType(in);
         s.setSensorId(in.getId().toString());
         ProxStorGraph.instance.newEdge(out, in, "contains");
@@ -199,8 +199,8 @@ public enum SensorDao {
     /*
      * updates Sensor based on Sensor's sensorId if locId contains Sensor
      *
-     * returns true if the Sensor's sensorId is valid device
-     * return false if the Sensor's sensorId is not valid device
+     * returns true if the Sensor's sensorId is valid sensor
+     * return false if the Sensor's sensorId is not valid sensor
      *
      * @TODO this needs to validate relationship
      */
@@ -211,7 +211,7 @@ public enum SensorDao {
         if (validLocationSensor(locId, s.getSensorId())) {
             Vertex v = ProxStorGraph.instance.getVertex(s.getSensorId());
             v.setProperty("description", s.getDescription());
-            v.setProperty("type", (SensorType) s.getType());
+            v.setProperty("type", s.getType().toString());
             ProxStorGraph.instance.commit();
             return true;
         }
@@ -221,8 +221,8 @@ public enum SensorDao {
     /*
      * updates Sensor based on Sensor's sensorId
      *
-     * returns true if the Sensor's sensorId is valid device
-     * return false if the Sensor's sensorId is not valid device
+     * returns true if the Sensor's sensorId is valid sensor
+     * return false if the Sensor's sensorId is not valid sensor
      */
     public boolean _updateSensor(Sensor s) {
         if ((s == null) || (s.getSensorId() == null)) {
@@ -231,7 +231,7 @@ public enum SensorDao {
         if (validSensorId(s.getSensorId())) {
             Vertex v = ProxStorGraph.instance.getVertex(s.getSensorId());
             v.setProperty("description", s.getDescription());
-            v.setProperty("type", s.getType());
+            v.setProperty("type", s.getType().toString());
             ProxStorGraph.instance.commit();
             return true;
         }

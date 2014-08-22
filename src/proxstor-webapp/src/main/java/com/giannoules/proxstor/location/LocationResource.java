@@ -1,11 +1,14 @@
 package com.giannoules.proxstor.location;
 
+import com.giannoules.proxstor.device.DeviceResource;
+import com.giannoules.proxstor.sensor.SensorResource;
 import com.giannoules.proxstor.user.User;
 import com.giannoules.proxstor.user.UserDao;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -17,6 +20,14 @@ public class LocationResource {
     public LocationResource(String locId) {
         this.locId = locId;
     }
+    
+    /*
+     * return SensorResource handler for this Location
+     */
+    @Path("sensors")
+    public SensorResource getSensorResource() {
+        return new SensorResource(locId);
+    } 
     
    /*
      * return the specified locId Location
