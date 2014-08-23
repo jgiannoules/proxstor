@@ -3,6 +3,7 @@ package com.giannoules.proxstor.admin.graph;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.ProxStorGraphDatabaseAlreadyRunning;
 import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
+import com.giannoules.proxstor.RESTStatus;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -32,12 +33,11 @@ public class GraphResource {
     
     /*
      * return basic status & configuration information on running graph
-     * in plain text (useful for development)
      */
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getGraph() {
-        return ProxStorGraph.instance.toString();
+    @Produces(MediaType.APPLICATION_JSON)
+    public RESTStatus getGraph() {
+        return new RESTStatus(true, ProxStorGraph.instance.toString(), "");
     }
 
     /*
@@ -45,15 +45,19 @@ public class GraphResource {
      * DELETE HttpMethod is the closest match to the concept of "stopping"
      */
     @DELETE
-    @Produces(MediaType.TEXT_PLAIN)
-    public String deleteGraph() {        
+    @Produces(MediaType.APPLICATION_JSON)    
+    public RESTStatus deleteGraph() {        
+        RESTStatus stat = new RESTStatus();
         try {
             ProxStorGraph.instance.shutdown();
-            return "shutdown complete (w/commmit)";
+            stat.setOk(true);
+            stat.setMessage("shutdown complete (w/commmit)");
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
-            return "Graph instance not running!";
-        }                
+            stat.setOk(false);
+            stat.setMessage("Graph instance not running!");
+        }
+        return stat;
     }
 
     /*
@@ -65,10 +69,11 @@ public class GraphResource {
      * converts MultiValueMap form params into a Map<String, String>
      * and uses ProxStorGraph enum's .createGraph(Map) method
      */
-    @POST
-    @Produces(MediaType.TEXT_PLAIN)
+    @POST    
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public String postGraph(MultivaluedMap<String, String> formParams) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public RESTStatus postGraph(MultivaluedMap<String, String> formParams) {
+        RESTStatus stat;
         try {
             Map<String, String> conf = new HashMap<>();
             Iterator<String> it = formParams.keySet().iterator();
@@ -77,11 +82,12 @@ public class GraphResource {
                 conf.put(theKey, formParams.getFirst(theKey));
             }
             ProxStorGraph.instance.start(conf);
-            return "graph has been started";
+            stat = new RESTStatus(true, "graph has been started", "");
         } catch (ProxStorGraphDatabaseAlreadyRunning ex) {
             Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
-            return ex.getMessage();
+            stat = new RESTStatus(false, ex.getMessage(),"");
         }
+        return stat;
     }
 
     /*
