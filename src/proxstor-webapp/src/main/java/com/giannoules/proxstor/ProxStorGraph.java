@@ -10,10 +10,15 @@ import com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Graph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * 
- * hold ProxStor instance-wide reference to Graph
+ * hold ProxStor instance-wide reference to Graph and provide internal interface
+ * to actual back-end instance
+ * 
+ * 
  * 
  */
 public enum ProxStorGraph {
@@ -29,80 +34,85 @@ public enum ProxStorGraph {
     /*
      * preferred use of GraphFactory
      */
-    public void createGraph(Map<String, String> conf) {
+    public void createGraph(Map<String, String> conf) throws ProxStorGraphDatabaseAlreadyRunning {
+        if (graph instanceof Graph) {
+            throw new ProxStorGraphDatabaseAlreadyRunning("Graph instance already running");
+        }
         graph = GraphFactory.open(conf);
-    }
-   
-  
+    }     
+    
+    /*
     public void createGraph(Graph g) {
         graph = g;
-    }
-  
+    } */
+ 
     /*
      * default to simple TinkerGraph
-     */
-    public void createGraph() {
+     */    
+    /*public void createGraph() {       
         graph = new TinkerGraph();
-    }
+    } */   
     
     /*
      * shutting down Graph instance should flush all commits to disk
      */
-    public void shutdown() {
-        if (graph != null) {
-            if (graph instanceof Neo4jGraph) {
-                ((Neo4jGraph) graph).commit();
-            }
-            graph.shutdown();
-            graph = null;
-            OrientGraph o;
+    public void shutdown() throws ProxStorGraphDatabaseNotRunningException {
+        isRunningOrException();        
+        if (graph instanceof TransactionalGraph) {
+            ProxStorDebug.println("ProxStorGraph.commit(): detected TransactionalGraph. committing.");
+            ((TransactionalGraph) graph).commit();
         }
-    }
+        graph.shutdown();
+        graph = null;    
+    } 
     
-    public Graph getGraph() {        
+    public Graph getGraph() throws ProxStorGraphDatabaseNotRunningException {        
+        isRunningOrException();
         return instance.graph;
-    }
+    }    
     
     /*
      * "running" is whether non-null Graph instance exists
      */
-    public boolean isRunning() {
+    public boolean isRunning() {        
         return (graph != null);
     }
     
-    public Vertex newVertex() {
+    private void isRunningOrException() throws ProxStorGraphDatabaseNotRunningException {
+        if (!isRunning()) {
+            throw new ProxStorGraphDatabaseNotRunningException("No running graph instance");
+        }
+    }
+    
+    public Vertex newVertex() throws ProxStorGraphDatabaseNotRunningException {
+        isRunningOrException();
         return graph.addVertex(null);
     }
     
-    public Edge newEdge(Vertex outVertex, Vertex inVertex, String label) {
+    public Edge newEdge(Vertex outVertex, Vertex inVertex, String label) throws ProxStorGraphDatabaseNotRunningException {
+        isRunningOrException();
         return graph.addEdge(null, outVertex, inVertex, label);
     }
     
-    public Vertex getVertex(Object id) {
+    public Vertex getVertex(Object id) throws ProxStorGraphDatabaseNotRunningException {
+        isRunningOrException();
         return graph.getVertex(id);
     }
     
-    public void commit() {
+    public void commit() throws ProxStorGraphDatabaseNotRunningException {
+        isRunningOrException();
         if (graph instanceof TransactionalGraph) {
                 ((TransactionalGraph) graph).commit();
             }
     }
-    
-    private void _TinkerGraph() {
-        graph = new TinkerGraph();
-    }
-    
-    private void _Neo4jGraph() {
-        graph = new Neo4jGraph("/tmp/abcd");
-    }
-    
-    private void _Neo4j2Graph() {
-        graph = new Neo4j2Graph("/tmp/abcd");
-    }
-    
-    
+            
     @Override
     public String toString() {
+        try {
+            isRunningOrException();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(ProxStorGraph.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return graph.toString();
     }
     

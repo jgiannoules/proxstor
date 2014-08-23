@@ -1,6 +1,7 @@
 package com.giannoules.proxstor.device;
 
 import com.giannoules.proxstor.ProxStorGraph;
+import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
@@ -10,6 +11,8 @@ import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
  * Data Access Object to database-persistent store of Devices
@@ -57,7 +60,12 @@ public enum DeviceDao {
      * test device id for Device-ness
      */
     private boolean validDeviceId(String devId) {
-        return (devId != null) && validDeviceVertex(ProxStorGraph.instance.getVertex(devId));
+        try {
+            return (devId != null) && validDeviceVertex(ProxStorGraph.instance.getVertex(devId));
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 
     /*
@@ -70,6 +78,7 @@ public enum DeviceDao {
      *   5 User is not Owner of Device     
      */
     private boolean validUserDevice(String userId, String devId) {
+
         if ((userId == null) || (devId == null)) {
             return false;
         }
@@ -77,15 +86,19 @@ public enum DeviceDao {
         if (d == null) {    // conditions 1 & 3
             return false;
         }
-        if (UserDao.instance.getUser(userId) == null) { // conditions 2 & 4
-            return false;
-        }
-        for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "owns")) {
-            if (e.getVertex(OUT).getId().equals(userId)) {
-                return true;
+        try {
+            if (UserDao.instance.getUser(userId) == null) { // conditions 2 & 4
+                return false;
             }
+            for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "owns")) {
+                if (e.getVertex(OUT).getId().equals(userId)) {
+                    return true;
+                }
+            }
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return false; // condition 5
+        return false; // condition 5        
     }
 
     /*
@@ -106,23 +119,35 @@ public enum DeviceDao {
      *
      */
     public Device getDeviceById(String devId) {
+
         if (devId == null) {
             return null;
         }
-        Vertex v = ProxStorGraph.instance.getVertex(devId);
+        Vertex v;
+        try {
+            v = ProxStorGraph.instance.getVertex(devId);
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
         if ((v != null) && validDeviceVertex(v)) {
             return vertexToDevice(v);
         }
         return null;
     }
 
-    
     /*
      * returns all devices in database with description desc
      */
     public List<Device> getDevicesByDescription(String desc) {
         List<Device> devices = new ArrayList<>();
-        GraphQuery q = ProxStorGraph.instance.getGraph().query();
+        GraphQuery q;
+        try {
+            q = ProxStorGraph.instance.getGraph().query();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
         q.has("_type", "device");
         q.has("description", desc);
         for (Vertex v : q.vertices()) {
@@ -132,7 +157,7 @@ public enum DeviceDao {
         }
         return devices;
     }
-    
+
     /*
      * returns Device devId owned by User userId
      *
@@ -150,7 +175,13 @@ public enum DeviceDao {
         if (userId == null) {
             return null;
         }
-        Vertex v = ProxStorGraph.instance.getVertex(userId);
+        Vertex v;
+        try {
+            v = ProxStorGraph.instance.getVertex(userId);
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
         List<Device> devices = new ArrayList<>();
         for (Edge e : v.getEdges(OUT, "owns")) {
             devices.add(DeviceDao.instance.vertexToDevice(e.getVertex(IN)));
@@ -167,8 +198,13 @@ public enum DeviceDao {
      */
     public Collection<Device> getAllDevices() {
         List<Device> devices = new ArrayList<>();
-        for (Vertex v : ProxStorGraph.instance.getGraph().getVertices("_type", "device")) {
-            devices.add(vertexToDevice(v));
+        try {
+            for (Vertex v : ProxStorGraph.instance.getGraph().getVertices("_type", "device")) {
+                devices.add(vertexToDevice(v));
+            }
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
         return devices;
     }
@@ -184,17 +220,23 @@ public enum DeviceDao {
      *    - userId is invalid
      */
     public Device addUserDevice(String userId, Device d) {
-        if ((userId == null) || (d == null) || (UserDao.instance.getUser(userId) == null)) {
+        try {
+            if ((userId == null) || (d == null) || (UserDao.instance.getUser(userId) == null)) {
+                return null;
+            }
+            Vertex out = ProxStorGraph.instance.getVertex(userId);
+            Vertex in = ProxStorGraph.instance.newVertex();
+            in.setProperty("description", d.getDescription());
+            setVertexToDeviceType(in);
+            d.setDevId(in.getId().toString());
+            ProxStorGraph.instance.newEdge(out, in, "owns");
+            ProxStorGraph.instance.commit();
+            return d;
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
-        Vertex out = ProxStorGraph.instance.getVertex(userId);
-        Vertex in = ProxStorGraph.instance.newVertex();
-        in.setProperty("description", d.getDescription());
-        setVertexToDeviceType(in);
-        d.setDevId(in.getId().toString());
-        ProxStorGraph.instance.newEdge(out, in, "owns");
-        ProxStorGraph.instance.commit();
-        return d;
+
     }
 
     /*
@@ -208,9 +250,16 @@ public enum DeviceDao {
             return false;
         }
         if (validUserDevice(userId, d.getDevId())) {
-            Vertex v = ProxStorGraph.instance.getVertex(d.getDevId());
-            v.setProperty("description", d.getDescription());
-            ProxStorGraph.instance.commit();
+            Vertex v;
+            try {
+                v = ProxStorGraph.instance.getVertex(d.getDevId());
+                v.setProperty("description", d.getDescription());
+                ProxStorGraph.instance.commit();
+            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+
             return true;
         }
         return false;
@@ -227,9 +276,16 @@ public enum DeviceDao {
             return false;
         }
         if (validDeviceId(d.getDevId())) {
-            Vertex v = ProxStorGraph.instance.getVertex(d.getDevId());
-            v.setProperty("description", d.getDescription());
-            ProxStorGraph.instance.commit();
+            Vertex v;
+            try {
+                v = ProxStorGraph.instance.getVertex(d.getDevId());
+                v.setProperty("description", d.getDescription());
+                ProxStorGraph.instance.commit();
+            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+
             return true;
         }
         return false;
@@ -243,8 +299,13 @@ public enum DeviceDao {
      */
     public boolean _deleteDevice(String devId) {
         if ((devId != null) && (validDeviceId(devId))) {
-            ProxStorGraph.instance.getVertex(devId).remove();
-            ProxStorGraph.instance.commit();
+            try {
+                ProxStorGraph.instance.getVertex(devId).remove();
+                ProxStorGraph.instance.commit();
+            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
             return true;
         }
         return false;
@@ -258,8 +319,13 @@ public enum DeviceDao {
      */
     public boolean deleteUserDevice(String userId, String devId) {
         if (validUserDevice(userId, devId)) {
-            ProxStorGraph.instance.getVertex(devId).remove();
-            ProxStorGraph.instance.commit();
+            try {
+                ProxStorGraph.instance.getVertex(devId).remove();
+                ProxStorGraph.instance.commit();
+            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
             return true;
         }
         return false;

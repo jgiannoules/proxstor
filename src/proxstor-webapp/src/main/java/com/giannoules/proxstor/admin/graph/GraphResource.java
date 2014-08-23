@@ -1,9 +1,13 @@
 package com.giannoules.proxstor.admin.graph;
 
 import com.giannoules.proxstor.ProxStorGraph;
+import com.giannoules.proxstor.ProxStorGraphDatabaseAlreadyRunning;
+import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -26,21 +30,26 @@ public class GraphResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getGraph() {
-        if (ProxStorGraph.instance.isRunning()) {
-            return ProxStorGraph.instance.toString();
-        }
-        return "Graph instance not running!";
+        try {
+            return ProxStorGraph.instance.getGraph().toString();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
+            return ex.getMessage();
+        }   
     }
 
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)
-    public String deleteGraph() {
-        if (ProxStorGraph.instance.isRunning()) {
-            String msg = ProxStorGraph.instance.toString();
+    public String deleteGraph() {        
+        try {
+            String msg = ProxStorGraph.instance.getGraph().toString();
             ProxStorGraph.instance.shutdown();
             return msg + " shutdown.";
-        }
-        return "Graph instance not running!";
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
+            return "Graph instance not running!";
+        }        
+        
     }
 
     /*
@@ -53,14 +62,19 @@ public class GraphResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public String postGraph(MultivaluedMap<String, String> formParams) {
-        Map<String, String> conf = new HashMap<>();
-        Iterator<String> it = formParams.keySet().iterator();
-        while (it.hasNext()) {
-            String theKey = it.next();
-            conf.put(theKey, formParams.getFirst(theKey));
+        try {
+            Map<String, String> conf = new HashMap<>();
+            Iterator<String> it = formParams.keySet().iterator();
+            while (it.hasNext()) {
+                String theKey = it.next();
+                conf.put(theKey, formParams.getFirst(theKey));
+            }
+            ProxStorGraph.instance.createGraph(conf);
+            return ProxStorGraph.instance.toString();
+        } catch (ProxStorGraphDatabaseAlreadyRunning ex) {
+            Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
+            return ex.getMessage();
         }
-        ProxStorGraph.instance.createGraph(conf);
-        return ProxStorGraph.instance.toString();
     }
 
     /*

@@ -1,11 +1,14 @@
 package com.giannoules.proxstor.location;
 
 import com.giannoules.proxstor.ProxStorGraph;
+import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
 import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /*
@@ -54,7 +57,12 @@ public enum LocationDao {
      * test location id for Location-ness
      */
     private boolean validLocationId(String locId) {
-        return (locId != null) && validLocationVertex(ProxStorGraph.instance.getVertex(locId));
+        try {
+            return (locId != null) && validLocationVertex(ProxStorGraph.instance.getVertex(locId));
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
     }
 
     /*
@@ -78,7 +86,13 @@ public enum LocationDao {
         if (locId == null) {
             return null;
         }
-        Vertex v = ProxStorGraph.instance.getVertex(locId);
+        Vertex v;
+        try {
+            v = ProxStorGraph.instance.getVertex(locId);
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
         if ((v != null) && validLocationVertex(v)) {
             return vertexToLocation(v);
         }
@@ -90,7 +104,13 @@ public enum LocationDao {
      */
     public List<Location> getLocationsByDescription(String desc) {
         List<Location> devices = new ArrayList<>();
-        GraphQuery q = ProxStorGraph.instance.getGraph().query();
+        GraphQuery q;
+        try {
+            q = ProxStorGraph.instance.getGraph().query();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
         q.has("_type", "location");
         q.has("description", desc);
         for (Vertex v : q.vertices()) {
@@ -106,8 +126,13 @@ public enum LocationDao {
      */
     public Collection<Location> getAllLocations() {
         List<Location> devices = new ArrayList<>();
-        for (Vertex v : ProxStorGraph.instance.getGraph().getVertices("_type", "location")) {
-            devices.add(vertexToLocation(v));
+        try {
+            for (Vertex v : ProxStorGraph.instance.getGraph().getVertices("_type", "location")) {
+                devices.add(vertexToLocation(v));
+            }
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
         return devices;
     }
@@ -122,11 +147,18 @@ public enum LocationDao {
         if (l == null) {
             return null;
         }
-        Vertex v = ProxStorGraph.instance.newVertex();
-        v.setProperty("description", l.getDescription());
-        setVertexToLocationType(v);
-        ProxStorGraph.instance.commit();
-        l.setLocId(v.getId().toString());
+        Vertex v;
+        try {
+            v = ProxStorGraph.instance.newVertex();
+            v.setProperty("description", l.getDescription());
+            setVertexToLocationType(v);
+            ProxStorGraph.instance.commit();
+            l.setLocId(v.getId().toString());
+
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
         return l;
     }
 
@@ -141,9 +173,15 @@ public enum LocationDao {
             return false;
         }
         if (validLocationId(l.getLocId())) {
-            Vertex v = ProxStorGraph.instance.getVertex(l.getLocId());
-            v.setProperty("description", l.getDescription());
-            ProxStorGraph.instance.commit();
+            Vertex v;
+            try {
+                v = ProxStorGraph.instance.getVertex(l.getLocId());
+                v.setProperty("description", l.getDescription());
+                ProxStorGraph.instance.commit();
+            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+                Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
             return true;
         }
         return false;
@@ -157,8 +195,13 @@ public enum LocationDao {
      */
     public boolean deleteLocation(String locId) {
         if ((locId != null) && (validLocationId(locId))) {
-            ProxStorGraph.instance.getVertex(locId).remove();
-            ProxStorGraph.instance.commit();
+            try {
+                ProxStorGraph.instance.getVertex(locId).remove();
+                ProxStorGraph.instance.commit();
+            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+                Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
             return true;
         }
         return false;

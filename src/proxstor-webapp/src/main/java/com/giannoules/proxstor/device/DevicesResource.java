@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.device;
 
+import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
 import java.util.Collection;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
