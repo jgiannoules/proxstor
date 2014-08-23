@@ -8,7 +8,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -21,22 +20,6 @@ public class UserResource {
      */
     public UserResource(String userId) {
         this.userId = userId;
-    }
-
-    /*
-     * return DeviceResource handler for specified user
-     */
-    @Path("devices")
-    public DeviceResource getDeviceResource() {
-        return new DeviceResource(userId);
-    }
-
-    /*
-     * return KnowResource handler for specified user
-     */
-    @Path("knows")
-    public UserKnowsResource getKnowsResource() {
-        return new UserKnowsResource(userId);
     }
 
     /*
@@ -88,4 +71,22 @@ public class UserResource {
         }
     }
 
+   // ---- BEGIN sub-resource locators ----
+    
+    /*
+     * return DeviceResource handler for specified user
+     */
+    @Path("devices")
+    public DeviceResource getDeviceResource() {
+        return new DeviceResource(userId);
+    }
+
+    /*
+     * return KnowResource handler for specified user
+     */
+    @Path("knows")
+    public UserKnowsResource getKnowsResource() {
+        return new UserKnowsResource(userId);
+    }
+    
 }
