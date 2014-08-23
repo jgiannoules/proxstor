@@ -11,6 +11,9 @@ import javax.ws.rs.Path;
 @Path("/admin")
 public class AdminResource {
     
+    /*
+     * control running graph instance
+     */
     @Path("/graph")
     public GraphResource getGraphResource() {
         return new GraphResource();
