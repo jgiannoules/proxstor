@@ -96,20 +96,5 @@ public class GraphResource {
             return Response.status(403).entity(ex.getMessage()).build();
         }
     }
-
-    /*
-     * this is a more ideal implementation using arbitrarily large Maps
-     *
-     * @TODO (low priority) consume XML map
-     */
-     /*
-     @POST
-     @Produces(MediaType.APPLICATION_XML)
-     @Consumes(MediaType.APPLICATION_XML)
-     public MyHashMapObject<String, String> postGraph(
-             MyHashMapObject<String, String> anotherMap) {        
-        return anotherMap;
-     }
-     */
     
 }
