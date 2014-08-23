@@ -4,30 +4,32 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Result {
-    public boolean ok;
-    public String message;
-    public String url;
-
+    public Status status;           // overall result Status
+    public String message;          // message to accompany status
+    public Class dataClass;  // optional description of data to follow
+    public Object data;             // generic "data" associated with result
+    public String url;              // optional URL for user to reference
+    
     public Result() {}
     
-    public Result(boolean ok, String message, String url) {
-        this.ok = ok;
+    public Result(Status status, String message, String url) {
+        this.status = status;
         this.message = message;
         this.url = url;
     }
     
     /**
-     * @return the ok
+     * @return the status
      */
-    public boolean isOk() {
-        return ok;
+    public Status isStatus() {
+        return status;
     }
 
     /**
-     * @param ok the ok to set
+     * @param status the status to set
      */
-    public void setOk(boolean ok) {
-        this.ok = ok;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     /**
@@ -57,4 +59,22 @@ public class Result {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    /**
+     * @return the data
+     */
+    public Object getData() {
+        return data;
+    }
+
+    /**
+     * @param data the data to set
+     */
+    public void setData(Object data) {
+        if (data != null) {
+            this.data = data;
+            this.dataClass = data.getClass();
+        }
+    }
+   
 }

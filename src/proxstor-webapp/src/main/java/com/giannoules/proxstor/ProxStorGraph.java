@@ -1,6 +1,7 @@
 package com.giannoules.proxstor;
 
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.GraphFactory;
 import com.tinkerpop.blueprints.GraphQuery;
@@ -154,6 +155,16 @@ public enum ProxStorGraph {
             }
     }
   
+    public Features getFeatures() {
+        try {
+            _isRunningOrException();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(ProxStorGraph.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        return graph.getFeatures();
+    }
+    
     /*
      * return the .toString() of the Graph instance combined with Features
      */
@@ -165,11 +176,7 @@ public enum ProxStorGraph {
             Logger.getLogger(ProxStorGraph.class.getName()).log(Level.SEVERE, null, ex);
             return ex.getMessage();
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append(graph.toString());
-        sb.append("\n\nFeatures:\n\n");
-        sb.append(graph.getFeatures().toString());
-        return sb.toString();     
+        return graph.toString();
     }  
     
 }
