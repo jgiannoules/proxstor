@@ -159,7 +159,7 @@ public enum ProxStorGraph {
     }
   
     /*
-     * simply return the .toString() of the Graph instance
+     * return the .toString() of the Graph instance combined with Features
      */
     @Override
     public String toString() {
@@ -169,7 +169,11 @@ public enum ProxStorGraph {
             Logger.getLogger(ProxStorGraph.class.getName()).log(Level.SEVERE, null, ex);
             return ex.getMessage();
         }
-        return graph.toString();
-    }
+        StringBuilder sb = new StringBuilder();
+        sb.append(graph.toString());
+        sb.append("\n\nFeatures:\n\n");
+        sb.append(graph.getFeatures().toString());
+        return sb.toString();     
+    }  
     
 }
