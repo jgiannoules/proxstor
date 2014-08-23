@@ -30,19 +30,14 @@ public class GraphResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getGraph() {
-        try {
-            return ProxStorGraph.instance.getGraph().toString();
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
-            Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
-            return ex.getMessage();
-        }   
+        return ProxStorGraph.instance.toString();   
     }
 
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)
     public String deleteGraph() {        
         try {
-            String msg = ProxStorGraph.instance.getGraph().toString();
+            String msg = ProxStorGraph.instance.toString();
             ProxStorGraph.instance.shutdown();
             return msg + " shutdown.";
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
@@ -69,7 +64,7 @@ public class GraphResource {
                 String theKey = it.next();
                 conf.put(theKey, formParams.getFirst(theKey));
             }
-            ProxStorGraph.instance.createGraph(conf);
+            ProxStorGraph.instance.start(conf);
             return ProxStorGraph.instance.toString();
         } catch (ProxStorGraphDatabaseAlreadyRunning ex) {
             Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);

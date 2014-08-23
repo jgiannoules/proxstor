@@ -2,6 +2,7 @@ package com.giannoules.proxstor.user;
 
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
+import com.giannoules.proxstor.ProxStorGraphNonExistentObjectID;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
@@ -62,7 +63,7 @@ public enum UserDao {
     private boolean validUserId(String userId) {
         try {
             return (userId != null) && validUserVertex(ProxStorGraph.instance.getVertex(userId));
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
@@ -92,7 +93,7 @@ public enum UserDao {
         Vertex v;
         try {
             v = ProxStorGraph.instance.getVertex(userId);
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
@@ -123,7 +124,7 @@ public enum UserDao {
     public Collection<User> getAllUsers() {
         try {
             List<User> devices = new ArrayList<>();
-            for (Vertex v : ProxStorGraph.instance.getGraph().getVertices("_type", "user")) {
+            for (Vertex v : ProxStorGraph.instance.getVertices("_type", "user")) {
                 devices.add(vertexToUser(v));
             }
             return devices;
@@ -145,7 +146,7 @@ public enum UserDao {
             Vertex v;
             try {
                 v = ProxStorGraph.instance.getVertex(userId);
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
                 return null;
             }
@@ -169,7 +170,7 @@ public enum UserDao {
             Vertex v;
             try {
                 v = ProxStorGraph.instance.getVertex(userId);
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
                 return null;
             }
@@ -191,9 +192,9 @@ public enum UserDao {
             try {
                 Vertex out = ProxStorGraph.instance.getVertex(fromUser);
                 Vertex in = ProxStorGraph.instance.getVertex(toUser);
-                ProxStorGraph.instance.newEdge(out, in, "knows");
+                ProxStorGraph.instance.addEdge(out, in, "knows");
                 return true;
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -212,7 +213,7 @@ public enum UserDao {
             Vertex v;
             try {
                 v = ProxStorGraph.instance.getVertex(fromUser);
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
@@ -237,7 +238,7 @@ public enum UserDao {
             return null;
         }
         try {
-            Vertex v = ProxStorGraph.instance.newVertex();
+            Vertex v = ProxStorGraph.instance.addVertex();
             v.setProperty("firstName", u.getFirstName());
             v.setProperty("lastName", u.getLastName());
             v.setProperty("address", u.getAddress());
@@ -269,7 +270,7 @@ public enum UserDao {
                 v.setProperty("address", u.getAddress());
                 ProxStorGraph.instance.commit();
                 return true;
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
@@ -288,7 +289,7 @@ public enum UserDao {
                 ProxStorGraph.instance.getVertex(userId).remove();
                 ProxStorGraph.instance.commit();
                 return true;
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

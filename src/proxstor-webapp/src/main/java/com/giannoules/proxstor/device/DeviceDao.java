@@ -2,6 +2,7 @@ package com.giannoules.proxstor.device;
 
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
+import com.giannoules.proxstor.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
@@ -62,7 +63,7 @@ public enum DeviceDao {
     private boolean validDeviceId(String devId) {
         try {
             return (devId != null) && validDeviceVertex(ProxStorGraph.instance.getVertex(devId));
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
@@ -95,7 +96,7 @@ public enum DeviceDao {
                     return true;
                 }
             }
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false; // condition 5        
@@ -126,7 +127,7 @@ public enum DeviceDao {
         Vertex v;
         try {
             v = ProxStorGraph.instance.getVertex(devId);
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
@@ -143,7 +144,7 @@ public enum DeviceDao {
         List<Device> devices = new ArrayList<>();
         GraphQuery q;
         try {
-            q = ProxStorGraph.instance.getGraph().query();
+            q = ProxStorGraph.instance.query();
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -178,7 +179,7 @@ public enum DeviceDao {
         Vertex v;
         try {
             v = ProxStorGraph.instance.getVertex(userId);
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
@@ -199,7 +200,7 @@ public enum DeviceDao {
     public Collection<Device> getAllDevices() {
         List<Device> devices = new ArrayList<>();
         try {
-            for (Vertex v : ProxStorGraph.instance.getGraph().getVertices("_type", "device")) {
+            for (Vertex v : ProxStorGraph.instance.getVertices("_type", "device")) {
                 devices.add(vertexToDevice(v));
             }
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
@@ -225,14 +226,14 @@ public enum DeviceDao {
                 return null;
             }
             Vertex out = ProxStorGraph.instance.getVertex(userId);
-            Vertex in = ProxStorGraph.instance.newVertex();
+            Vertex in = ProxStorGraph.instance.addVertex();
             in.setProperty("description", d.getDescription());
             setVertexToDeviceType(in);
             d.setDevId(in.getId().toString());
-            ProxStorGraph.instance.newEdge(out, in, "owns");
+            ProxStorGraph.instance.addEdge(out, in, "owns");
             ProxStorGraph.instance.commit();
             return d;
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
@@ -255,7 +256,7 @@ public enum DeviceDao {
                 v = ProxStorGraph.instance.getVertex(d.getDevId());
                 v.setProperty("description", d.getDescription());
                 ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
@@ -281,7 +282,7 @@ public enum DeviceDao {
                 v = ProxStorGraph.instance.getVertex(d.getDevId());
                 v.setProperty("description", d.getDescription());
                 ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
@@ -302,7 +303,7 @@ public enum DeviceDao {
             try {
                 ProxStorGraph.instance.getVertex(devId).remove();
                 ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
@@ -322,7 +323,7 @@ public enum DeviceDao {
             try {
                 ProxStorGraph.instance.getVertex(devId).remove();
                 ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
                 return false;
             }
