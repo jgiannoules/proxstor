@@ -6,7 +6,6 @@ import com.giannoules.proxstor.knows.KnowsUserResource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
