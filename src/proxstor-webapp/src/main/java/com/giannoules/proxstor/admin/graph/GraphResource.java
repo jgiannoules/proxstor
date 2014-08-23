@@ -3,8 +3,6 @@ package com.giannoules.proxstor.admin.graph;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.ProxStorGraphDatabaseAlreadyRunning;
 import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
-import com.giannoules.proxstor.Result;
-import com.giannoules.proxstor.Status;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
