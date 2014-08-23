@@ -24,30 +24,42 @@ import javax.ws.rs.core.MultivaluedMap;
  *  - retrieve status (@GET)
  *  - shutdown (@DELETE)
  * 
+ * @TODO return appropriate httpstatus
+ * 
  */
 public class GraphResource {
 
+    
+    /*
+     * return basic status & configuration information on running graph
+     * in plain text (useful for development)
+     */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getGraph() {
-        return ProxStorGraph.instance.toString();   
+        return ProxStorGraph.instance.toString();
     }
 
+    /*
+     * shutdown running Graph instance
+     * DELETE HttpMethod is the closest match to the concept of "stopping"
+     */
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)
     public String deleteGraph() {        
         try {
-            String msg = ProxStorGraph.instance.toString();
             ProxStorGraph.instance.shutdown();
-            return msg + " shutdown.";
+            return "shutdown complete (w/commmit)";
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
             return "Graph instance not running!";
-        }        
-        
+        }                
     }
 
     /*
+     * create a new Graph instance using the form parameters as entries into
+     * a Map to be used as configuration
+     *  
      * Note: using x-www-form-urlencoded for simplicity
      * 
      * converts MultiValueMap form params into a Map<String, String>
@@ -65,7 +77,7 @@ public class GraphResource {
                 conf.put(theKey, formParams.getFirst(theKey));
             }
             ProxStorGraph.instance.start(conf);
-            return ProxStorGraph.instance.toString();
+            return "graph has been started";
         } catch (ProxStorGraphDatabaseAlreadyRunning ex) {
             Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
             return ex.getMessage();
