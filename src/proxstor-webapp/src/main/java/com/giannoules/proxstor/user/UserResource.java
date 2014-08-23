@@ -1,6 +1,7 @@
 package com.giannoules.proxstor.user;
 
 import com.giannoules.proxstor.device.DeviceResource;
+import com.giannoules.proxstor.device.DevicesResource;
 import com.giannoules.proxstor.knows.UserKnowsResource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -77,8 +78,8 @@ public class UserResource {
      * return DeviceResource handler for specified user
      */
     @Path("devices")
-    public DeviceResource getDeviceResource() {
-        return new DeviceResource(userId);
+    public DevicesResource getDevicesResource() {
+        return new DevicesResource(userId);
     }
 
     /*
