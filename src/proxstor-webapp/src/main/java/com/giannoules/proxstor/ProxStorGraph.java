@@ -1,7 +1,6 @@
 package com.giannoules.proxstor;
 
 import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.GraphFactory;
 import com.tinkerpop.blueprints.GraphQuery;
@@ -33,9 +32,7 @@ public enum ProxStorGraph {
     private Graph graph;
    
     /*
-     * nada.
-     * 
-     * use createGraph()
+     * nada. use createGraph()
      */
     ProxStorGraph() { }
    
@@ -61,31 +58,14 @@ public enum ProxStorGraph {
         graph.shutdown();
         graph = null;    
     } 
-    
-    /*
-     * @TODO get away from providing this...
-     */
-    private Graph _getGraph() throws ProxStorGraphDatabaseNotRunningException {        
-        _isRunningOrException();
-        return instance.graph;
-    }    
-    
+      
     /*
      * "running" is whether non-null Graph instance exists
      */
-    private boolean isRunning() {        
+    public boolean isRunning() {        
         return (graph != null);
     }
-    
-    /*
-     * internal method to wrap checking for running graph, and if not, throw exception
-     */
-    private void _isRunningOrException() throws ProxStorGraphDatabaseNotRunningException {
-        if (!isRunning()) {
-            throw new ProxStorGraphDatabaseNotRunningException("No running graph instance");
-        }
-    }
-    
+
     /*
      * add vertex to graph
      */
@@ -117,12 +97,22 @@ public enum ProxStorGraph {
         return v;
     }
     
+    /*
+     * return vertices by key:value
+     *
+     * @TODO deprecate with index interface
+     */
     public Iterable<Vertex> getVertices(String key, Object value) throws ProxStorGraphDatabaseNotRunningException {
         _isRunningOrException();
         return graph.getVertices(key, value);
     }
     
-    public GraphQuery query() throws ProxStorGraphDatabaseNotRunningException {
+    /*
+     * provide query interface for special purposes
+     *
+     * @TODO hide this behind an interface
+     */
+    public GraphQuery _query() throws ProxStorGraphDatabaseNotRunningException {
         _isRunningOrException();
         return graph.query();
     }
@@ -153,17 +143,7 @@ public enum ProxStorGraph {
         if (graph instanceof TransactionalGraph) {
                 ((TransactionalGraph) graph).commit();
             }
-    }
-  
-    public Features getFeatures() {
-        try {
-            _isRunningOrException();
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
-            Logger.getLogger(ProxStorGraph.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        return graph.getFeatures();
-    }
+    } 
     
     /*
      * return the .toString() of the Graph instance combined with Features
@@ -176,7 +156,29 @@ public enum ProxStorGraph {
             Logger.getLogger(ProxStorGraph.class.getName()).log(Level.SEVERE, null, ex);
             return ex.getMessage();
         }
-        return graph.toString();
-    }  
+        StringBuilder sb = new StringBuilder();
+        sb.append(graph.toString());
+        sb.append("\n\nFeatures:\n\n");
+        sb.append(graph.getFeatures());
+        return sb.toString();    
+    } 
+    
+    /*
+     * internal method to wrap checking for running graph, and if not, throw exception
+     */
+    private void _isRunningOrException() throws ProxStorGraphDatabaseNotRunningException {
+        if (!isRunning()) {
+            throw new ProxStorGraphDatabaseNotRunningException("No running graph instance");
+        }
+    }
+    
+    /*
+     * @TODO get away from providing this...
+     */
+    @Deprecated
+    private Graph _getGraph() throws ProxStorGraphDatabaseNotRunningException {        
+        _isRunningOrException();
+        return instance.graph;
+    }    
     
 }
