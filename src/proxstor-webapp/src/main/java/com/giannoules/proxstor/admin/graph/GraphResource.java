@@ -17,6 +17,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 /*
  *
@@ -24,61 +25,61 @@ import javax.ws.rs.core.MultivaluedMap;
  * 
  *  - create (@POST)
  *  - retrieve status (@GET)
- *  - shutdown (@DELETE)
- * 
- * @TODO return appropriate httpstatus
- * 
+ *  - shutdown (@DELETE) 
  */
 public class GraphResource {
 
-    
     /*
      * return basic status & configuration information on running graph
+     *
+     * success - returns 200 (OK)
+     * failure - returns 503 (Service Unavailable)
      */
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Result getGraph() {
-        Result res = new Result();
-        res.setStatus(Status.NO_STATUS);
-        res.setMessage(ProxStorGraph.instance.toString());
-        res.setData(ProxStorGraph.instance.getFeatures());
-        return res;
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getGraph() {
+        if (!ProxStorGraph.instance.isRunning()) {
+            return Response.status(503).entity("no running graph instance").build();
+        }
+        return Response.ok().entity(ProxStorGraph.instance.toString()).build();
     }
 
     /*
      * shutdown running Graph instance
      * DELETE HttpMethod is the closest match to the concept of "stopping"
+     *
+     * success - returns 200 (OK)
+     * failure - returns 404 (Not Found)
      */
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON)    
-    public Result deleteGraph() {        
-        Result stat = new Result();
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response deleteGraph() {        
         try {
             ProxStorGraph.instance.shutdown();
-            stat.setStatus(Status.SUCCESS);
-            stat.setMessage("shutdown complete");
+            return Response.ok().entity("graph instance shutdown complete").build();
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
-            stat.setStatus(Status.FAILURE);
-            stat.setMessage("Graph instance not running!");
-        }
-        return stat;
+            return Response.status(404).entity("no running graph instance").build();
+        }        
     }
 
     /*
      * create a new Graph instance using the form parameters as entries into
      * a Map to be used as configuration
      *  
-     * Note: using x-www-form-urlencoded for simplicity
+     * Note: using x-www-form-urlencoded for simplicity 
      * 
      * converts MultiValueMap form params into a Map<String, String>
      * and uses ProxStorGraph enum's .createGraph(Map) method
+     *
+     * success - returns 200 (Ok)
+     * failure - returns 500 (Internal Server Error) if unable to start graph instance
+     * failure - returns 403 (Forbidden) if graph instance already running
      */
     @POST    
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Result postGraph(MultivaluedMap<String, String> formParams) {
-        Result stat;
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response postGraph(MultivaluedMap<String, String> formParams) {
         try {
             Map<String, String> conf = new HashMap<>();
             Iterator<String> it = formParams.keySet().iterator();
@@ -87,12 +88,15 @@ public class GraphResource {
                 conf.put(theKey, formParams.getFirst(theKey));
             }
             ProxStorGraph.instance.start(conf);
-            stat = new Result(Status.SUCCESS, "graph has been started", "");
+            if (ProxStorGraph.instance.isRunning()) {
+                return Response.ok().entity("graph instance now running").build();
+            } else {
+                return Response.serverError().entity("unable to create graph instance").build();
+            }            
         } catch (ProxStorGraphDatabaseAlreadyRunning ex) {
             Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
-            stat = new Result(Status.FAILURE, ex.getMessage(),"");
+            return Response.status(403).entity(ex.getMessage()).build();
         }
-        return stat;
     }
 
     /*
