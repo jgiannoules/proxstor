@@ -40,7 +40,7 @@ public enum UserDao {
         User u = new User();
         u.setFirstName((String) v.getProperty("firstName"));
         u.setLastName((String) v.getProperty("lastName"));
-        u.setAddress((String) v.getProperty("address"));
+        u.setEmail((String) v.getProperty("email"));
         Object id = v.getId();
         if (id instanceof Long) {
             u.setUserId(Long.toString((Long) v.getId()));
@@ -51,7 +51,8 @@ public enum UserDao {
     }
 
     /*
-     * test Vertex for USer-ness
+     * test Vertex for User-ness
+     * @TODO .getProperty might return null.. fix this to avoid NullPointerException
      */
     private boolean validUserVertex(Vertex v) {
         return (v != null) && v.getProperty("_type").equals("user");
@@ -241,7 +242,7 @@ public enum UserDao {
             Vertex v = ProxStorGraph.instance.addVertex();
             v.setProperty("firstName", u.getFirstName());
             v.setProperty("lastName", u.getLastName());
-            v.setProperty("address", u.getAddress());
+            v.setProperty("email", u.getEmail());
             setVertexToUserType(v);
             ProxStorGraph.instance.commit();
             u.setUserId(v.getId().toString());
@@ -267,7 +268,7 @@ public enum UserDao {
                 Vertex v = ProxStorGraph.instance.getVertex(u.getUserId());
                 v.setProperty("firstName", u.getFirstName());
                 v.setProperty("lastName", u.getLastName());
-                v.setProperty("address", u.getAddress());
+                v.setProperty("email", u.getEmail());
                 ProxStorGraph.instance.commit();
                 return true;
             } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
