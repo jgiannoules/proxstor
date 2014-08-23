@@ -1,5 +1,7 @@
 package com.giannoules.proxstor;
 
+// @TODO document
+
 public class ProxStorGraphNonExistentObjectID extends Exception {
  
     ProxStorGraphNonExistentObjectID(String s) {
@@ -7,6 +9,6 @@ public class ProxStorGraphNonExistentObjectID extends Exception {
     }
 
     ProxStorGraphNonExistentObjectID() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
