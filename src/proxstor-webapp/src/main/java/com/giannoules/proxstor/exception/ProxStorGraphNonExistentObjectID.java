@@ -7,8 +7,5 @@ public class ProxStorGraphNonExistentObjectID extends Exception {
     public ProxStorGraphNonExistentObjectID(String s) {
         super(s);
     }
-
-    public ProxStorGraphNonExistentObjectID() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    
 }
