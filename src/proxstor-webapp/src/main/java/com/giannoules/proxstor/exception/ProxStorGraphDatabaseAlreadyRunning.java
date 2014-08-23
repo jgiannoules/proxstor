@@ -1,10 +1,10 @@
-package com.giannoules.proxstor;
+package com.giannoules.proxstor.exception;
 
 // @TODO document
 
 public class ProxStorGraphDatabaseAlreadyRunning extends Exception {
     
-    ProxStorGraphDatabaseAlreadyRunning(String s) {
+    public ProxStorGraphDatabaseAlreadyRunning(String s) {
         super(s);
     }
     

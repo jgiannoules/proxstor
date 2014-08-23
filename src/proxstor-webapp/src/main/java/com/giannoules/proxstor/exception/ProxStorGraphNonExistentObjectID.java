@@ -1,14 +1,14 @@
-package com.giannoules.proxstor;
+package com.giannoules.proxstor.exception;
 
 // @TODO document
 
 public class ProxStorGraphNonExistentObjectID extends Exception {
  
-    ProxStorGraphNonExistentObjectID(String s) {
+    public ProxStorGraphNonExistentObjectID(String s) {
         super(s);
     }
 
-    ProxStorGraphNonExistentObjectID() {
+    public ProxStorGraphNonExistentObjectID() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

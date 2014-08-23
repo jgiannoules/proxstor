@@ -1,8 +1,8 @@
 package com.giannoules.proxstor.device;
 
 import com.giannoules.proxstor.ProxStorGraph;
-import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
-import com.giannoules.proxstor.ProxStorGraphNonExistentObjectID;
+import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
+import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
@@ -144,7 +144,7 @@ public enum DeviceDao {
         List<Device> devices = new ArrayList<>();
         GraphQuery q;
         try {
-            q = ProxStorGraph.instance.query();
+            q = ProxStorGraph.instance._query();
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;

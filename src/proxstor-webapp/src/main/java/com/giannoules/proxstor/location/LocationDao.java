@@ -1,8 +1,8 @@
 package com.giannoules.proxstor.location;
 
 import com.giannoules.proxstor.ProxStorGraph;
-import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
-import com.giannoules.proxstor.ProxStorGraphNonExistentObjectID;
+import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
+import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
@@ -107,7 +107,7 @@ public enum LocationDao {
         List<Location> devices = new ArrayList<>();
         GraphQuery q;
         try {
-            q = ProxStorGraph.instance.query();
+            q = ProxStorGraph.instance._query();
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;

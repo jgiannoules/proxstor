@@ -1,5 +1,8 @@
 package com.giannoules.proxstor;
 
+import com.giannoules.proxstor.exception.ProxStorGraphDatabaseAlreadyRunning;
+import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
+import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.GraphFactory;

@@ -1,8 +1,8 @@
 package com.giannoules.proxstor.sensor;
 
 import com.giannoules.proxstor.ProxStorGraph;
-import com.giannoules.proxstor.ProxStorGraphDatabaseNotRunningException;
-import com.giannoules.proxstor.ProxStorGraphNonExistentObjectID;
+import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
+import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.IN;
@@ -138,7 +138,7 @@ public enum SensorDao {
         List<Sensor> sensors = new ArrayList<>();
         GraphQuery q;
         try {
-            q = ProxStorGraph.instance.query();
+            q = ProxStorGraph.instance._query();
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
