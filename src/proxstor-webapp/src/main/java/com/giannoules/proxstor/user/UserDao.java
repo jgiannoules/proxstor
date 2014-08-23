@@ -6,6 +6,7 @@ import com.giannoules.proxstor.ProxStorGraphNonExistentObjectID;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -133,6 +134,37 @@ public enum UserDao {
             Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
+    }
+    
+    public Collection<User> getMatchingUsers(User partial) {
+        List<User> users = new ArrayList<>();
+        if ((partial.getUserId() != null) && (!partial.getUserId().isEmpty())) {
+            users.add(getUser(partial.getUserId()));
+            return users;
+        }
+        GraphQuery q;
+        try {
+            q = ProxStorGraph.instance.query();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        q.has("_type", "user");
+        if ((partial.getFirstName() != null) && (!partial.getFirstName().isEmpty())) {
+            q.has("firstName", partial.getFirstName());
+        }
+        if ((partial.getLastName() != null) && (!partial.getLastName().isEmpty())) {
+            q.has("lastName", partial.getLastName());
+        }
+        if ((partial.getEmail() != null) && (!partial.getEmail().isEmpty())) {
+            q.has("email", partial.getEmail());
+        }
+        for (Vertex v : q.vertices()) {
+            if (validUserVertex(v)) {
+                users.add(vertexToUser(v));
+            }
+        }
+        return users;
     }
 
     /*

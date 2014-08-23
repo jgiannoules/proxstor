@@ -4,6 +4,7 @@ import com.giannoules.proxstor.device.Device;
 import com.giannoules.proxstor.device.DeviceDao;
 import com.giannoules.proxstor.knows.KnowsUserResource;
 import java.util.Collection;
+import java.util.Collections;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -50,6 +51,17 @@ public class UsersResource {
     public Collection<User> getUsers() {
        return UserDao.instance.getAllUsers();        
     }
+    
+    /*
+     * returns all users matching criteria in partially expressed User JSON
+     */
+    @Path("search")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Collection<User> getMatchingUsers(User u) {
+        return UserDao.instance.getMatchingUsers(u);        
+    }    
     
     /*
      * adds user to database

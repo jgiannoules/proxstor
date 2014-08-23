@@ -14,15 +14,15 @@ public class User {
     public String userId;
     public String firstName;
     public String lastName;
-    public String address;
+    public String email;
 
     public User() {
     }
 
-    public User(String firstName, String lastName, String address) {
+    public User(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.address = address;
+        this.email = email;
     }
 
     public String getUserId() {
@@ -49,12 +49,12 @@ public class User {
         this.lastName = lastName;
     }
 
-    public String getAddress() {
-        return address;
+    public String getEmail() {
+        return email;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
 }
