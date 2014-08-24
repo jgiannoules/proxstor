@@ -3,9 +3,9 @@ digraph data_model_1 {
 		Bob [shape=box];
 		Sally [shape=box];
 
-		Bob -> iPhone [label="Owns"];
-		Bob -> Nexus [label="Owns"];
-		Sally -> Razr [label="Owns"];
+		Bob -> iPhone [label="Uses"];
+		Bob -> Nexus [label="Uses"];
+		Sally -> Razr [label="Uses"];
 
 		iPhone [shape=house, label="iPhone 4S"];
 		Nexus [shape=house, label="Nexus 7 tablet"];
