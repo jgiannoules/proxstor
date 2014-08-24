@@ -1,6 +1,7 @@
 package com.giannoules.proxstor.location;
 
 import com.giannoules.proxstor.sensor.SensorResource;
+import com.giannoules.proxstor.sensor.SensorsResource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -73,8 +74,8 @@ public class LocationResource {
      * return SensorResource handler for this Location
      */
     @Path("sensors")
-    public SensorResource getSensorResource() {
-        return new SensorResource(locId);
+    public SensorsResource getSensorResource() {
+        return new SensorsResource(locId);
     }
 
 }
