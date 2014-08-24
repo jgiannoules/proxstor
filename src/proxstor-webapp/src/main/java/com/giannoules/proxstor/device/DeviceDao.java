@@ -92,7 +92,7 @@ public enum DeviceDao {
             if (UserDao.instance.getUser(userId) == null) { // conditions 2 & 4
                 return false;
             }
-            for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "owns")) {
+            for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "uses")) {
                 if (e.getVertex(OUT).getId().equals(userId)) {
                     return true;
                 }
@@ -185,7 +185,7 @@ public enum DeviceDao {
             return null;
         }
         List<Device> devices = new ArrayList<>();
-        for (Edge e : v.getEdges(OUT, "owns")) {
+        for (Edge e : v.getEdges(OUT, "uses")) {
             devices.add(DeviceDao.instance.vertexToDevice(e.getVertex(IN)));
         }
         return devices;
@@ -196,7 +196,7 @@ public enum DeviceDao {
      *
      * warning: use of this might mean you are violating the contract that
      *          devices exists as a relationship from a single user
-     *              User --OWNS--> Device
+     *              User --USES--> Device
      */
     public Collection<Device> getAllDevices() {
         List<Device> devices = new ArrayList<>();
@@ -231,7 +231,7 @@ public enum DeviceDao {
             in.setProperty("description", d.getDescription());
             setVertexToDeviceType(in);
             d.setDevId(in.getId().toString());
-            ProxStorGraph.instance.addEdge(out, in, "owns");
+            ProxStorGraph.instance.addEdge(out, in, "uses");
             ProxStorGraph.instance.commit();
             return d;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
@@ -242,7 +242,7 @@ public enum DeviceDao {
     }
 
     /*
-     * updates Device based on Device's devId if userId Owns
+     * updates Device based on Device's devId if userId Uses
      *
      * returns true if the Device's devId is valid device
      * return false if the Device's devId is not valid device
@@ -314,7 +314,7 @@ public enum DeviceDao {
     }
 
     /* 
-     * remove devId from graph if userId Owns it
+     * remove devId from graph if userId Uses it
      *
      * returns true upon success
      * returns false if devId was not a Device
