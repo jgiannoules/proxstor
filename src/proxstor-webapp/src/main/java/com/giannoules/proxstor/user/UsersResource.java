@@ -1,6 +1,6 @@
 package com.giannoules.proxstor.user;
 
-import com.giannoules.proxstor.knows.KnowsUserResource;
+import com.giannoules.proxstor.knows.KnowsResource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -55,15 +55,5 @@ public class UsersResource {
     public UserResource getUserResource(@PathParam("userid") String userId) {
         return new UserResource(userId);
     }
-    
-    /*
-     * returns instance of KnowsUserResource to handle queries about who
-     * knows userId
-     */
-    @Path("knows/{userid: [0-9]+}")
-    public KnowsUserResource getKnowsUserResource(@PathParam("userid") String userId) {
-        return new KnowsUserResource(userId);
-    }
-    
     
 }

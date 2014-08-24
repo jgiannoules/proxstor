@@ -2,12 +2,13 @@ package com.giannoules.proxstor.user;
 
 import com.giannoules.proxstor.device.DeviceResource;
 import com.giannoules.proxstor.device.DevicesResource;
-import com.giannoules.proxstor.knows.UserKnowsResource;
+import com.giannoules.proxstor.knows.KnowsResource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -83,11 +84,11 @@ public class UserResource {
     }
 
     /*
-     * return KnowResource handler for specified user
+     * return KnowResource handler for specified user with strength
      */
-    @Path("knows")
-    public UserKnowsResource getKnowsResource() {
-        return new UserKnowsResource(userId);
+    @Path("knows/{strength: [0-9]{1,2}|100}")  // enforce rule that strength must be integers 0 to 100
+    public KnowsResource getKnowsResource(@PathParam("strength") Integer strength) {
+        return new KnowsResource(userId, strength);
     }
     
 }

@@ -62,7 +62,7 @@ public enum UserDao {
     /*
      * test user id for User-ness
      */
-    private boolean validUserId(String userId) {
+    public boolean _validUserId(String userId) {
         try {
             return (userId != null) && validUserVertex(ProxStorGraph.instance.getVertex(userId));
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
@@ -170,99 +170,6 @@ public enum UserDao {
         return users;
     }
 
-    /*
-     * returns all Users userId *knows*
-     *
-     * returns null if:
-     *   - userId is not valid User
-     */
-    public List<User> getUserKnows(String userId) {
-        if ((userId != null) && validUserId(userId)) {
-            List<User> knows = new ArrayList<>();
-            Vertex v;
-            try {
-                v = ProxStorGraph.instance.getVertex(userId);
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-                return null;
-            }
-            for (Edge e : v.getEdges(OUT, "knows")) {
-                knows.add(UserDao.instance.getUser(e.getVertex(IN)));
-            }
-            return knows;
-        }
-        return null;
-    }
-
-    /*
-     * returns all *Users who know* userId
-     *
-     * returns null if:
-     *   - userId is not valid User
-     */
-    public List<User> getKnowsUser(String userId) {
-        if ((userId != null) && validUserId(userId)) {
-            List<User> knows = new ArrayList<>();
-            Vertex v;
-            try {
-                v = ProxStorGraph.instance.getVertex(userId);
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-                return null;
-            }
-            for (Edge e : v.getEdges(IN, "knows")) {
-                knows.add(UserDao.instance.getUser(e.getVertex(OUT)));
-            }
-            return knows;
-        }
-        return null;
-    }
-    /*
-     * establish a Knows relationship from fromUser -> toUser
-     *
-     * returns true if both IDs are valid Users, false otherwise
-     */
-
-    public boolean addKnows(String fromUser, String toUser) {
-        if (validUserId(fromUser) && validUserId(toUser)) {
-            try {
-                Vertex out = ProxStorGraph.instance.getVertex(fromUser);
-                Vertex in = ProxStorGraph.instance.getVertex(toUser);
-                ProxStorGraph.instance.addEdge(out, in, "knows");
-                return true;
-            } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return false;
-    }
-
-    /*
-     * removes an established Knows relationship from fromUser -> toUser
-     *
-     * returns true if succesful
-     * returns false if either user ID is invalid or if a Knows relationship
-     * was not already established fromUser -> toUser
-     */
-    public boolean removeKnows(String fromUser, String toUser) {
-        if (validUserId(fromUser) && validUserId(toUser)) {
-            Vertex v;
-            try {
-                v = ProxStorGraph.instance.getVertex(fromUser);
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
-            for (Edge e : v.getEdges(OUT, "knows")) {
-                if (e.getVertex(IN).getId().toString().equals(toUser)) {
-                    e.remove();
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     /* 
      * adds a new User to the Graph database
      *
@@ -298,7 +205,7 @@ public enum UserDao {
         if ((u == null) || (u.getUserId() == null)) {
             return false;
         }
-        if (validUserId(u.getUserId())) {
+        if (_validUserId(u.getUserId())) {
             try {
                 Vertex v = ProxStorGraph.instance.getVertex(u.getUserId());
                 v.setProperty("firstName", u.getFirstName());
@@ -320,7 +227,7 @@ public enum UserDao {
      * returns false if userId was not a User
      */
     public boolean deleteUser(String userId) {
-        if ((userId != null) && (validUserId(userId))) {
+        if ((userId != null) && (_validUserId(userId))) {
             try {
                 ProxStorGraph.instance.getVertex(userId).remove();
                 ProxStorGraph.instance.commit();
