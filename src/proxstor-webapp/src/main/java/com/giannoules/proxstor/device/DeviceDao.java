@@ -19,6 +19,7 @@ import java.util.logging.Logger;
  * Data Access Object to database-persistent store of Devices
  *
  * @TODO implement caching
+ * @TODO owns -> uses
  *
  * Currently uses basic low-level Blueprints API
  *

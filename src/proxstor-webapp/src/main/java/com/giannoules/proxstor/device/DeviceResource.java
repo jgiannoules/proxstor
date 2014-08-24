@@ -1,89 +1,70 @@
 package com.giannoules.proxstor.device;
 
-import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
-import java.util.Collection;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class DeviceResource {
 
     private final String userId;
+    private final String devId;
 
-    /*
-     * all these Paths assume userId context, so stash in constructor
-     */
-    public DeviceResource(String userId) {
-        this.userId = userId;        
+    public DeviceResource(String userId, String devId) {
+        this.userId = userId;
+        this.devId = devId;
     }
 
     /*
-     * all of userId's devices
+     * update device devId belonging to User userId
+     * Note: devId path must match devId inside JSON (and be valid ID)
+     *
+     * sucess - return 204 (No Content)
+     * failure - return 404 (Not Found)
      */
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Collection<Device> getAllDevices() {
-        return DeviceDao.instance.getAllUserDevices(userId);
-    }
-    
-    /*
-     * userId adding new device
-     */
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)    
-    public Device postDevice(Device d) {
-        return DeviceDao.instance.addUserDevice(userId, d);
-    }
-
-    /*
-     * userId updating device
-     * return 304 if
-     *   - device not found
-     *   - user doesn't own device
-     *   - Device devId doesn't match devid @PathParam
-     */
-    @Path("{devid: [0-9]+}")
     @PUT
-    @Consumes(MediaType.APPLICATION_JSON)    
-    public Response putDeviceDevId(@PathParam("devid") String devId, Device dev) {
-        if ((dev.getDevId() != null) && devId.equals(dev.getDevId()) 
-                && DeviceDao.instance.updateUserDevice(userId, dev)) {
-            return Response.ok().build();
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response putDeviceUserIdDevId(Device dev) {
+        if ((dev.getDevId() != null) && devId.equals(dev.getDevId())) {
+            if (DeviceDao.instance.updateUserDevice(userId, dev)) {
+                return Response.noContent().build();
+            }
         }
-        return Response.notModified().build();
+        return Response.status(404).build();
     }
-    
+
     /*
-     * retrieve userId's device with devId
-     * return 404 if not found
+     * return the specified userId User's devId Device
+     * 
+     * success - return 200 (Ok) and JSON representation Device
+     * failure - return 404 (Not Found)
      */
-    @Path("{devid: [0-9]+}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getDevice(@PathParam("devid") String devId) {
+    public Response getUserDevice() {
         Device d = DeviceDao.instance.getUserDevice(userId, devId);
         if (d == null) {
-            throw new WebApplicationException(404);
+            return Response.status(404).build();
         }
-        return Response.ok(d).build(); 
+        return Response.ok().entity(d).build();
     }
-    
+
     /*
      * remove userId's Device devId from Graph
+     *
+     * success - return 204 (No Content)
+     * failure - return 404 (Not Found)     
      */
-    @Path("{devid: [0-9]+}")
     @DELETE
-    public boolean deleteDevice(@PathParam("devid") String devId) {
-        return DeviceDao.instance.deleteUserDevice(userId, devId);
+    public Response deleteUserDevice() {
+        if (DeviceDao.instance.deleteUserDevice(userId, devId)) {
+            return Response.noContent().build();
+        } else {
+            return Response.status(404).build();
+        }
     }
-    
+
 }
