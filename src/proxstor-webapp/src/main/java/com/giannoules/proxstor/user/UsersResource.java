@@ -70,7 +70,7 @@ public class UsersResource {
     public Response postUser(User in) {
         User u = UserDao.instance.addUser(in);
         if (u == null) {
-            return Response.status(400).entity(in).build();
+            return Response.status(400).build();
         } else {
             try {
                 URI createdUri = new URI("users/" + u.getUserId());
