@@ -190,6 +190,34 @@ public enum DeviceDao {
         }
         return devices;
     }
+    
+    /*
+     * find all matching Devices based on partially specified Device
+     */
+    public Collection<Device> getMatchingDevices(Device partial) {
+        List<Device> devices = new ArrayList<>();
+        if ((partial.getDevId() != null) && (!partial.getDevId().isEmpty())) {
+            devices.add(getDeviceById(partial.getDevId()));
+            return devices;
+        }
+        GraphQuery q;
+        try {
+            q = ProxStorGraph.instance._query();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        q.has("_type", "device");
+        if ((partial.getDescription() != null) && (!partial.getDescription().isEmpty())) {
+            q.has("description", partial.getDescription());
+        }
+        for (Vertex v : q.vertices()) {
+            if (validDeviceVertex(v)) {
+                devices.add(vertexToDevice(v));
+            }
+        }
+        return devices;
+    }
 
     /*
      * returns *all* Devices in database, independent of the owning User

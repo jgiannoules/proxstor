@@ -121,6 +121,34 @@ public enum LocationDao {
         }
         return devices;
     }
+    
+    /*
+     * find all matching Locations based on partially specified Location
+     */
+    public Collection<Location> getMatchingLocations(Location partial) {
+        List<Location> locations = new ArrayList<>();
+        if ((partial.getLocId() != null) && (!partial.getLocId().isEmpty())) {
+            locations.add(getLocationById(partial.getLocId()));
+            return locations;
+        }
+        GraphQuery q;
+        try {
+            q = ProxStorGraph.instance._query();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        q.has("_type", "location");
+        if ((partial.getDescription() != null) && (!partial.getDescription().isEmpty())) {
+            q.has("description", partial.getDescription());
+        }
+        for (Vertex v : q.vertices()) {
+            if (validLocationVertex(v)) {
+                locations.add(vertexToLocation(v));
+            }
+        }
+        return locations;
+    }
 
     /*
      * returns *all* Locations in database     

@@ -136,6 +136,9 @@ public enum UserDao {
         }
     }
     
+    /*
+     * find all matching Users based on partially specified User
+     */
     public Collection<User> getMatchingUsers(User partial) {
         List<User> users = new ArrayList<>();
         if ((partial.getUserId() != null) && (!partial.getUserId().isEmpty())) {

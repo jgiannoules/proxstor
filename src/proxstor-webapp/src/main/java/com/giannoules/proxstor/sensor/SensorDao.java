@@ -186,6 +186,37 @@ public enum SensorDao {
         }
         return sensors;
     }
+  
+    /*
+     * find all matching Sensors based on partially specified Sensor
+     */
+    public Collection<Sensor> getMatchingSensors(Sensor partial) {
+        List<Sensor> sensors = new ArrayList<>();
+        if ((partial.getSensorId() != null) && (!partial.getSensorId().isEmpty())) {
+            sensors.add(getSensorById(partial.getSensorId()));
+            return sensors;
+        }
+        GraphQuery q;
+        try {
+            q = ProxStorGraph.instance._query();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        q.has("_type", "sensor");
+        if ((partial.getDescription() != null) && (!partial.getDescription().isEmpty())) {
+            q.has("description", partial.getDescription());
+        }
+        if (partial.getType() != null) {
+            q.has("type", partial.getType().toString());
+        }
+        for (Vertex v : q.vertices()) {
+            if (validSensorVertex(v)) {
+                sensors.add(vertexToSensor(v));
+            }
+        }
+        return sensors;
+    }
 
     /*
      * returns *all* Sensors in database, independent of the Locations
