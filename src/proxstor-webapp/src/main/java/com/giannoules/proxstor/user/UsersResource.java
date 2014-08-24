@@ -15,44 +15,6 @@ import javax.ws.rs.core.Response;
 
 @Path("/users")
 public class UsersResource {
-
-    /*
-     * returns all devices with identical descriptions
-     */
-    /*
-    @Path("devices/{description}")
-    @GET    
-    @Produces(MediaType.APPLICATION_JSON)
-    public Collection<Device> getAllSimilarDevices(@PathParam("description") String devDesc) {
-        return DeviceDao.instance.getDevicesByDescription(devDesc);
-    }
-    */
-     
-    /*
-     * returns all users system-wide!
-     */
-    /*
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Deprecated // on its way over to /api/search/users
-    public Collection<User> getUsers() {
-       return UserDao.instance.getAllUsers();        
-    }
-    */
-    
-    /*
-     * returns all users matching criteria in partially expressed User JSON
-     */
-    /*
-    @Path("search")
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Deprecated // on its way over to /api/search/users
-    public Collection<User> getMatchingUsers(User u) {
-        return UserDao.instance.getMatchingUsers(u);        
-    }    
-    */
     
     /*
      * adds user to database
