@@ -3,7 +3,12 @@ package com.giannoules.proxstor.knows;
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.user.User;
 import com.giannoules.proxstor.user.UserDao;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -28,12 +33,16 @@ public class KnowsResource {
     
     /*
      * return all Users userId knows with at least minimum strength
+     *
      */ 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getKnownUsers() {
-        ProxStorDebug.println("getKnownUsers(): " + userId + " min strength " + strength);
-        return Response.ok().build();
+    public Response getKnownUsers() {        
+        Collection<User> users = KnowsDao.instance.getUserKnows(userId, strength);
+        if (users == null) {
+            return Response.noContent().build();
+        }
+        return Response.ok((User[]) users.toArray(new User[users.size()])).build();
     }
     
     /*
@@ -43,8 +52,11 @@ public class KnowsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getKnowsUsers() {
-        ProxStorDebug.println("getKnowsUsers(): " + userId + " with min strength " + strength);
-        return Response.ok().build();
+       Collection<User> users = KnowsDao.instance.getKnowsUser(userId, strength);
+        if (users == null) {
+            return Response.noContent().build();
+        }
+        return Response.ok((User[]) users.toArray(new User[users.size()])).build();
     }
     
     /*
@@ -53,8 +65,17 @@ public class KnowsResource {
     @Path("{otheruser: [0-9]+}")
     @POST    
     public Response establishUserKnows(@PathParam("otheruser") String otherUserId) {
-        ProxStorDebug.println("establishUserKnows(): " + userId + " --Knows [" + strength  + "]--> " + otherUserId);
-        return Response.ok().build();
+        if (!KnowsDao.instance.addKnows(userId, otherUserId, strength)) {
+            return Response.status(404).build();
+        }
+        URI createdUri;
+        try {
+            createdUri = new URI("/users/" + userId + "/knows/ " + strength + "/" + otherUserId);
+            return Response.created(createdUri).build();
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.serverError().build();
+        }
     }
     
     /*
@@ -63,7 +84,20 @@ public class KnowsResource {
     @Path("{otheruser: [0-9]+}")
     @PUT    
     public Response updateUserKnows(@PathParam("otheruser") String otherUserId) {
-        ProxStorDebug.println("updateUserKnows(): " + userId + " --Knows [" + strength  + "]--> " + otherUserId);
-        return Response.ok().build();
+       return Response.noContent().build(); //@TODO 
     }
+    
+    /*
+     * remove the relationship that userId knows otherUser. strength ignored
+     */
+    @Path("{otheruser: [0-9]+}")
+    @PUT    
+    public Response removeUserKnows(@PathParam("otheruser") String otherUserId) {
+         if (KnowsDao.instance.removeKnows(userId, otherUserId)) {
+            return Response.noContent().build();
+        } else {
+            return Response.status(404).build();
+        }
+    }
+    
 }
