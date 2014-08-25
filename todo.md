@@ -22,3 +22,5 @@
   * current location
   * specified location
   * specified lat/long
+* review Dao flow (seems unoptimized)
+  * exception throwing boundaries 
