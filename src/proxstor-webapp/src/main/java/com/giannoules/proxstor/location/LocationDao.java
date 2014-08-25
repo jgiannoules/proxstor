@@ -285,5 +285,25 @@ public enum LocationDao {
         }
         return false;
     }
+    
+    /*
+     * 2**64-1 = 18,446,744,073,709,551,615
+     * 18,446,744,073,709,551,615 meters = 1,949.822 light years
+     */
+    public boolean setNearbyLocation(String locIdA, String locIdB, Long distance) {
+        try {
+            // @TODO
+            // check if already nearby. let exception throwing for invalid ID go back to caller
+            // at this point the IDs must be valid and must be locations
+            ProxStorGraph.instance.addEdge(
+                    ProxStorGraph.instance.getVertex(locIdA),
+                    ProxStorGraph.instance.getVertex(locIdB),
+                    "nearby").setProperty("distance", distance);
+            return true;
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
 
 }
