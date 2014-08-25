@@ -8,4 +8,8 @@ public class ProxStorGraphNonExistentObjectID extends Exception {
         super(s);
     }
     
+    public ProxStorGraphNonExistentObjectID() {
+        super();
+    }
+    
 }

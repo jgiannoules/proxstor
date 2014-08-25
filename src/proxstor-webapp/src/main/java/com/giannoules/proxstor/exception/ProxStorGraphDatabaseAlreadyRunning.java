@@ -8,4 +8,8 @@ public class ProxStorGraphDatabaseAlreadyRunning extends Exception {
         super(s);
     }
     
+    public ProxStorGraphDatabaseAlreadyRunning() {
+        super();
+    }
+    
 }

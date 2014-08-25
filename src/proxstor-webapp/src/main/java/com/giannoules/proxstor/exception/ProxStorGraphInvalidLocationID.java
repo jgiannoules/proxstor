@@ -6,4 +6,8 @@ public class ProxStorGraphInvalidLocationID extends Exception {
         super(s);
     }
     
+    public ProxStorGraphInvalidLocationID() {
+        super();
+    }
+    
 }

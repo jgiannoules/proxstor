@@ -7,4 +7,8 @@ public class ProxStorGraphDatabaseNotRunningException extends Exception {
     public ProxStorGraphDatabaseNotRunningException(String s) {
         super(s);
     }
+    
+    public ProxStorGraphDatabaseNotRunningException() {
+        super();
+    }
 }
