@@ -61,36 +61,6 @@ public enum KnowsDao {
     }
 
     /*
-     * returns all *Users who know* userId
-     *
-     * returns null if:
-     *   - userId is not valid User
-     */
-    public Collection<User> getKnowsUserStrength(String userId, Integer strength) throws InvalidUserID {
-        if ((userId != null) && (strength != null)) {
-            if (!UserDao.instance._validUserId(userId)) {
-                throw new InvalidUserID();
-            }            
-            List<User> knows = new ArrayList<>();
-            Vertex v;
-            try {
-                v = ProxStorGraph.instance.getVertex(userId);
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-                return null;
-            }
-            for (Edge e : v.getEdges(IN, "knows")) {
-                Integer knowsStrength = (Integer) e.getProperty("strength");
-                if ((knowsStrength != null) && (knowsStrength >= strength)) {
-                    knows.add(UserDao.instance.getUser(e.getVertex(IN)));
-                }
-            }
-            return knows;
-        }
-        return null;
-    }
-
-    /*
      * establish a Knows relationship from fromUser -> toUser
      *
      * returns true if both IDs are valid Users, false otherwise
