@@ -3,13 +3,17 @@ package com.giannoules.proxstor.knows;
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
+import com.giannoules.proxstor.exception.ProxStorGraphInvalidUserID;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.user.User;
 import com.giannoules.proxstor.user.UserDao;
+import static com.tinkerpop.blueprints.Compare.GREATER_THAN_EQUAL;
+import com.tinkerpop.blueprints.Direction;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.VertexQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,27 +25,35 @@ public enum KnowsDao {
     instance;
 
     /*
-     * returns all Users userId *knows*
+     * returns all users with knows relationship to userId 
+     * results controlled by:
+     *   - with strength >= strengthVal
+     *   - with Direction direction controlling directionality of relationship
+     *   - results are limited to a max of limit
      *
      * returns null if:
-     *   - userId is not valid User
+     *   - no matches found
+     *
+     * throws ProxStorGraphInvalidUserID if the userID is invalid
      */
-    public Collection<User> getUserKnowsStrength(String userId, Integer strength) {
-        if ((userId != null) && UserDao.instance._validUserId(userId) && (strength != null)) {
+    public Collection<User> getUserKnows(String userId, Integer strengthVal, Direction direction, int limit) throws ProxStorGraphInvalidUserID {
+        if ((userId != null) && (strengthVal != null)) {            
+           if (!UserDao.instance._validUserId(userId)) {
+                throw new ProxStorGraphInvalidUserID();
+            }
             List<User> knows = new ArrayList<>();
-            Vertex v;
             try {
-                v = ProxStorGraph.instance.getVertex(userId);
+                VertexQuery vq = ProxStorGraph.instance.getVertex(userId).query();
+                vq.direction(direction);
+                vq.labels("knows");
+                vq.has("strength", GREATER_THAN_EQUAL, strengthVal);
+                vq.limit(limit);
+                for (Vertex v : vq.vertices()) {
+                    knows.add(UserDao.instance.getUser(v));
+                }
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
                 return null;
-            }
-            for (Edge e : v.getEdges(OUT, "knows")) {
-                Integer knowsStrength = (Integer) e.getProperty("strength");
-                ProxStorDebug.println("KnowsDao.getUserKnows(): retrieved property strength is : " + knowsStrength);
-                if ((knowsStrength != null) && (knowsStrength >= strength)) {
-                    knows.add(UserDao.instance.getUser(e.getVertex(IN)));
-                }
             }
             return knows;
         }
@@ -54,8 +66,11 @@ public enum KnowsDao {
      * returns null if:
      *   - userId is not valid User
      */
-    public Collection<User> getKnowsUserStrength(String userId, Integer strength) {
-        if ((userId != null) && UserDao.instance._validUserId(userId) && (strength != null)) {
+    public Collection<User> getKnowsUserStrength(String userId, Integer strength) throws ProxStorGraphInvalidUserID {
+        if ((userId != null) && (strength != null)) {
+            if (!UserDao.instance._validUserId(userId)) {
+                throw new ProxStorGraphInvalidUserID();
+            }            
             List<User> knows = new ArrayList<>();
             Vertex v;
             try {
