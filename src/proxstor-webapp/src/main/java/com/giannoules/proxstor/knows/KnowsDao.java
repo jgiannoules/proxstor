@@ -104,6 +104,9 @@ public enum KnowsDao {
     public boolean updateKnows(String fromUser, String toUser, Integer strength) {
         if (UserDao.instance._validUserId(fromUser) && UserDao.instance._validUserId(toUser) && (strength != null)) {
             try {
+                if (!ProxStorGraph.instance.getVertices(fromUser, toUser, OUT, "knows").isEmpty()) {
+                    ProxStorDebug.println("Caught you double dipping");
+                }
                 Vertex out = ProxStorGraph.instance.getVertex(fromUser);
                 Vertex in = ProxStorGraph.instance.getVertex(toUser);
                 ProxStorGraph.instance.addEdge(out, in, "knows").setProperty("strength", strength);

@@ -3,12 +3,15 @@ package com.giannoules.proxstor;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseAlreadyRunning;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
+import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.GraphFactory;
 import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -134,6 +137,17 @@ public enum ProxStorGraph {
             throw new ProxStorGraphNonExistentObjectID("Invalid Edge ID: " + id.toString());
         return e;
     }
+    
+    public List<Vertex> getVertices(String idA, String idB, Direction d, String ... labels) throws ProxStorGraphDatabaseNotRunningException, ProxStorGraphNonExistentObjectID {
+        Vertex a = getVertex(idA);
+        List<Vertex> vertices = new ArrayList<>();
+        for (Vertex v : a.getVertices(d, labels)) {
+            if (idB.equals((String) v.getId())) {
+                vertices.add(v);
+            }
+        }
+        return vertices;
+    }      
     
     /*
      * if transactional graph, commit.

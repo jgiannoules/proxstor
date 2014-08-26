@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.location;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphInvalidLocationID;
@@ -238,8 +239,18 @@ public enum LocationDao {
             return true;
         }
         return false;
-    }
+    }    
 
+    public boolean locationWithinLocation(String innerLocId, String outerLocId) {
+        List<Vertex> vertices = null;
+        try {
+             vertices = ProxStorGraph.instance.getVertices(innerLocId, outerLocId, OUT, "within");
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);             
+        }
+        return ((vertices != null) && (!vertices.isEmpty()));
+    }
+    
     /*
      *
      * @TODO don't recreate within if already exists
@@ -247,6 +258,9 @@ public enum LocationDao {
     public boolean establishLocationWithinLocation(String innerLocId, String outerLocId) throws ProxStorGraphInvalidLocationID {
         if (!validLocationId(innerLocId) || !validLocationId(outerLocId)) {
             throw new ProxStorGraphInvalidLocationID("at least one location ID is invalid");
+        }
+        if (locationWithinLocation(innerLocId, outerLocId)) {
+            ProxStorDebug.println("Caught you!");
         }
         try {
             Vertex outVertex = ProxStorGraph.instance.getVertex(innerLocId);
