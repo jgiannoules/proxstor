@@ -1,7 +1,7 @@
 package com.giannoules.proxstor.knows;
 
 import com.giannoules.proxstor.ProxStorDebug;
-import com.giannoules.proxstor.exception.ProxStorGraphInvalidUserID;
+import com.giannoules.proxstor.exception.InvalidUserID;
 import com.giannoules.proxstor.user.User;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.IN;
@@ -48,7 +48,7 @@ public class KnowsResource {
         Collection<User> users;
         try {
             users = KnowsDao.instance.getUserKnows(userId, strengthVal, OUT, 1024); // max 1024 users returned
-        } catch (ProxStorGraphInvalidUserID ex) {
+        } catch (InvalidUserID ex) {
             Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }
@@ -73,7 +73,7 @@ public class KnowsResource {
         Collection<User> users;
         try {
             users = KnowsDao.instance.getUserKnows(userId, strengthVal, IN, 1024); // max 1024 users returned
-        } catch (ProxStorGraphInvalidUserID ex) {
+        } catch (InvalidUserID ex) {
             Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }

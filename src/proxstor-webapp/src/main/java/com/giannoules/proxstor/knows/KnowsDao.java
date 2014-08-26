@@ -3,7 +3,7 @@ package com.giannoules.proxstor.knows;
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
-import com.giannoules.proxstor.exception.ProxStorGraphInvalidUserID;
+import com.giannoules.proxstor.exception.InvalidUserID;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.user.User;
 import com.giannoules.proxstor.user.UserDao;
@@ -34,12 +34,12 @@ public enum KnowsDao {
      * returns null if:
      *   - no matches found
      *
-     * throws ProxStorGraphInvalidUserID if the userID is invalid
+     * throws InvalidUserID if the userID is invalid
      */
-    public Collection<User> getUserKnows(String userId, Integer strengthVal, Direction direction, int limit) throws ProxStorGraphInvalidUserID {
+    public Collection<User> getUserKnows(String userId, Integer strengthVal, Direction direction, int limit) throws InvalidUserID {
         if ((userId != null) && (strengthVal != null)) {            
            if (!UserDao.instance._validUserId(userId)) {
-                throw new ProxStorGraphInvalidUserID();
+                throw new InvalidUserID();
             }
             List<User> knows = new ArrayList<>();
             try {
@@ -66,10 +66,10 @@ public enum KnowsDao {
      * returns null if:
      *   - userId is not valid User
      */
-    public Collection<User> getKnowsUserStrength(String userId, Integer strength) throws ProxStorGraphInvalidUserID {
+    public Collection<User> getKnowsUserStrength(String userId, Integer strength) throws InvalidUserID {
         if ((userId != null) && (strength != null)) {
             if (!UserDao.instance._validUserId(userId)) {
-                throw new ProxStorGraphInvalidUserID();
+                throw new InvalidUserID();
             }            
             List<User> knows = new ArrayList<>();
             Vertex v;

@@ -2,8 +2,8 @@ package com.giannoules.proxstor.location;
 
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
+import com.giannoules.proxstor.exception.InvalidLocationID;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
-import com.giannoules.proxstor.exception.ProxStorGraphInvalidLocationID;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 
 /*
  * Data Access Object to database-persistent store of Locations
@@ -255,9 +254,9 @@ public enum LocationDao {
      *
      * @TODO don't recreate within if already exists
      */
-    public boolean establishLocationWithinLocation(String innerLocId, String outerLocId) throws ProxStorGraphInvalidLocationID {
+    public boolean establishLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationID {            
         if (!validLocationId(innerLocId) || !validLocationId(outerLocId)) {
-            throw new ProxStorGraphInvalidLocationID("at least one location ID is invalid");
+            throw new InvalidLocationID();
         }
         if (locationWithinLocation(innerLocId, outerLocId)) {
             ProxStorDebug.println("Caught you!");
@@ -280,9 +279,9 @@ public enum LocationDao {
      * returns false if either locId is invalid or if a Within relationship
      * was not already established 
      */
-    public boolean removeLocationWithinLocation(String innerLocId, String outerLocId) throws ProxStorGraphInvalidLocationID {
+    public boolean removeLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationID {
         if (!validLocationId(innerLocId) || !validLocationId(outerLocId)) {
-            throw new ProxStorGraphInvalidLocationID("at least one location ID is invalid");
+            throw new InvalidLocationID();
         }
         Vertex v;
         try {
