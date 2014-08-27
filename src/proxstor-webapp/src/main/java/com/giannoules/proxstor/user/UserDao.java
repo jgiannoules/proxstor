@@ -1,11 +1,9 @@
 package com.giannoules.proxstor.user;
 
 import com.giannoules.proxstor.ProxStorGraph;
+import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
-import static com.tinkerpop.blueprints.Direction.IN;
-import static com.tinkerpop.blueprints.Direction.OUT;
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
@@ -19,7 +17,7 @@ import java.util.logging.Logger;
  *
  * @TODO implement caching
  *
- * Currently uses basic low-level Blueprints API
+ * Currently uses only basic low-level Blueprints API
  *
  */
 public enum UserDao {
@@ -30,120 +28,92 @@ public enum UserDao {
     }
 
     /*
-     * converts vertex into User object
+     * allow one or more userIds to be tested for validity
      *
-     * assumes sanity check already performed on vertex
+     * return true iff all string params are valid userId, false otherwise
+     *
+     * no exceptions thrown. lack of database access silenty covered as false return
+     *
+     * used numerous places inside and outside .user package to validate userIDs
      */
-    private User vertexToUser(Vertex v) {
-        if (v == null) {
-            return null;
+    public boolean validUser(String ... userIds) {
+        if (userIds == null) {
+            return false;
         }
-        User u = new User();
-        u.setFirstName((String) v.getProperty("firstName"));
-        u.setLastName((String) v.getProperty("lastName"));
-        u.setEmail((String) v.getProperty("email"));
-        Object id = v.getId();
-        if (id instanceof Long) {
-            u.setUserId(Long.toString((Long) v.getId()));
-        } else {
-            u.setUserId(v.getId().toString());
-        }
-        return u;
-    }
-
-    /*
-     * test Vertex for User-ness
-     * @TODO .getProperty might return null.. fix this to avoid NullPointerException
-     */
-    private boolean validUserVertex(Vertex v) {
-        return (v != null) && v.getProperty("_type").equals("user");
-    }
-
-    /*
-     * test user id for User-ness
-     */
-    public boolean _validUserId(String userId) {
         try {
-            return (userId != null) && validUserVertex(ProxStorGraph.instance.getVertex(userId));
+            for (String id : userIds) {
+                if (!UserDao.this.validUser(ProxStorGraph.instance.getVertex(id))) {
+                    return false;
+                }
+            }
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
+        return true;
     }
+    
 
-    /*
-     * abstract away setting of Vertex User type
-     */
-    private void setVertexToUserType(Vertex v) {
-        if (v != null) {
-            v.setProperty("_type", "user");
-        }
-    }
-
-    /*
-     * returns User stored under userId
+    /**
+     * Returns User representation stored in back-end graph database under the 
+     * specified Vertex object ID.
      *
-     * returns null if:
-     *   - userId does not map to any graph vertex
-     *   - vertex is not of type user
+     * <p>Used by UserResource @GET and numerous other places
      *
+     * @param userId    The user id (object id) to used to to retrieve User
+     * @return          User representation of Vertex user id, or null if unable to access database
+     * @throws InvalidUserId    If the userId parameter is invalid
      */
-    public User getUser(String userId) {
-        if (userId == null) {
-            return null;
-        }
-        Vertex v;
+    public User get(String userId) throws InvalidUserId {
         try {
-            v = ProxStorGraph.instance.getVertex(userId);
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            validUser(userId);
+            Vertex v;
+            v = ProxStorGraph.instance.getVertex(userId);            
+            return toUser(v);            
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
-        }
-        if ((v != null) && validUserVertex(v)) {
-            return vertexToUser(v);
-        }
-        return null;
+        } catch (ProxStorGraphNonExistentObjectID ex) {
+            throw new InvalidUserId();
+        }        
     }
-
+    
     /*
      * returns User stored under Vertex v
      *
      * returns null if:
      *   - v is null     
      *   - vertex is not of type user
-     *
+     *      
+     * throws InvalidUserId if parameter is not valid id
      */
-    public User getUser(Vertex v) {
-        if ((v != null) && validUserVertex(v)) {
-            return vertexToUser(v);
+    public User get(Vertex v) throws InvalidUserId {
+        if (UserDao.this.validUser(v)) {
+            return toUser(v);
         }
-        return null;
-    }
-
-    /*
-     * returns all Users in database
-     */
-    public Collection<User> getAllUsers() {
-        try {
-            List<User> devices = new ArrayList<>();
-            for (Vertex v : ProxStorGraph.instance.getVertices("_type", "user")) {
-                devices.add(vertexToUser(v));
-            }
-            return devices;
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
-            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
+        throw new InvalidUserId();
     }
     
     /*
      * find all matching Users based on partially specified User
+     *
+     * returns all matching users as a collection, or null if there are no users
+     * 
+     * graph database not running becomes a null return
+     *
+     * used by SearchResource @POST
      */
     public Collection<User> getMatchingUsers(User partial) {
         List<User> users = new ArrayList<>();
-        if ((partial.getUserId() != null) && (!partial.getUserId().isEmpty())) {
-            users.add(getUser(partial.getUserId()));
-            return users;
+        if ((partial.getId() != null) && (!partial.getId().isEmpty())) {
+            // invalid userID is not an exception, it is just no match condition
+            try { 
+                users.add(UserDao.this.get(partial.getId()));
+                return users;
+            } catch (InvalidUserId ex) {
+                Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
         }
         GraphQuery q;
         try {
@@ -163,8 +133,8 @@ public enum UserDao {
             q.has("email", partial.getEmail());
         }
         for (Vertex v : q.vertices()) {
-            if (validUserVertex(v)) {
-                users.add(vertexToUser(v));
+            if (UserDao.this.validUser(v)) {
+                users.add(toUser(v));
             }
         }
         return users;
@@ -175,6 +145,10 @@ public enum UserDao {
      *
      * returns User updated with actual userId used in the running
      * graph database instance
+     *
+     * returns null if unable to add User
+     *
+     * used by UsersResource @POST
      */
     public User addUser(User u) {
         if (u == null) {
@@ -185,9 +159,9 @@ public enum UserDao {
             v.setProperty("firstName", u.getFirstName());
             v.setProperty("lastName", u.getLastName());
             v.setProperty("email", u.getEmail());
-            setVertexToUserType(v);
+            toUserType(v);
             ProxStorGraph.instance.commit();
-            u.setUserId(v.getId().toString());
+            u.setId(v.getId().toString());
             return u;
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
@@ -199,44 +173,111 @@ public enum UserDao {
      * updates User based on User's userId
      *
      * returns true if valid userId
-     * returns false is userId invalid
+     * throws InvalidUserId if id is invalid
+     *
+     * used by UserResource @PUT
      */
-    public boolean updateUser(User u) {
-        if ((u == null) || (u.getUserId() == null)) {
+    public boolean updateUser(User u) throws InvalidUserId {
+        if (!validUser(u.getId())) {
+            throw new InvalidUserId();
+        }        
+        try {
+            Vertex v = ProxStorGraph.instance.getVertex(u.getId());
+            v.setProperty("firstName", u.getFirstName());
+            v.setProperty("lastName", u.getLastName());
+            v.setProperty("email", u.getEmail());
+            ProxStorGraph.instance.commit();
+            return true;
+        } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
-        }
-        if (_validUserId(u.getUserId())) {
-            try {
-                Vertex v = ProxStorGraph.instance.getVertex(u.getUserId());
-                v.setProperty("firstName", u.getFirstName());
-                v.setProperty("lastName", u.getLastName());
-                v.setProperty("email", u.getEmail());
-                ProxStorGraph.instance.commit();
-                return true;
-            } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        return false;
+        }        
     }
 
     /* 
      * remove userId from graph
      *
      * returns true upon success
-     * returns false if userId was not a User
+     * throws InvalidUserId if userId invalid
+     *
+     * used by UserResource @DELETE
      */
-    public boolean deleteUser(String userId) {
-        if ((userId != null) && (_validUserId(userId))) {
-            try {
-                ProxStorGraph.instance.getVertex(userId).remove();
-                ProxStorGraph.instance.commit();
-                return true;
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-            }
+    public boolean deleteUser(String userId) throws InvalidUserId {
+        if (!validUser(userId)) {
+            throw new InvalidUserId();        
         }
-        return false;
+        try {
+            ProxStorGraph.instance.getVertex(userId).remove();
+            ProxStorGraph.instance.commit();
+            return true;
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }        
     }
 
+    
+    // ----> BEGIN private methods <----
+    
+    
+    /*
+     * converts vertex into User object
+     *
+     * (assumes sanity check already performed on vertex)
+     *
+     * returns non-null User if successful, otherwise null
+     *
+     * no exceptions thrown
+     */
+    private User toUser(Vertex v) {        
+        if (v == null) {
+            return null;
+        }
+        User u = new User();
+        /*
+         * note: getProperty() will return null for non-existent props
+         */ 
+        u.setFirstName((String) v.getProperty("firstName"));
+        u.setLastName((String) v.getProperty("lastName"));
+        u.setEmail((String) v.getProperty("email"));
+        Object id = v.getId();
+        if (id instanceof Long) {
+            u.setId(Long.toString((Long) v.getId()));
+        } else {
+            u.setId(v.getId().toString());
+        }
+        return u;
+    }
+
+    /*
+     * test Vertex for User-ness
+     *
+     * returns true if Vertex is of type User, false otherwise
+     * 
+     * no exceptions thrown
+     */
+    private boolean validUser(Vertex... vertices) {        
+        if (vertices == null) {
+            return false;
+        }
+        String type;
+        for (Vertex v : vertices) {
+            type = v.getProperty("_type");
+            if ((type == null) || (!type.equals("user"))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    /*
+     * abstract away setting of Vertex User type to allow underlying graph
+     * representation/management to evolve
+     */
+    private void toUserType(Vertex v) {
+        if (v != null) {
+            v.setProperty("_type", "user");
+        }
+    }
+    
 }

@@ -5,13 +5,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 /*
  * JAXB representation of a ProxStor user
  *      @TODO move out to separate package/jar for client use as well
- *
  */
 
 @XmlRootElement
 public class User {
 
-    public String userId;
+    public String id;
     public String firstName;
     public String lastName;
     public String email;
@@ -25,12 +24,12 @@ public class User {
         this.email = email;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getId() {
+        return id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getFirstName() {

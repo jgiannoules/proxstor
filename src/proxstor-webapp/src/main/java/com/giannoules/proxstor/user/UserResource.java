@@ -1,8 +1,10 @@
 package com.giannoules.proxstor.user;
 
-import com.giannoules.proxstor.device.DeviceResource;
 import com.giannoules.proxstor.device.DevicesResource;
+import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.knows.KnowsResource;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -32,30 +34,38 @@ public class UserResource {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser() {
-        User u = UserDao.instance.getUser(userId);
-        if (u == null) {
+    public Response getUser() {        
+        User u;
+        try {
+            u = UserDao.instance.get(userId);
+            return Response.ok().entity(u).build();   
+        } catch (InvalidUserId ex) {
+            Logger.getLogger(UserResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
-        }
-        return Response.ok().entity(u).build();
+        }             
     }
 
     /*
      * update user
      * Note: userId path must match userId inside JSON (and be valid ID)
      * 
-     * sucess - return 204 (No Content)
+     * success - return 204 (No Content)
+     * failure - return 400 (Invalid Parameter) if userId != user.getUserId()
      * failure - return 404 (Not Found)
      */
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putUser(User u) {
-        if ((u.getUserId() != null) && u.getUserId().equals(userId)) {
-            if (UserDao.instance.updateUser(u)) {
-                return Response.noContent().build();
-            }
+        if ((u.getId() == null) || !u.getId().equals(userId)) {
+            return Response.status(400).build();
         }
-        return Response.status(404).build();
+        try {
+            UserDao.instance.updateUser(u);
+            return Response.noContent().build();
+        } catch (InvalidUserId ex) {
+            Logger.getLogger(UserResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(404).build();
+        }
     }
 
     /*
@@ -66,14 +76,18 @@ public class UserResource {
      */
     @DELETE
     public Response deleteUser() {
-        if (UserDao.instance.deleteUser(userId)) {
+        try {
+            UserDao.instance.deleteUser(userId);
             return Response.noContent().build();
-        } else {
+        } catch (InvalidUserId ex) {
+            Logger.getLogger(UserResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }
     }
 
+
    // ---- BEGIN sub-resource locators ----
+  
     
     /*
      * return DeviceResource handler for specified user
@@ -85,8 +99,10 @@ public class UserResource {
 
     /*
      * return KnowResource handler for specified user with strength
+     *
+     * enforce rule that strength must be integers 0 to 100
      */
-    @Path("knows/{strength: [0-9]{1,2}|100}")  // enforce rule that strength must be integers 0 to 100
+    @Path("knows/{strength: [0-9]{1,2}|100}")
     public KnowsResource getKnowsResource(@PathParam("strength") Integer strength) {
         return new KnowsResource(userId, strength);
     }
