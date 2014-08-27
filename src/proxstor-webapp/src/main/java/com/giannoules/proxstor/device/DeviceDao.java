@@ -34,12 +34,19 @@ public enum DeviceDao {
     private DeviceDao() {
     }
 
-    /*
-     * returns Device devId owned by User userId
+    /**
+     * Get a specific devid owned by a particular userid. The dev id must exists
+     * as a valid device, the userid must exists as a valid user, and the 'uses'
+     * relationship must exists from user to device.
      *
-     * throws InvalidUserId if the userId is invalid
-     * throws InvalidDeivceId if the devId is invalid
-     * throws DeviceNotOwnedByUser if the device isn't owned by the user
+     * @param userId String representation of user id
+     * @param devId String representation of device id
+     * 
+     * @return Instance of matching Device
+     * 
+     * @throws InvalidUserId if the userId is invalid
+     * @throws InvalidDeviceId if the devId is invalid
+     * @throws DeviceNotOwnedByUser if the device isn't owned by the user
      */
     public Device getUserDevice(String userId, String devId) throws InvalidDeviceId, InvalidUserId, DeviceNotOwnedByUser {
         UserDao.instance.validOrException(userId);
@@ -51,10 +58,14 @@ public enum DeviceDao {
         }
     }
 
-    /*
-     * returns all the devices owned by the userId
+    /**
+     * Returns all the devices owned by the userId
      *
-     * throws InvalidUserId if the userId is invalid 
+     * @param userId String representation of user id
+     * 
+     * @return Collection of Device objects owned by user, or null if none
+     * 
+     * @throws InvalidUserId If the userId is invalid 
      */
     public Collection<Device> getAllUserDevices(String userId) throws InvalidUserId {
         UserDao.instance.validOrException(userId);
@@ -72,13 +83,20 @@ public enum DeviceDao {
         return devices;
     }
     
-    /*
-     * find all matching Devices based on partially specified Device
-     *
+    /**
+     * Find and returns all matching devices based on partially specified Device
+     * <p>If the partially specified device includes a devId field then that one
+     * property is used to match. If the devId is not present, then all other
+     * properties are used using a GraphQuery to match. This means
      * passing in a devId will allow you to retrieve a specific device and
-     * no further filtering based on the other fields (if present) will be
-     * done.
-     *
+     * bypass the normal requirement that device retrieval requires knowledge
+     * of the user who uses it.
+     * <p>Note that no exceptions are thrown. An invalid devId is handled a
+     * simply a null response.
+     * 
+     * @param partial Partially completed Device object
+     * 
+     * @return Collection of Device objects matching partial, or null if none
      */
     public Collection<Device> get(Device partial) {
         List<Device> devices = new ArrayList<>();
@@ -112,14 +130,16 @@ public enum DeviceDao {
         return devices;
     }  
 
-    /*
-     * insert new Device into Graph associated with User userId
+    /**
+     * Insert new Device instance into Graph associated with User userId
      *
-     * input is Device to be added. Note that the deviceId will be ignored
+     * @param userId String representation of the User owning the Device
+     * @param d Device to be added. Note that the deviceId will be ignored
      *
-     * returns Device object with correct deviceId reflecting object ID assigned
+     * @return Device object with correct deviceId reflecting object ID assigned
      * by underlying graph; 
-     
+     *
+     * @throws InvalidUserId If the userId parameter does not match a valid user
      */
     public Device add(String userId, Device d) throws InvalidUserId {
         UserDao.instance.validOrException(userId);
@@ -138,9 +158,23 @@ public enum DeviceDao {
         }
     }
 
-    /*
-     * updates Device based on Device's devId if userId Uses
-     *    
+    /**
+     * Updates (modifies) an existing device in the database. The device must
+     * be in a 'Used' relationship with the User. All fields from the Device
+     * parameter will overwrite the fields of the original Device. The device
+     * id will remain the same.
+     *
+     * @param userId String representation of the User who uses the device
+     * @param d Updated Device object
+     * 
+     * @return true if the update was successful; false if a database error was
+     * encountered
+     * 
+     * @throws InvalidUserId If the userId parameter does not represent a valid user
+     * @throws InvalidDeviceId If the devId within the d parameter does not represent
+     * a valid device
+     * @throws DeviceNotOwnedByUser If the d.devId and userId are valid, but the
+     * device is not owner by the user.
      */
     public boolean update(String userId, Device d) throws InvalidUserId, InvalidDeviceId, DeviceNotOwnedByUser {
         UserDao.instance.validOrException(userId);
@@ -160,11 +194,20 @@ public enum DeviceDao {
         }
     }
 
-    /* 
-     * remove devId from graph if userId Uses it
+    /**
+     * Remove a Device from the database. The user must have a 'uses' relationship
+     * to the device for the operation to succeed.
      *
-     * returns true upon success
-     * returns false if devId was not a Device
+     * @param userId String representation of the user id who uses the device
+     * @param devId String representation of the device to be removed
+     * 
+     * @return true if the operation succeeds; false if communication error to 
+     * the database
+     * 
+     * @throws InvalidUserId If userId parameter is not a valid user in the graph
+     * @throws InvalidDeviceId If devId parameter is not a valid device in the graph   
+     * @throws DeviceNotOwnedByUser If the devId and userId are valid, but the
+     * device is not owner by the user.
      */
     public boolean delete(String userId, String devId) throws InvalidUserId, InvalidDeviceId, DeviceNotOwnedByUser {
         UserDao.instance.validOrException(userId);
@@ -181,7 +224,17 @@ public enum DeviceDao {
             return false;
         }
     }
-    
+
+    /**
+     * Helper method which accepts a device id strings and either returns
+     * nothing to the caller or throws an InvalidDeviceId exception if any
+     * of the device id are invalid.
+     * 
+     * @param devIds Variadic list of device id String representations
+     * 
+     * @throws InvalidDeviceId If any of the devId String parameters are not valid
+     * devices
+     */
     public void validOrException(String ... devIds) throws InvalidDeviceId {
         if (!valid(devIds)) {
             throw new InvalidDeviceId();
