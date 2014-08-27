@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Device {
-    private String devId;
+    private String id;
     private String description;
 
     public Device() {}
@@ -19,12 +19,12 @@ public class Device {
         this.description = description;
     }
     
-    public String getDevId() {
-        return devId;
+    public String getId() {
+        return id;
     }
 
-    public void setDevId(String devId) {
-        this.devId = devId;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getDescription() {

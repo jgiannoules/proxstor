@@ -1,6 +1,9 @@
 package com.giannoules.proxstor.device;
 
 import com.giannoules.proxstor.ProxStorGraph;
+import com.giannoules.proxstor.exception.DeviceNotOwnedByUser;
+import com.giannoules.proxstor.exception.InvalidDeviceId;
+import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.user.UserDao;
@@ -32,151 +35,29 @@ public enum DeviceDao {
     }
 
     /*
-     * converts vertex into Device object
-     *
-     * assumes sanity check already performed on vertex
-     */
-    private Device vertexToDevice(Vertex v) {
-        if (v == null) {
-            return null;
-        }
-        Device d = new Device();
-        d.setDescription((String) v.getProperty("description"));
-        Object id = v.getId();
-        if (id instanceof Long) {
-            d.setDevId(Long.toString((Long) v.getId()));
-        } else {
-            d.setDevId(v.getId().toString());
-        }
-        return d;
-    }
-
-    /*
-     * test Vertex for Device-ness
-     */
-    private boolean validDeviceVertex(Vertex v) {
-        return (v != null) && v.getProperty("_type").equals("device");
-    }
-
-    /*
-     * test device id for Device-ness
-     */
-    private boolean validDeviceId(String devId) {
-        try {
-            return (devId != null) && validDeviceVertex(ProxStorGraph.instance.getVertex(devId));
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-
-    /*
-     * tests for validity of devId ownership by userId
-     * returns false if:
-     *   1 devId does not map to any graph vertex
-     *   2 userId does not map to any graph vertex
-     *   3 devId is not vertex of type Device
-     *   4 userId is not vertex of type User
-     *   5 User is not Owner of Device     
-     */
-    private boolean validUserDevice(String userId, String devId) {
-
-        if ((userId == null) || (devId == null)) {
-            return false;
-        }
-        Device d = getDeviceById(devId);
-        if (d == null) {    // conditions 1 & 3
-            return false;
-        }
-        try {
-            if (UserDao.instance.getUser(userId) == null) { // conditions 2 & 4
-                return false;
-            }
-            for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "uses")) {
-                if (e.getVertex(OUT).getId().equals(userId)) {
-                    return true;
-                }
-            }
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false; // condition 5        
-    }
-
-    /*
-     * abstract away setting of Vertex Device type
-     */
-    private void setVertexToDeviceType(Vertex v) {
-        if (v != null) {
-            v.setProperty("_type", "device");
-        }
-    }
-
-    /*
-     * returns Device stored under devId
-     *
-     * returns null if:
-     *   - devId does not map to any graph vertex
-     *   - vertex is not of type device
-     *
-     */
-    public Device getDeviceById(String devId) {
-
-        if (devId == null) {
-            return null;
-        }
-        Vertex v;
-        try {
-            v = ProxStorGraph.instance.getVertex(devId);
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        if ((v != null) && validDeviceVertex(v)) {
-            return vertexToDevice(v);
-        }
-        return null;
-    }
-
-    /*
-     * returns all devices in database with description desc
-     */
-    public List<Device> getDevicesByDescription(String desc) {
-        List<Device> devices = new ArrayList<>();
-        GraphQuery q;
-        try {
-            q = ProxStorGraph.instance._query();
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
-            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        q.has("_type", "device");
-        q.has("description", desc);
-        for (Vertex v : q.vertices()) {
-            if (validDeviceVertex(v)) {
-                devices.add(vertexToDevice(v));
-            }
-        }
-        return devices;
-    }
-
-    /*
      * returns Device devId owned by User userId
      *
-     * returns null if for any reason the userId is invalid,
-     * devId is invalid, or device isn't owned by user     
+     * throws InvalidUserId if the userId is invalid
+     * throws InvalidDeivceId if the devId is invalid
+     * throws DeviceNotOwnedByUser if the device isn't owned by the user
      */
-    public Device getUserDevice(String userId, String devId) {
-        if (validUserDevice(userId, devId)) {
-            return getDeviceById(devId);
+    public Device getUserDevice(String userId, String devId) throws InvalidDeviceId, InvalidUserId, DeviceNotOwnedByUser {
+        UserDao.instance.validOrException(userId);
+        validOrException(devId);        
+        if (isUserDev(userId, devId)) {
+            return DeviceDao.this.get(devId);
+        } else {
+            throw new DeviceNotOwnedByUser();
         }
-        return null;
     }
 
-    public Collection<Device> getAllUserDevices(String userId) {
-        if (userId == null) {
-            return null;
-        }
+    /*
+     * returns all the devices owned by the userId
+     *
+     * throws InvalidUserId if the userId is invalid 
+     */
+    public Collection<Device> getAllUserDevices(String userId) throws InvalidUserId {
+        UserDao.instance.validOrException(userId);
         Vertex v;
         try {
             v = ProxStorGraph.instance.getVertex(userId);
@@ -186,19 +67,31 @@ public enum DeviceDao {
         }
         List<Device> devices = new ArrayList<>();
         for (Edge e : v.getEdges(OUT, "uses")) {
-            devices.add(DeviceDao.instance.vertexToDevice(e.getVertex(IN)));
+            devices.add(DeviceDao.instance.toDevice(e.getVertex(IN)));
         }
         return devices;
     }
     
     /*
      * find all matching Devices based on partially specified Device
+     *
+     * passing in a devId will allow you to retrieve a specific device and
+     * no further filtering based on the other fields (if present) will be
+     * done.
+     *
      */
-    public Collection<Device> getMatchingDevices(Device partial) {
+    public Collection<Device> get(Device partial) {
         List<Device> devices = new ArrayList<>();
-        if ((partial.getDevId() != null) && (!partial.getDevId().isEmpty())) {
-            devices.add(getDeviceById(partial.getDevId()));
-            return devices;
+        if ((partial.getId() != null) && (!partial.getId().isEmpty())) {
+            try {                
+                validOrException(partial.getId());
+                devices.add(DeviceDao.this.get(partial.getId()));
+                return devices;  
+            } catch (InvalidDeviceId ex) {
+                // invalid devId is not an exception, it is just no match condition
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }                                  
         }
         GraphQuery q;
         try {
@@ -212,32 +105,12 @@ public enum DeviceDao {
             q.has("description", partial.getDescription());
         }
         for (Vertex v : q.vertices()) {
-            if (validDeviceVertex(v)) {
-                devices.add(vertexToDevice(v));
+            if (valid(v)) {
+                devices.add(toDevice(v));
             }
         }
         return devices;
-    }
-
-    /*
-     * returns *all* Devices in database, independent of the owning User
-     *
-     * warning: use of this might mean you are violating the contract that
-     *          devices exists as a relationship from a single user
-     *              User --USES--> Device
-     */
-    public Collection<Device> getAllDevices() {
-        List<Device> devices = new ArrayList<>();
-        try {
-            for (Vertex v : ProxStorGraph.instance.getVertices("_type", "device")) {
-                devices.add(vertexToDevice(v));
-            }
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
-            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        return devices;
-    }
+    }  
 
     /*
      * insert new Device into Graph associated with User userId
@@ -246,19 +119,16 @@ public enum DeviceDao {
      *
      * returns Device object with correct deviceId reflecting object ID assigned
      * by underlying graph; 
-     * otherwise null if
-     *    - userId is invalid
+     
      */
-    public Device addUserDevice(String userId, Device d) {
+    public Device add(String userId, Device d) throws InvalidUserId {
+        UserDao.instance.validOrException(userId);
         try {
-            if ((userId == null) || (d == null) || (UserDao.instance.getUser(userId) == null)) {
-                return null;
-            }
             Vertex out = ProxStorGraph.instance.getVertex(userId);
             Vertex in = ProxStorGraph.instance.addVertex();
             in.setProperty("description", d.getDescription());
-            setVertexToDeviceType(in);
-            d.setDevId(in.getId().toString());
+            setType(in);
+            d.setId(in.getId().toString());
             ProxStorGraph.instance.addEdge(out, in, "uses");
             ProxStorGraph.instance.commit();
             return d;
@@ -266,79 +136,28 @@ public enum DeviceDao {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
-
     }
 
     /*
      * updates Device based on Device's devId if userId Uses
-     *
-     * returns true if the Device's devId is valid device
-     * return false if the Device's devId is not valid device
+     *    
      */
-    public boolean updateUserDevice(String userId, Device d) {
-        if ((userId == null) || (d == null) || (d.getDevId() == null)) {
+    public boolean update(String userId, Device d) throws InvalidUserId, InvalidDeviceId, DeviceNotOwnedByUser {
+        UserDao.instance.validOrException(userId);
+        validOrException(d.getId());
+        if (!isUserDev(userId, d.getId())) {
+            throw new DeviceNotOwnedByUser();
+        }
+        Vertex v;
+        try {
+            v = ProxStorGraph.instance.getVertex(d.getId());
+            v.setProperty("description", d.getDescription());
+            ProxStorGraph.instance.commit();
+            return true;
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
-        if (validUserDevice(userId, d.getDevId())) {
-            Vertex v;
-            try {
-                v = ProxStorGraph.instance.getVertex(d.getDevId());
-                v.setProperty("description", d.getDescription());
-                ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    /*
-     * updates Device based on Device's devId
-     *
-     * returns true if the Device's devId is valid device
-     * return false if the Device's devId is not valid device
-     */
-    public boolean _updateDevice(Device d) {
-        if ((d == null) || (d.getDevId() == null)) {
-            return false;
-        }
-        if (validDeviceId(d.getDevId())) {
-            Vertex v;
-            try {
-                v = ProxStorGraph.instance.getVertex(d.getDevId());
-                v.setProperty("description", d.getDescription());
-                ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    /* 
-     * remove devId from graph
-     *
-     * returns true upon success
-     * returns false if devId was not a Device
-     */
-    public boolean _deleteDevice(String devId) {
-        if ((devId != null) && (validDeviceId(devId))) {
-            try {
-                ProxStorGraph.instance.getVertex(devId).remove();
-                ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
-            return true;
-        }
-        return false;
     }
 
     /* 
@@ -347,8 +166,93 @@ public enum DeviceDao {
      * returns true upon success
      * returns false if devId was not a Device
      */
-    public boolean deleteUserDevice(String userId, String devId) {
-        if (validUserDevice(userId, devId)) {
+    public boolean delete(String userId, String devId) throws InvalidUserId, InvalidDeviceId, DeviceNotOwnedByUser {
+        UserDao.instance.validOrException(userId);
+        validOrException(devId);
+        if (!isUserDev(userId, devId)) {
+            throw new DeviceNotOwnedByUser();
+        }
+        try {
+            ProxStorGraph.instance.getVertex(devId).remove();
+            ProxStorGraph.instance.commit();
+            return true;
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    public void validOrException(String ... devIds) throws InvalidDeviceId {
+        if (!valid(devIds)) {
+            throw new InvalidDeviceId();
+        }
+    }
+    
+    // ----> BEGIN private methods <----
+   
+    
+    /*
+     * converts vertex into Device object
+     *
+     * assumes sanity check already performed on vertex
+     */
+    private Device toDevice(Vertex v) {
+        if (v == null) {
+            return null;
+        }
+        Device d = new Device();
+        d.setDescription((String) v.getProperty("description"));
+        Object id = v.getId();
+        if (id instanceof Long) {
+            d.setId(Long.toString((Long) v.getId()));
+        } else {
+            d.setId(v.getId().toString());
+        }
+        return d;
+    }
+
+    /*
+     * abstract away setting of Vertex Device type
+     */
+    private void setType(Vertex v) {
+        if (v != null) {
+            v.setProperty("_type", "device");
+        }
+    }
+    
+    /*
+     * returns Device stored under devId
+     *
+     * returns null if:
+     *   - devId does not map to any graph vertex
+     *   - vertex is not of type device
+     *
+     */
+    private Device get(String devId) {
+        if (devId == null) {
+            return null;
+        }
+        Vertex v;
+        try {
+            v = ProxStorGraph.instance.getVertex(devId);
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        if ((v != null) && valid(v)) {
+            return toDevice(v);
+        }
+        return null;
+    }
+    
+    /* 
+     * remove devId from graph
+     *
+     * returns true upon success
+     * returns false if devId was not a Device
+     */
+    private boolean delete(String devId) {
+        if ((devId != null) && (valid(devId))) {
             try {
                 ProxStorGraph.instance.getVertex(devId).remove();
                 ProxStorGraph.instance.commit();
@@ -360,4 +264,97 @@ public enum DeviceDao {
         }
         return false;
     }
+    
+    /*
+     * updates Device based on Device's devId
+     *
+     * returns true if the Device's devId is valid device
+     * return false if the Device's devId is not valid device
+     */
+    private boolean update(Device d) {
+        if ((d == null) || (d.getId() == null)) {
+            return false;
+        }
+        if (valid(d.getId())) {
+            Vertex v;
+            try {
+                v = ProxStorGraph.instance.getVertex(d.getId());
+                v.setProperty("description", d.getDescription());
+                ProxStorGraph.instance.commit();
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+
+            return true;
+        }
+        return false;
+    }
+    
+    /*
+     * test Vertex for Device-ness
+     */
+    private boolean valid(Vertex ... vertices) {
+        for (Vertex v : vertices) {
+            if ((v == null) || !v.getProperty("_type").equals("device")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*
+     * test device id for Device-ness
+     */
+    private boolean valid(String ... ids) {
+        for (String id : ids) {
+            try {
+                if ((id == null) || !valid(ProxStorGraph.instance.getVertex(id))) {
+                    return false;
+                }
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*
+     * tests for validity of devId ownership by userId
+     * returns false if:
+     *   1 devId does not map to any graph vertex
+     *   2 userId does not map to any graph vertex
+     *   3 devId is not vertex of type Device
+     *   4 userId is not vertex of type User
+     *   5 User is not Owner of Device     
+     */
+    private boolean isUserDev(String userId, String devId) {
+        if ((userId == null) || (devId == null)) {
+            return false;
+        }
+        Device d = DeviceDao.this.get(devId);
+        if (d == null) {    // conditions 1 & 3
+            return false;
+        }
+        try {
+            try {
+                if (UserDao.instance.get(userId) == null) { // conditions 2 & 4
+                    return false;
+                }
+             // This can be collapsed into simple UserDao.getUserDevice DeviceDao.getUserDevice with exception catches
+            } catch (InvalidUserId ex) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "uses")) {
+                if (e.getVertex(OUT).getId().equals(userId)) {
+                    return true;
+                }
+            }
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false; // condition 5        
+    }
+
 }

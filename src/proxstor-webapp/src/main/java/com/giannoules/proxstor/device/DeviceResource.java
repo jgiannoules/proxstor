@@ -1,5 +1,10 @@
 package com.giannoules.proxstor.device;
 
+import com.giannoules.proxstor.exception.DeviceNotOwnedByUser;
+import com.giannoules.proxstor.exception.InvalidDeviceId;
+import com.giannoules.proxstor.exception.InvalidUserId;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -27,13 +32,23 @@ public class DeviceResource {
      */
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putDeviceUserIdDevId(Device dev) {
-        if ((dev.getDevId() != null) && devId.equals(dev.getDevId())) {
-            if (DeviceDao.instance.updateUserDevice(userId, dev)) {
-                return Response.noContent().build();
-            }
+    public Response putDeviceUser(Device dev) {
+        if ((dev.getId() == null) || !devId.equals(dev.getId())) {
+            return Response.status(400).build();
         }
-        return Response.status(404).build();
+        try {
+            if (DeviceDao.instance.update(userId, dev)) {
+                return Response.noContent().build();
+            } else {
+                return Response.status(500).build();
+            }
+        } catch (InvalidUserId | InvalidDeviceId ex) {
+            Logger.getLogger(DeviceResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(404).build();
+        } catch (DeviceNotOwnedByUser ex) {
+            Logger.getLogger(DeviceResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(400).build();
+        }
     }
 
     /*
@@ -45,11 +60,17 @@ public class DeviceResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserDevice() {
-        Device d = DeviceDao.instance.getUserDevice(userId, devId);
-        if (d == null) {
+        Device d;
+        try {
+            d = DeviceDao.instance.getUserDevice(userId, devId);
+            return Response.ok().entity(d).build();
+        } catch (InvalidDeviceId | InvalidUserId ex) {
+            Logger.getLogger(DeviceResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
+        } catch (DeviceNotOwnedByUser ex) {
+            Logger.getLogger(DeviceResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(400).build();
         }
-        return Response.ok().entity(d).build();
     }
 
     /*
@@ -60,10 +81,18 @@ public class DeviceResource {
      */
     @DELETE
     public Response deleteUserDevice() {
-        if (DeviceDao.instance.deleteUserDevice(userId, devId)) {
-            return Response.noContent().build();
-        } else {
+        try {
+            if (DeviceDao.instance.delete(userId, devId)) {
+                return Response.noContent().build();
+            } else {
+                return Response.status(500).build();
+            }
+        } catch (InvalidUserId | InvalidDeviceId ex) {
+            Logger.getLogger(DeviceResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
+        } catch (DeviceNotOwnedByUser ex) {
+            Logger.getLogger(DeviceResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(400).build();
         }
     }
 
