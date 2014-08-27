@@ -125,7 +125,7 @@ public enum UserDao {
      *
      * used by SearchResource @POST
      */
-    public Collection<User> get(User partial) {
+    public Collection<User> getMatching(User partial) {
         List<User> users = new ArrayList<>();
         if ((partial.getUserId() != null) && (!partial.getUserId().isEmpty())) {
             // invalid userID is not an exception, it is just no match condition

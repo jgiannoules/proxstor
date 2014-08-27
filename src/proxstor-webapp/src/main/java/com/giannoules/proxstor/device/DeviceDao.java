@@ -98,7 +98,7 @@ public enum DeviceDao {
      * 
      * @return Collection of Device objects matching partial, or null if none
      */
-    public Collection<Device> get(Device partial) {
+    public Collection<Device> getMatching(Device partial) {
         List<Device> devices = new ArrayList<>();
         if ((partial.getDevId() != null) && (!partial.getDevId().isEmpty())) {
             try {                

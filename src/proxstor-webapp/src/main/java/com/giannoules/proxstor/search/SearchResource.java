@@ -27,7 +27,7 @@ public class SearchResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchingUsers(User u) {
-        Collection<User> users = UserDao.instance.get(u);
+        Collection<User> users = UserDao.instance.getMatching(u);
         if (users == null) {
             return Response.status(404).build();
         }
@@ -48,7 +48,7 @@ public class SearchResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMathingDevices(Device d) {
-        Collection<Device> devices = DeviceDao.instance.get(d);
+        Collection<Device> devices = DeviceDao.instance.getMatching(d);
         if (devices == null) {
             return Response.status(404).build();
         }
