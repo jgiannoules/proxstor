@@ -60,7 +60,7 @@ public class UserResource {
             return Response.status(400).build();
         }
         try {
-            UserDao.instance.updateUser(u);
+            UserDao.instance.update(u);
             return Response.noContent().build();
         } catch (InvalidUserId ex) {
             Logger.getLogger(UserResource.class.getName()).log(Level.SEVERE, null, ex);
@@ -77,7 +77,7 @@ public class UserResource {
     @DELETE
     public Response deleteUser() {
         try {
-            UserDao.instance.deleteUser(userId);
+            UserDao.instance.delete(userId);
             return Response.noContent().build();
         } catch (InvalidUserId ex) {
             Logger.getLogger(UserResource.class.getName()).log(Level.SEVERE, null, ex);

@@ -1,6 +1,5 @@
 package com.giannoules.proxstor.user;
 
-import com.giannoules.proxstor.knows.KnowsResource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -31,7 +30,7 @@ public class UsersResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response postUser(User in) {
-        User u = UserDao.instance.addUser(in);
+        User u = UserDao.instance.add(in);
         if (u == null) {
             return Response.status(400).build();
         } else {
@@ -56,7 +55,7 @@ public class UsersResource {
      */
     @Path("{userid: [0-9]+}")
     public UserResource getUserResource(@PathParam("userid") String userId) {
-        if (UserDao.instance.validUser(userId)) {
+        if (UserDao.instance.valid(userId)) {
             return new UserResource(userId);
         } else {
             throw new WebApplicationException();

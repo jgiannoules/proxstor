@@ -36,13 +36,13 @@ public enum UserDao {
      *
      * used numerous places inside and outside .user package to validate userIDs
      */
-    public boolean validUser(String ... userIds) {
+    public boolean valid(String ... userIds) {
         if (userIds == null) {
             return false;
         }
         try {
             for (String id : userIds) {
-                if (!UserDao.this.validUser(ProxStorGraph.instance.getVertex(id))) {
+                if (!UserDao.this.valid(ProxStorGraph.instance.getVertex(id))) {
                     return false;
                 }
             }
@@ -53,6 +53,26 @@ public enum UserDao {
         return true;
     }
     
+    /*
+     * test Vertex for User-ness
+     *
+     * returns true if Vertex is of type User, false otherwise
+     * 
+     * no exceptions thrown
+     */
+    public boolean valid(Vertex... vertices) {        
+        if (vertices == null) {
+            return false;
+        }
+        String type;
+        for (Vertex v : vertices) {
+            type = v.getProperty("_type");
+            if ((type == null) || (!type.equals("user"))) {
+                return false;
+            }
+        }
+        return true;
+    }    
 
     /**
      * Returns User representation stored in back-end graph database under the 
@@ -66,7 +86,7 @@ public enum UserDao {
      */
     public User get(String userId) throws InvalidUserId {
         try {
-            validUser(userId);
+            valid(userId);
             Vertex v;
             v = ProxStorGraph.instance.getVertex(userId);            
             return toUser(v);            
@@ -88,7 +108,7 @@ public enum UserDao {
      * throws InvalidUserId if parameter is not valid id
      */
     public User get(Vertex v) throws InvalidUserId {
-        if (UserDao.this.validUser(v)) {
+        if (UserDao.this.valid(v)) {
             return toUser(v);
         }
         throw new InvalidUserId();
@@ -103,7 +123,7 @@ public enum UserDao {
      *
      * used by SearchResource @POST
      */
-    public Collection<User> getMatchingUsers(User partial) {
+    public Collection<User> get(User partial) {
         List<User> users = new ArrayList<>();
         if ((partial.getId() != null) && (!partial.getId().isEmpty())) {
             // invalid userID is not an exception, it is just no match condition
@@ -133,7 +153,7 @@ public enum UserDao {
             q.has("email", partial.getEmail());
         }
         for (Vertex v : q.vertices()) {
-            if (UserDao.this.validUser(v)) {
+            if (UserDao.this.valid(v)) {
                 users.add(toUser(v));
             }
         }
@@ -150,7 +170,7 @@ public enum UserDao {
      *
      * used by UsersResource @POST
      */
-    public User addUser(User u) {
+    public User add(User u) {
         if (u == null) {
             return null;
         }
@@ -159,7 +179,7 @@ public enum UserDao {
             v.setProperty("firstName", u.getFirstName());
             v.setProperty("lastName", u.getLastName());
             v.setProperty("email", u.getEmail());
-            toUserType(v);
+            setType(v);
             ProxStorGraph.instance.commit();
             u.setId(v.getId().toString());
             return u;
@@ -177,8 +197,8 @@ public enum UserDao {
      *
      * used by UserResource @PUT
      */
-    public boolean updateUser(User u) throws InvalidUserId {
-        if (!validUser(u.getId())) {
+    public boolean update(User u) throws InvalidUserId {
+        if (!valid(u.getId())) {
             throw new InvalidUserId();
         }        
         try {
@@ -202,8 +222,8 @@ public enum UserDao {
      *
      * used by UserResource @DELETE
      */
-    public boolean deleteUser(String userId) throws InvalidUserId {
-        if (!validUser(userId)) {
+    public boolean delete(String userId) throws InvalidUserId {
+        if (!valid(userId)) {
             throw new InvalidUserId();        
         }
         try {
@@ -248,33 +268,12 @@ public enum UserDao {
         }
         return u;
     }
-
-    /*
-     * test Vertex for User-ness
-     *
-     * returns true if Vertex is of type User, false otherwise
-     * 
-     * no exceptions thrown
-     */
-    private boolean validUser(Vertex... vertices) {        
-        if (vertices == null) {
-            return false;
-        }
-        String type;
-        for (Vertex v : vertices) {
-            type = v.getProperty("_type");
-            if ((type == null) || (!type.equals("user"))) {
-                return false;
-            }
-        }
-        return true;
-    }
     
     /*
      * abstract away setting of Vertex User type to allow underlying graph
      * representation/management to evolve
      */
-    private void toUserType(Vertex v) {
+    private void setType(Vertex v) {
         if (v != null) {
             v.setProperty("_type", "user");
         }
