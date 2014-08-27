@@ -3,6 +3,7 @@ package com.giannoules.proxstor.device;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.DeviceNotOwnedByUser;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
+import com.giannoules.proxstor.exception.InvalidParameter;
 import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
@@ -384,23 +385,15 @@ public enum DeviceDao {
      *   4 userId is not vertex of type User
      *   5 User is not Owner of Device     
      */
-    private boolean isUserDev(String userId, String devId) {
-        if ((userId == null) || (devId == null)) {
-            return false;
-        }
-        Device d = DeviceDao.this.get(devId);
-        if (d == null) {    // conditions 1 & 3
-            return false;
-        }
+    private boolean isUserDev(String userId, String devId) {       
         try {
-            try {
-                if (UserDao.instance.get(userId) == null) { // conditions 2 & 4
-                    return false;
-                }
-             // This can be collapsed into simple UserDao.getUserDevice DeviceDao.getUserDevice with exception catches
-            } catch (InvalidUserId ex) {
-                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            DeviceDao.instance.validOrException(devId);
+            UserDao.instance.validOrException(userId);
+        } catch (InvalidParameter ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }        
+        try {            
             for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "uses")) {
                 if (e.getVertex(OUT).getId().equals(userId)) {
                     return true;
