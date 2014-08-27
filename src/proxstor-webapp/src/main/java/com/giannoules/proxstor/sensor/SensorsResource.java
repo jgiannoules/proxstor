@@ -1,6 +1,7 @@
 package com.giannoules.proxstor.sensor;
 
 import com.giannoules.proxstor.exception.InvalidLocationId;
+import com.giannoules.proxstor.exception.InvalidParameter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -84,10 +85,12 @@ public class SensorsResource {
         } catch (InvalidLocationId ex) {
             Logger.getLogger(SensorsResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
+        } catch (InvalidParameter ex) {
+            Logger.getLogger(SensorsResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(400).build();
         }
-
     }
-
+    
     // ---- BEGIN sub-resource locators ----
     
     /*

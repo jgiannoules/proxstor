@@ -2,6 +2,7 @@ package com.giannoules.proxstor.sensor;
 
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.InvalidLocationId;
+import com.giannoules.proxstor.exception.InvalidParameter;
 import com.giannoules.proxstor.exception.InvalidSensorId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
@@ -140,8 +141,11 @@ public enum SensorDao {
      * @throws InvalidLocationId If the locId parameter does not match a valid
      * location
      */
-    public Sensor add(String locId, Sensor s) throws InvalidLocationId {
+    public Sensor add(String locId, Sensor s) throws InvalidLocationId, InvalidParameter {
         LocationDao.instance.validOrException(locId);
+        if ((s.getDescription() == null) || (s.getType() == null)) {
+            throw new InvalidParameter();
+        }
         try {
             Vertex out = ProxStorGraph.instance.getVertex(locId);
             Vertex in = ProxStorGraph.instance.addVertex();
@@ -182,12 +186,16 @@ public enum SensorDao {
         validOrException(s.getSensorId());
         if (!isLocationSensor(locId, s.getSensorId())) {
             throw new SensorNotContainedWithinLocation();
-        }
+        }        
         Vertex v;
         try {
             v = ProxStorGraph.instance.getVertex(s.getSensorId());
-            v.setProperty("description", s.getDescription());
-            v.setProperty("type", s.getType().toString());
+            if (s.getDescription() != null) {
+                v.setProperty("description", s.getDescription());
+            }
+            if (s.getType() != null) {
+                v.setProperty("type", s.getType().toString());
+            }
             ProxStorGraph.instance.commit();
             return true;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
@@ -387,27 +395,23 @@ public enum SensorDao {
      *   5 Location is not container of Sensor     
      */
     private boolean isLocationSensor(String locId, String sensorId) {
-        if ((locId == null) || (sensorId == null)) {
+        try {
+            SensorDao.instance.validOrException(sensorId);
+            LocationDao.instance.validOrException(locId);
+        } catch (InvalidParameter ex) {
+            Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
         try {
-            Sensor s = get(sensorId);
-            if (s == null) {    // conditions 1 & 3
-                return false;
-            }
-            if (LocationDao.instance.getLocationById(locId) == null) { // conditions 2 & 4
-                return false;
-            }
             for (Edge e : ProxStorGraph.instance.getVertex(sensorId).getEdges(IN, "contains")) {
                 if (e.getVertex(OUT).getId().equals(locId)) {
                     return true;
                 }
             }
-            return false; // condition 5
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
         }
+        return false; // condition 5        
     }
 
 }

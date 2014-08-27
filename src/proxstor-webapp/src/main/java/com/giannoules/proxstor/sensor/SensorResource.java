@@ -1,5 +1,11 @@
 package com.giannoules.proxstor.sensor;
 
+import com.giannoules.proxstor.exception.InvalidLocationId;
+import com.giannoules.proxstor.exception.InvalidParameter;
+import com.giannoules.proxstor.exception.InvalidSensorId;
+import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -25,18 +31,32 @@ public class SensorResource {
      * update sensor sensorId contained within Location locId
      * Note: sensorId path must match sensorId inside JSON (and be valid ID)
      *
-     * sucess - return 204 (No Content)
+     * success - return 204 (No Content)
      * failure - return 404 (Not Found)
+     * failure - return 400 (Invalid Parameter) if sensorId != Sensor.sensorId,
+     *           or if the sensorId or locId are invalid
+     * failure - return 500 (Internal Server Error) if the backend database isn't
+     *           working
      */
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putSensorLocIdSensorId(Sensor s) {
-        if ((s.getSensorId() != null) && sensorId.equals(s.getSensorId())) {
-            if (SensorDao.instance.updateLocationSensor(locId, s)) {
-                return Response.noContent().build();
-            }
+        if ((s.getSensorId() == null) || !sensorId.equals(s.getSensorId())) {
+            return Response.status(400).build();
         }
-        return Response.status(404).build();
+        try {
+            if (SensorDao.instance.update(locId, s)) {
+                return Response.noContent().build();
+            } else {
+                return Response.status(500).build();
+            }
+        } catch (InvalidSensorId | InvalidLocationId ex) {
+            Logger.getLogger(SensorResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(404).build();
+        } catch (SensorNotContainedWithinLocation ex) {
+            Logger.getLogger(SensorResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(400).build();
+        }
     }
 
     /*
@@ -48,11 +68,17 @@ public class SensorResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLocationSensor() {
-        Sensor s = SensorDao.instance.getLocationSensor(locId, sensorId);
-        if (s == null) {
+        Sensor s;
+        try {
+            s = SensorDao.instance.getLocationSensor(locId, sensorId);
+            return Response.ok().entity(s).build();
+        } catch (InvalidSensorId | InvalidLocationId ex) {
+            Logger.getLogger(SensorResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
+        } catch (SensorNotContainedWithinLocation ex) {
+            Logger.getLogger(SensorResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(400).build();
         }
-        return Response.ok().entity(s).build();
     }
 
     /*
@@ -63,10 +89,18 @@ public class SensorResource {
      */
     @DELETE
     public Response deleteLocationSensor() {
-        if (SensorDao.instance.deleteLocationSensor(locId, sensorId)) {
-            return Response.noContent().build();
-        } else {
+        try {
+            if (SensorDao.instance.delete(locId, sensorId)) {
+                return Response.noContent().build();
+            } else {
+                return Response.status(500).build();
+            }
+        } catch (InvalidLocationId | InvalidSensorId ex) {
+            Logger.getLogger(SensorResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
+        } catch (SensorNotContainedWithinLocation ex) {
+            Logger.getLogger(SensorResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(400).build();
         }
     }
 
