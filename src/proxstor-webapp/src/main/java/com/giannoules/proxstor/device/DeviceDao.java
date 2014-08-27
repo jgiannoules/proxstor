@@ -82,10 +82,10 @@ public enum DeviceDao {
      */
     public Collection<Device> get(Device partial) {
         List<Device> devices = new ArrayList<>();
-        if ((partial.getId() != null) && (!partial.getId().isEmpty())) {
+        if ((partial.getDevId() != null) && (!partial.getDevId().isEmpty())) {
             try {                
-                validOrException(partial.getId());
-                devices.add(DeviceDao.this.get(partial.getId()));
+                validOrException(partial.getDevId());
+                devices.add(DeviceDao.this.get(partial.getDevId()));
                 return devices;  
             } catch (InvalidDeviceId ex) {
                 // invalid devId is not an exception, it is just no match condition
@@ -128,7 +128,7 @@ public enum DeviceDao {
             Vertex in = ProxStorGraph.instance.addVertex();
             in.setProperty("description", d.getDescription());
             setType(in);
-            d.setId(in.getId().toString());
+            d.setDevId(in.getId().toString());
             ProxStorGraph.instance.addEdge(out, in, "uses");
             ProxStorGraph.instance.commit();
             return d;
@@ -144,13 +144,13 @@ public enum DeviceDao {
      */
     public boolean update(String userId, Device d) throws InvalidUserId, InvalidDeviceId, DeviceNotOwnedByUser {
         UserDao.instance.validOrException(userId);
-        validOrException(d.getId());
-        if (!isUserDev(userId, d.getId())) {
+        validOrException(d.getDevId());
+        if (!isUserDev(userId, d.getDevId())) {
             throw new DeviceNotOwnedByUser();
         }
         Vertex v;
         try {
-            v = ProxStorGraph.instance.getVertex(d.getId());
+            v = ProxStorGraph.instance.getVertex(d.getDevId());
             v.setProperty("description", d.getDescription());
             ProxStorGraph.instance.commit();
             return true;
@@ -204,9 +204,9 @@ public enum DeviceDao {
         d.setDescription((String) v.getProperty("description"));
         Object id = v.getId();
         if (id instanceof Long) {
-            d.setId(Long.toString((Long) v.getId()));
+            d.setDevId(Long.toString((Long) v.getId()));
         } else {
-            d.setId(v.getId().toString());
+            d.setDevId(v.getId().toString());
         }
         return d;
     }
@@ -272,13 +272,13 @@ public enum DeviceDao {
      * return false if the Device's devId is not valid device
      */
     private boolean update(Device d) {
-        if ((d == null) || (d.getId() == null)) {
+        if ((d == null) || (d.getDevId() == null)) {
             return false;
         }
-        if (valid(d.getId())) {
+        if (valid(d.getDevId())) {
             Vertex v;
             try {
-                v = ProxStorGraph.instance.getVertex(d.getId());
+                v = ProxStorGraph.instance.getVertex(d.getDevId());
                 v.setProperty("description", d.getDescription());
                 ProxStorGraph.instance.commit();
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {

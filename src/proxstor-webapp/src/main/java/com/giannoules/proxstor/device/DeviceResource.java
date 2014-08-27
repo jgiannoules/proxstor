@@ -33,7 +33,7 @@ public class DeviceResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putDeviceUser(Device dev) {
-        if ((dev.getId() == null) || !devId.equals(dev.getId())) {
+        if ((dev.getDevId() == null) || !devId.equals(dev.getDevId())) {
             return Response.status(400).build();
         }
         try {

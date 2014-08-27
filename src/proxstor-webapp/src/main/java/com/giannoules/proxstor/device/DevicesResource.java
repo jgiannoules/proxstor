@@ -74,7 +74,7 @@ public class DevicesResource {
                 return Response.status(400).build();
             } else {
                 try {
-                    URI createdUri = new URI("users/" + userId + "/devices/" + d.getId());
+                    URI createdUri = new URI("users/" + userId + "/devices/" + d.getDevId());
                     return Response.created(createdUri).entity(d).build();
                 } catch (URISyntaxException ex) {
                     Logger.getLogger(DevicesResource.class.getName()).log(Level.SEVERE, null, ex);
