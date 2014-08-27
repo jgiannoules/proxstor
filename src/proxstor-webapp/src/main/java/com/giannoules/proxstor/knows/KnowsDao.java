@@ -36,14 +36,14 @@ public enum KnowsDao {
      * @param strengthVal
      * @param direction
      * @param limit
+     * 
      * @returns Collection of User objects matching criteria, or null if no matches found
+     * 
      * @throws InvalidUserId If the userID is invalid
      */
     public Collection<User> getUserKnows(String userId, Integer strengthVal, Direction direction, int limit) throws InvalidUserId {
-        if ((userId != null) && (strengthVal != null)) {
-            if (!UserDao.instance.valid(userId)) {
-                throw new InvalidUserId();
-            }
+       UserDao.instance.validOrException(userId);
+       if (strengthVal != null) {
             List<User> knows = new ArrayList<>();
             try {
                 VertexQuery vq = ProxStorGraph.instance.getVertex(userId).query();
@@ -63,19 +63,26 @@ public enum KnowsDao {
         return null;
     }
 
-    /*
-     * establish a Knows relationship from fromUser -> toUser
+    /**
+     * Establish a weighted Knows relationship between two users.
      *
-     * returns true if both IDs are valid Users
-     * returns false if strength is null, InvalidModel caught, database is not
-     *                running, or if the IDs provided are invalid
-     * throws InvalidUserId if the fromUser or toUser IDs are not valid IDs
-     * throws UserAlreadyKnowsUser if the knows relationship was already
-     *                             established from fromUser -> toUser
+     * @param fromUser String representation of user establishing the 'knows' relationship
+     * @param toUser String representation of user receiving the 'knows' relationship 
+     * @param strength Integer weight of the knows relationship
+     * 
+     * @return true if the relationship was created; false if Strength parameter is null,
+     * database error occurred, or if a data model violation was detected.
+     * 
+     * @throws InvalidUserId If either of the user id parameters are invalid
+     * @throws UserAlreadyKnowsUser If a 'knows' relationship already exists
+     * from fromUser to toUser, or if the user ids are the same.
      */
     public boolean addKnows(String fromUser, String toUser, Integer strength) throws InvalidUserId, UserAlreadyKnowsUser {        
         if (strength == null) {
             return false;
+        }
+        if (fromUser.equals(toUser)) {
+            throw new UserAlreadyKnowsUser();
         }
         try {
             if (getKnows(fromUser, toUser) != null) {
