@@ -185,7 +185,9 @@ public enum DeviceDao {
         Vertex v;
         try {
             v = ProxStorGraph.instance.getVertex(d.getDevId());
-            v.setProperty("description", d.getDescription());
+            if (d.getDescription() != null) {
+                v.setProperty("description", d.getDescription());
+            }
             ProxStorGraph.instance.commit();
             return true;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
