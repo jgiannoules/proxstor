@@ -2,7 +2,7 @@ package com.giannoules.proxstor.location;
 
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
-import com.giannoules.proxstor.exception.InvalidLocationID;
+import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import static com.tinkerpop.blueprints.Direction.IN;
@@ -254,9 +254,9 @@ public enum LocationDao {
      *
      * @TODO don't recreate within if already exists
      */
-    public boolean establishLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationID {            
+    public boolean establishLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationId {            
         if (!validLocationId(innerLocId) || !validLocationId(outerLocId)) {
-            throw new InvalidLocationID();
+            throw new InvalidLocationId();
         }
         if (locationWithinLocation(innerLocId, outerLocId)) {
             ProxStorDebug.println("Caught you!");
@@ -279,9 +279,9 @@ public enum LocationDao {
      * returns false if either locId is invalid or if a Within relationship
      * was not already established 
      */
-    public boolean removeLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationID {
+    public boolean removeLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationId {
         if (!validLocationId(innerLocId) || !validLocationId(outerLocId)) {
-            throw new InvalidLocationID();
+            throw new InvalidLocationId();
         }
         Vertex v;
         try {

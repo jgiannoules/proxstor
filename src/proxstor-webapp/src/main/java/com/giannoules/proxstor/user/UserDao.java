@@ -85,11 +85,13 @@ public enum UserDao {
      * @throws InvalidUserId    If the userId parameter is invalid
      */
     public User get(String userId) throws InvalidUserId {
-        try {
-            valid(userId);
+        try {            
             Vertex v;
-            v = ProxStorGraph.instance.getVertex(userId);            
-            return toUser(v);            
+            v = ProxStorGraph.instance.getVertex(userId);
+            if (!valid(v)) {
+                throw new InvalidUserId();
+            }
+            return toUser(v);
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
@@ -198,9 +200,7 @@ public enum UserDao {
      * used by UserResource @PUT
      */
     public boolean update(User u) throws InvalidUserId {
-        if (!valid(u.getId())) {
-            throw new InvalidUserId();
-        }        
+        validOrException(u.getId());                
         try {
             Vertex v = ProxStorGraph.instance.getVertex(u.getId());
             v.setProperty("firstName", u.getFirstName());
@@ -223,9 +223,7 @@ public enum UserDao {
      * used by UserResource @DELETE
      */
     public boolean delete(String userId) throws InvalidUserId {
-        if (!valid(userId)) {
-            throw new InvalidUserId();        
-        }
+        validOrException(userId);        
         try {
             ProxStorGraph.instance.getVertex(userId).remove();
             ProxStorGraph.instance.commit();
@@ -236,6 +234,11 @@ public enum UserDao {
         }        
     }
 
+    public void validOrException(String ... ids) throws InvalidUserId {
+        if (!valid(ids)) {
+            throw new InvalidUserId();
+        }
+    }
     
     // ----> BEGIN private methods <----
     

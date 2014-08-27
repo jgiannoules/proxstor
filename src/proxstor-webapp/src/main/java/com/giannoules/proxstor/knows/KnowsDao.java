@@ -41,7 +41,7 @@ public enum KnowsDao {
      */
     public Collection<User> getUserKnows(String userId, Integer strengthVal, Direction direction, int limit) throws InvalidUserId {
         if ((userId != null) && (strengthVal != null)) {
-            if (!UserDao.instance.validUser(userId)) {
+            if (!UserDao.instance.valid(userId)) {
                 throw new InvalidUserId();
             }
             List<User> knows = new ArrayList<>();
@@ -114,7 +114,7 @@ public enum KnowsDao {
      * throws InvalidModel if multiple knows relationships found between users
      */
     public Edge getKnows(String fromUser, String toUser) throws InvalidUserId, InvalidModel {
-        if (!UserDao.instance.validUser(fromUser, toUser)) {
+        if (!UserDao.instance.valid(fromUser, toUser)) {
             throw new InvalidUserId();
         }
         try {
