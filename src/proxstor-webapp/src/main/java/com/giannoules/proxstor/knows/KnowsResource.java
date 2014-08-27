@@ -1,9 +1,9 @@
 package com.giannoules.proxstor.knows;
 
 import com.giannoules.proxstor.ProxStorDebug;
-import com.giannoules.proxstor.exception.InvalidUserID;
+import com.giannoules.proxstor.exception.InvalidUserId;
+import com.giannoules.proxstor.exception.UserAlreadyKnowsUser;
 import com.giannoules.proxstor.user.User;
-import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import java.net.URI;
@@ -26,11 +26,11 @@ import javax.ws.rs.core.Response;
  */
 public class KnowsResource {
 
-    private final String userId;        // always within context of a user
+    private final String userIdA;        // always within context of a user
     private final Integer strengthVal;  // strength meaning varies by request
 
     public KnowsResource(String userId, Integer strength) {
-        this.userId = userId;
+        this.userIdA = userId;
         this.strengthVal = strength;
     }
 
@@ -47,8 +47,8 @@ public class KnowsResource {
         ProxStorDebug.println("getKnowsUsers()");
         Collection<User> users;
         try {
-            users = KnowsDao.instance.getUserKnows(userId, strengthVal, OUT, 1024); // max 1024 users returned
-        } catch (InvalidUserID ex) {
+            users = KnowsDao.instance.getUserKnows(userIdA, strengthVal, OUT, 1024); // max 1024 users returned
+        } catch (InvalidUserId ex) {
             Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }
@@ -72,8 +72,8 @@ public class KnowsResource {
         ProxStorDebug.println("getKnowsUsers()");
         Collection<User> users;
         try {
-            users = KnowsDao.instance.getUserKnows(userId, strengthVal, IN, 1024); // max 1024 users returned
-        } catch (InvalidUserID ex) {
+            users = KnowsDao.instance.getUserKnows(userIdA, strengthVal, IN, 1024); // max 1024 users returned
+        } catch (InvalidUserId ex) {
             Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }
@@ -88,23 +88,28 @@ public class KnowsResource {
      *
      * success - returns 201 (Created) with URI of new Knows relationship
      * failure - returns 404 (Not Found) if either userID is invalid
-     *           returns 400 (Bad Request) if the Knows could not be established (or is already established @TODO)
+     *           returns 400 (Bad Request) if the Knows is already established
      *           returns 500 (Server Error) if the Knows could be established 
      *                                      but URI building error occurred
      */
     @Path("{otheruser: [0-9]+}")
     @POST
-    public Response establishUserKnows(@PathParam("otheruser") String otherUserId) {
+    public Response establishUserKnows(@PathParam("otheruser") String userIdB) {
         ProxStorDebug.println("establishUserKnows()");
-        if (!UserDao.instance._validUserId(userId) || !UserDao.instance._validUserId(otherUserId)) {
+        try {
+            if (!KnowsDao.instance.addKnows(userIdA, userIdB, strengthVal)) {
+                return Response.status(500).build();
+            }
+        } catch (InvalidUserId ex) {
+            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
-        }
-        if (!KnowsDao.instance.addKnows(userId, otherUserId, strengthVal)) {
+        } catch (UserAlreadyKnowsUser ex) {
+            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(400).build();
         }
         URI createdUri;
         try {
-            createdUri = new URI("/users/" + userId + "/knows/" + strengthVal.toString() + "/" + otherUserId);
+            createdUri = new URI("/users/" + userIdA + "/knows/" + strengthVal.toString() + "/" + userIdB);
             return Response.created(createdUri).build();
         } catch (URISyntaxException ex) {
             Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
@@ -117,41 +122,43 @@ public class KnowsResource {
      *
      * success - returns 204 (No Content)
      * failure - returns 404 (Not Found) if either userID is invalid
-     *           returns 400 (Bad Request) if the Knows could not be established (or is already established @TODO)
-     *           returns 500 (Server Error) if the Knows could be established 
-     *                                      but URI building error occurred
+     *           returns 400 (Bad Request) if the knows relationship was not already established
      */
     @Path("{otheruser: [0-9]+}")
     @PUT
-    public Response updateUserKnows(@PathParam("otheruser") String otherUserId) {
-        ProxStorDebug.println("updateUserKnows()");
-        return Response.status(501).build();
-        /*
-         if (!UserDao.instance._validUserId(userId) || !UserDao.instance._validUserId(otherUserId)) {
-         return Response.status(404).build();
-         }
-         if (!KnowsDao.instance.updateKnows(userId, otherUserId, strength)) {
-         return Response.status(400).build();
-         }
-         return Response.noContent().build();
-         */
+    public Response updateUserKnows(@PathParam("otheruser") String userIdB) {
+        ProxStorDebug.println("updateUserKnows()");        
+        try {
+            if (KnowsDao.instance.updateKnows(userIdA, userIdB, strengthVal)) {
+                return Response.noContent().build();
+            } else {
+                return Response.status(400).build();
+            }
+        } catch (InvalidUserId ex) {
+            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(404).build();
+        }        
     }
 
     /*
-     * remove the relationship that userId knows otherUser. strength ignored
+     * remove the relationship that userId knows otherUser
+     * note that strength value is ignored
      *
-     * returns 204 (No Content) when sucessful
-     * returns 404 (Not Found) if relationship was not already established
+     * returns 204 (No Content) when successful
+     * returns 404 (Not Found) if relationship was not already established or
+     *                         the userIds are simply invalid
      */
     @Path("{otheruser: [0-9]+}")
     @DELETE
-    public Response removeUserKnows(@PathParam("otheruser") String otherUserId) {
-        ProxStorDebug.println("removeUserKnows()");
-        if (KnowsDao.instance.removeKnows(userId, otherUserId)) {
+    public Response removeUserKnows(@PathParam("otheruser") String userIdB) {
+        ProxStorDebug.println("removeUserKnows()");        
+        try {
+            KnowsDao.instance.removeKnows(userIdA, userIdB);
             return Response.noContent().build();
-        } else {
-            return Response.status(404).build();
+        } catch (InvalidUserId ex) {
+            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return Response.status(404).build();        
     }
 
 }
