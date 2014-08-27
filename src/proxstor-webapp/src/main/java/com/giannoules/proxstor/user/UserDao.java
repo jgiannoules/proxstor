@@ -200,12 +200,18 @@ public enum UserDao {
      * used by UserResource @PUT
      */
     public boolean update(User u) throws InvalidUserId {
-        validOrException(u.getUserId());                
+        validOrException(u.getUserId());
         try {
             Vertex v = ProxStorGraph.instance.getVertex(u.getUserId());
-            v.setProperty("firstName", u.getFirstName());
-            v.setProperty("lastName", u.getLastName());
-            v.setProperty("email", u.getEmail());
+            if (u.getFirstName() != null) {
+                v.setProperty("firstName", u.getFirstName());
+            }
+            if (u.getLastName() != null) {
+                v.setProperty("lastName", u.getLastName());
+            }
+            if (u.getEmail() != null) {
+                v.setProperty("email", u.getEmail());
+            }
             ProxStorGraph.instance.commit();
             return true;
         } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
