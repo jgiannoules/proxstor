@@ -1,6 +1,6 @@
 package com.giannoules.proxstor.exception;
 
-public class InvalidUserId extends Exception {
+public class InvalidUserId extends InvalidParameter {
     
     public InvalidUserId(String s) {
         super(s);
