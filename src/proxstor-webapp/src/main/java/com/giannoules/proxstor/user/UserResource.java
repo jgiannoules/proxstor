@@ -56,7 +56,7 @@ public class UserResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putUser(User u) {
-        if ((u.getId() == null) || !u.getId().equals(userId)) {
+        if ((u.getUserId() == null) || !u.getUserId().equals(userId)) {
             return Response.status(400).build();
         }
         try {

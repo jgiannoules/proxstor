@@ -35,7 +35,7 @@ public class UsersResource {
             return Response.status(400).build();
         } else {
             try {
-                URI createdUri = new URI("users/" + u.getId());
+                URI createdUri = new URI("users/" + u.getUserId());
                 return Response.created(createdUri).entity(u).build();
             } catch (URISyntaxException ex) {
                 Logger.getLogger(UsersResource.class.getName()).log(Level.SEVERE, null, ex);

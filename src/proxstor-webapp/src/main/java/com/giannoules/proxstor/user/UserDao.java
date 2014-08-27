@@ -127,10 +127,10 @@ public enum UserDao {
      */
     public Collection<User> get(User partial) {
         List<User> users = new ArrayList<>();
-        if ((partial.getId() != null) && (!partial.getId().isEmpty())) {
+        if ((partial.getUserId() != null) && (!partial.getUserId().isEmpty())) {
             // invalid userID is not an exception, it is just no match condition
             try { 
-                users.add(UserDao.this.get(partial.getId()));
+                users.add(UserDao.this.get(partial.getUserId()));
                 return users;
             } catch (InvalidUserId ex) {
                 Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
@@ -183,7 +183,7 @@ public enum UserDao {
             v.setProperty("email", u.getEmail());
             setType(v);
             ProxStorGraph.instance.commit();
-            u.setId(v.getId().toString());
+            u.setUserId(v.getId().toString());
             return u;
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
@@ -200,9 +200,9 @@ public enum UserDao {
      * used by UserResource @PUT
      */
     public boolean update(User u) throws InvalidUserId {
-        validOrException(u.getId());                
+        validOrException(u.getUserId());                
         try {
-            Vertex v = ProxStorGraph.instance.getVertex(u.getId());
+            Vertex v = ProxStorGraph.instance.getVertex(u.getUserId());
             v.setProperty("firstName", u.getFirstName());
             v.setProperty("lastName", u.getLastName());
             v.setProperty("email", u.getEmail());
@@ -265,9 +265,9 @@ public enum UserDao {
         u.setEmail((String) v.getProperty("email"));
         Object id = v.getId();
         if (id instanceof Long) {
-            u.setId(Long.toString((Long) v.getId()));
+            u.setUserId(Long.toString((Long) v.getId()));
         } else {
-            u.setId(v.getId().toString());
+            u.setUserId(v.getId().toString());
         }
         return u;
     }
