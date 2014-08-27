@@ -69,7 +69,7 @@ public class SearchResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchingLocations(Location l) {
-        Collection<Location> locations = LocationDao.instance.getMatchingLocations(l);
+        Collection<Location> locations = LocationDao.instance.getMatching(l);
         if (locations == null) {
             return Response.status(404).build();
         }
@@ -90,7 +90,7 @@ public class SearchResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchingSensors(Sensor s) {
-        Collection<Sensor> sensors = SensorDao.instance.getMatchingSensors(s);
+        Collection<Sensor> sensors = SensorDao.instance.getMatching(s);
         if (sensors == null) {
             return Response.status(404).build();
         }
