@@ -1,6 +1,6 @@
 package com.giannoules.proxstor.sensor;
 
-import com.giannoules.proxstor.location.LocationDao;
+import com.giannoules.proxstor.exception.InvalidLocationId;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -36,17 +36,21 @@ public class SensorsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllLocationSensors() {
-        if (LocationDao.instance.getLocationById(locId) == null) {
+        Collection<Sensor> sensors;
+        try {
+            sensors = SensorDao.instance.getAllLocationSensors(locId);
+            if (sensors.isEmpty()) {
+                return Response.noContent().build();
+            }
+            /*
+             * ok() will not take Collection directly, so convert to array
+             */
+            return Response.ok((Sensor[]) sensors.toArray(new Sensor[sensors.size()])).build();
+        } catch (InvalidLocationId ex) {
+            Logger.getLogger(SensorsResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }
-        Collection<Sensor> sensors = SensorDao.instance.getAllLocationSensors(locId);
-        if (sensors.isEmpty()) {
-            return Response.noContent().build();
-        }
-        /*
-         * ok() will not take Collection directly, so convert to array
-         */
-        return Response.ok((Sensor[]) sensors.toArray(new Sensor[sensors.size()])).build();
+
     }
 
     /*
@@ -63,18 +67,25 @@ public class SensorsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response postLocationSensor(Sensor in) {
-        Sensor s = SensorDao.instance.addLocationSensor(locId, in);
-        if (s == null) {
-            return Response.status(400).build();
-        } else {
-            try {
-                URI createdUri = new URI("locations/" + locId + "/sensors/" + s.getSensorId());
-                return Response.created(createdUri).entity(s).build();
-            } catch (URISyntaxException ex) {
-                Logger.getLogger(SensorsResource.class.getName()).log(Level.SEVERE, null, ex);
-                return Response.serverError().build();
+        Sensor s;
+        try {
+            s = SensorDao.instance.add(locId, in);
+            if (s == null) {
+                return Response.status(400).build();
+            } else {
+                try {
+                    URI createdUri = new URI("locations/" + locId + "/sensors/" + s.getSensorId());
+                    return Response.created(createdUri).entity(s).build();
+                } catch (URISyntaxException ex) {
+                    Logger.getLogger(SensorsResource.class.getName()).log(Level.SEVERE, null, ex);
+                    return Response.serverError().build();
+                }
             }
+        } catch (InvalidLocationId ex) {
+            Logger.getLogger(SensorsResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(404).build();
         }
+
     }
 
     // ---- BEGIN sub-resource locators ----
