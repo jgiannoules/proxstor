@@ -1,7 +1,9 @@
 package com.giannoules.proxstor.location;
 
-import com.giannoules.proxstor.sensor.SensorResource;
+import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.sensor.SensorsResource;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -28,11 +30,14 @@ public class LocationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLocation() {
-        Location l = LocationDao.instance.getLocationById(locId);
-        if (l == null) {
+        Location l;
+        try {
+            l = LocationDao.instance.get(locId);
+            return Response.ok().entity(l).build();
+        } catch (InvalidLocationId ex) {
+            Logger.getLogger(LocationResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }
-        return Response.ok().entity(l).build();
     }
 
     /*
@@ -45,12 +50,16 @@ public class LocationResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putLocation(Location l) {
-        if ((l.getLocId() != null) && l.getLocId().equals(locId)) {
-            if (LocationDao.instance.updateLocation(l)) {
-                return Response.noContent().build();
-            }
+        if ((l.getLocId() == null) || !l.getLocId().equals(locId)) {
+            return Response.status(400).build();
         }
-        return Response.status(404).build();
+        try {
+            LocationDao.instance.update(l);
+            return Response.noContent().build();
+        } catch (InvalidLocationId ex) {
+            Logger.getLogger(LocationResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(404).build();
+        }
     }
 
     /*
@@ -61,9 +70,11 @@ public class LocationResource {
      */
     @DELETE
     public Response deleteLocation() {
-        if (LocationDao.instance.deleteLocation(locId)) {
+        try {
+            LocationDao.instance.delete(locId);
             return Response.noContent().build();
-        } else {
+        } catch (InvalidLocationId ex) {
+            Logger.getLogger(LocationResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }
     }

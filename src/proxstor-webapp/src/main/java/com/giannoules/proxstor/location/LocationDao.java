@@ -31,109 +31,113 @@ public enum LocationDao {
     private LocationDao() {
     }
 
+   
     /*
-     * converts vertex into Location object
+     * allow one or more locId to be tested for validity
      *
-     * assumes sanity check already performed on vertex
+     * return true iff all string params are valid locId, false otherwise
+     *
+     * no exceptions thrown. lack of database access silenty covered as false return
+     *
      */
-    private Location vertexToLocation(Vertex v) {
-        if (v == null) {
-            return null;
+    public boolean valid(String... ids) {
+        if (ids == null) {
+            return false;
         }
-        Location l = new Location();
-        l.setDescription((String) v.getProperty("description"));
-        Object id = v.getId();
-        if (id instanceof Long) {
-            l.setLocId(Long.toString((Long) v.getId()));
-        } else {
-            l.setLocId(v.getId().toString());
-        }
-        return l;
-    }
-
-    /*
-     * test Vertex for Location-ness
-     */
-    private boolean validLocationVertex(Vertex v) {
-        return (v != null) && v.getProperty("_type").equals("location");
-    }
-
-    /*
-     * test location id for Location-ness
-     */
-    private boolean validLocationId(String locId) {
         try {
-            return (locId != null) && validLocationVertex(ProxStorGraph.instance.getVertex(locId));
+            for (String id : ids) {
+                if ((id == null) || !valid(ProxStorGraph.instance.getVertex(id))) {
+                    return false;
+                }
+            }
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
+        return true;
     }
-
+    
     /*
-     * abstract away setting of Vertex location type
+     * test Vertex for Location-ness
+     *
+     * returns true if Vertex is of type Location, false otherwise
+     * 
+     * no exceptions thrown
      */
-    private void setVertexToLocationType(Vertex v) {
-        if (v != null) {
-            v.setProperty("_type", "location");
+    public boolean valid(Vertex... vertices) {
+        if (vertices == null) {
+            return false;
         }
+        String type;
+        for (Vertex v : vertices) {
+            type = v.getProperty("_type");
+            if ((type == null) || (!type.equals("location"))) {
+                return false;
+            }
+        }
+        return true;
     }
-
-    /*
-     * returns Location stored under locId
+    
+     /**
+     * Returns Location representation stored in back-end graph database under the 
+     * specified Vertex object ID.
      *
-     * returns null if:
-     *   - locId does not map to any graph vertex
-     *   - vertex is not of type location
-     *
+     * @param locId    The location id (object id) to used to to retrieve Location
+     * @return         Location representation of Vertex location id, or null if unable to access database
+     * @throws InvalidLocationId    If the locId parameter is invalid
      */
-    public Location getLocationById(String locId) {
-        if (locId == null) {
-            return null;
-        }
-        Vertex v;
+    public Location get(String locId) throws InvalidLocationId {
         try {
+            Vertex v;
             v = ProxStorGraph.instance.getVertex(locId);
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        if ((v != null) && validLocationVertex(v)) {
-            return vertexToLocation(v);
-        }
-        return null;
-    }
-
-    /*
-     * returns all locations in database with description desc
-     */
-    public List<Location> getLocationsByDescription(String desc) {
-        List<Location> devices = new ArrayList<>();
-        GraphQuery q;
-        try {
-            q = ProxStorGraph.instance._query();
+            if (!valid(v)) {
+                throw new InvalidLocationId();
+            }
+            return toLocation(v);
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
+        } catch (ProxStorGraphNonExistentObjectID ex) {
+            throw new InvalidLocationId();
         }
-        q.has("_type", "location");
-        q.has("description", desc);
-        for (Vertex v : q.vertices()) {
-            if (validLocationVertex(v)) {
-                devices.add(vertexToLocation(v));
-            }
-        }
-        return devices;
     }
 
     /*
-     * find all matching Locations based on partially specified Location
+     * returns Location stored under Vertex v
+     *
+     * returns null if:
+     *   - v is null     
+     *   - vertex is not of type location
+     *      
+     * throws InvalidLocationId if parameter is not valid id
      */
-    public Collection<Location> getMatchingLocations(Location partial) {
+    public Location get(Vertex v) throws InvalidLocationId {
+        if (LocationDao.this.valid(v)) {
+            return toLocation(v);
+        }
+        throw new InvalidLocationId();
+    }
+    
+    /*
+     * find all matching Locations based on partially specified Location
+     *
+     * returns all matching locations as a collection, or null if there are none
+     * 
+     * graph database not running becomes a null return
+     *
+     * used by SearchResource @POST
+     */
+    public Collection<Location> getMatching(Location partial) {
         List<Location> locations = new ArrayList<>();
         if ((partial.getLocId() != null) && (!partial.getLocId().isEmpty())) {
-            locations.add(getLocationById(partial.getLocId()));
-            return locations;
+            // invalid locId is not an exception, it is just no match condition
+            try {
+                locations.add(LocationDao.this.get(partial.getLocId()));
+                return locations;
+            } catch (InvalidLocationId ex) {
+                Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
         }
         GraphQuery q;
         try {
@@ -147,99 +151,89 @@ public enum LocationDao {
             q.has("description", partial.getDescription());
         }
         for (Vertex v : q.vertices()) {
-            if (validLocationVertex(v)) {
-                locations.add(vertexToLocation(v));
+            if (LocationDao.this.valid(v)) {
+                locations.add(toLocation(v));
             }
         }
         return locations;
     }
 
-    /*
-     * returns *all* Locations in database     
-     */
-    public Collection<Location> getAllLocations() {
-        List<Location> devices = new ArrayList<>();
-        try {
-            for (Vertex v : ProxStorGraph.instance.getVertices("_type", "location")) {
-                devices.add(vertexToLocation(v));
-            }
-        } catch (ProxStorGraphDatabaseNotRunningException ex) {
-            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        return devices;
-    }
-
     /* 
      * adds a new Location to the Graph database
      *
-     * returns Location updated with actual locId used in the running
+     * returns Location updated with actual locID used in the running
      * graph database instance
+     *
+     * returns null if unable to add User
+     *
+     * used by LocationsResource @POST
      */
-    public Location addLocation(Location l) {
+    public Location add(Location l) {
         if (l == null) {
             return null;
         }
-        Vertex v;
         try {
-            v = ProxStorGraph.instance.addVertex();
+            Vertex v = ProxStorGraph.instance.addVertex();
             v.setProperty("description", l.getDescription());
-            setVertexToLocationType(v);
+            setType(v);
             ProxStorGraph.instance.commit();
             l.setLocId(v.getId().toString());
-
+            return l;
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
-        return l;
     }
 
     /*
      * updates Location based on Locations's locId
      *
      * returns true if valid locId
-     * returns false is locId invalid
+     * throws InvalidLocationId if id is invalid
+     *
+     * used by LocationResource @PUT
      */
-    public boolean updateLocation(Location l) {
-        if ((l == null) || (l.getLocId() == null)) {
-            return false;
-        }
-        if (validLocationId(l.getLocId())) {
-            Vertex v;
-            try {
-                v = ProxStorGraph.instance.getVertex(l.getLocId());
+    public boolean update(Location l) throws InvalidLocationId {
+       validOrException(l.getLocId());
+        try {
+            Vertex v = ProxStorGraph.instance.getVertex(l.getLocId());
+            if (l.getDescription()!= null) {
                 v.setProperty("description", l.getDescription());
-                ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
+            }          
+            ProxStorGraph.instance.commit();
             return true;
-        }
-        return false;
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }        
     }
 
     /* 
      * remove locId from graph
      *
      * returns true upon success
-     * returns false if locId was not a Location
+     * throws InvalidLocationId if locId invalid
+     *
+     * used by LocationResource @DELETE
      */
-    public boolean deleteLocation(String locId) {
-        if ((locId != null) && (validLocationId(locId))) {
-            try {
-                ProxStorGraph.instance.getVertex(locId).remove();
-                ProxStorGraph.instance.commit();
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
+    public boolean delete(String locId) throws InvalidLocationId {
+        validOrException(locId);
+        try {
+            ProxStorGraph.instance.getVertex(locId).remove();
+            ProxStorGraph.instance.commit();
             return true;
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
         }
-        return false;
-    }    
-
+    }
+    
+    public void validOrException(String ... ids) throws InvalidLocationId {
+        if (!valid(ids)) {
+            throw new InvalidLocationId();
+        }
+    }
+    
     public boolean locationWithinLocation(String innerLocId, String outerLocId) {
         List<Vertex> vertices = null;
         try {
@@ -255,7 +249,7 @@ public enum LocationDao {
      * @TODO don't recreate within if already exists
      */
     public boolean establishLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationId {            
-        if (!validLocationId(innerLocId) || !validLocationId(outerLocId)) {
+        if (!valid(innerLocId) || !valid(outerLocId)) {
             throw new InvalidLocationId();
         }
         if (locationWithinLocation(innerLocId, outerLocId)) {
@@ -280,7 +274,7 @@ public enum LocationDao {
      * was not already established 
      */
     public boolean removeLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationId {
-        if (!validLocationId(innerLocId) || !validLocationId(outerLocId)) {
+        if (!valid(innerLocId) || !valid(outerLocId)) {
             throw new InvalidLocationId();
         }
         Vertex v;
@@ -319,4 +313,45 @@ public enum LocationDao {
         return false;
     }
 
+    
+    // ----> BEGIN private methods <----
+    
+    
+    /*
+     * converts vertex into Location object
+     *
+     * (assumes sanity check already performed on vertex)
+     *
+     * returns non-null Location if successful, otherwise null
+     *
+     * no exceptions thrown
+     */
+    private Location toLocation(Vertex v) {
+        if (v == null) {
+            return null;
+        }
+        Location l = new Location();
+        /*
+         * note: getProperty() will return null for non-existent props
+         */ 
+        l.setDescription((String) v.getProperty("description"));
+        Object id = v.getId();
+        if (id instanceof Long) {
+            l.setLocId(Long.toString((Long) v.getId()));
+        } else {
+            l.setLocId(v.getId().toString());
+        }
+        return l;
+    }
+
+    /*
+     * abstract away setting of Vertex Location type to allow underlying graph
+     * representation/management to evolve
+     */
+    private void setType(Vertex v) {
+        if (v != null) {
+            v.setProperty("_type", "location");
+        }
+    }
+    
 }

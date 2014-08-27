@@ -1,13 +1,10 @@
 package com.giannoules.proxstor.location;
 
-import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -32,7 +29,7 @@ public class LocationsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response postLocation(Location in) {
-        Location l = LocationDao.instance.addLocation(in);
+        Location l = LocationDao.instance.add(in);
         if (l == null) {
             return Response.status(400).build();
         } else {
