@@ -1,6 +1,8 @@
 package com.giannoules.proxstor.sensor;
 
 public enum SensorType {
-    Wifi,
-    BLE
+    WIFI_SSID,
+    WIFI_BSSID,
+    BT_UUID,
+    BLE_UUID,    
 };
