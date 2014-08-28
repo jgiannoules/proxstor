@@ -27,11 +27,8 @@ public class SearchResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchingUsers(User u) {
-        Collection<User> users = UserDao.instance.getMatching(u);
-        if (users == null) {
-            return Response.status(404).build();
-        }
-        if (users.isEmpty()) {
+        Collection<User> users = UserDao.instance.getMatching(u);  
+        if (users == null || users.isEmpty()) {
             return Response.noContent().build();
         }
         /*
@@ -48,11 +45,8 @@ public class SearchResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMathingDevices(Device d) {
-        Collection<Device> devices = DeviceDao.instance.getMatching(d);
-        if (devices == null) {
-            return Response.status(404).build();
-        }
-        if (devices.isEmpty()) {
+        Collection<Device> devices = DeviceDao.instance.getMatching(d);      
+        if (devices == null || devices.isEmpty()) {
             return Response.noContent().build();
         }
         /*
@@ -70,10 +64,7 @@ public class SearchResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchingLocations(Location l) {
         Collection<Location> locations = LocationDao.instance.getMatching(l);
-        if (locations == null) {
-            return Response.status(404).build();
-        }
-        if (locations.isEmpty()) {
+        if (locations == null || locations.isEmpty()) {
             return Response.noContent().build();
         }
         /*
@@ -91,10 +82,7 @@ public class SearchResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchingSensors(Sensor s) {
         Collection<Sensor> sensors = SensorDao.instance.getMatching(s);
-        if (sensors == null) {
-            return Response.status(404).build();
-        }
-        if (sensors.isEmpty()) {
+        if (sensors == null | sensors.isEmpty()) {
             return Response.noContent().build();
         }
         /*
