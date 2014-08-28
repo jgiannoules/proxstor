@@ -39,7 +39,7 @@ public enum ProxStorGraph {
     
     private Graph graph;
     private final Map<String, AtomicInteger> stats = new ConcurrentHashMap<>();
-    private Map<String, Integer> statsPrev = new ConcurrentHashMap<>();
+    private final Map<String, Integer> statsPrev = new ConcurrentHashMap<>();
    
     private int incCounter(String desc) {
         if (stats.containsKey(desc)) {
@@ -73,7 +73,7 @@ public enum ProxStorGraph {
         incCounter("shutdown()");
         _isRunningOrException();        
         if (graph instanceof TransactionalGraph) {
-            ProxStorDebug.println("ProxStorGraph.commit(): detected TransactionalGraph. committing.");
+            incCounter("shutdown() - TransactionalGraph");
             ((TransactionalGraph) graph).commit();
         }
         graph.shutdown();

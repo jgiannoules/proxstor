@@ -77,7 +77,8 @@ public enum KnowsDao {
      * @throws UserAlreadyKnowsUser If a 'knows' relationship already exists
      * from fromUser to toUser, or if the user ids are the same.
      */
-    public boolean addKnows(String fromUser, String toUser, Integer strength) throws InvalidUserId, UserAlreadyKnowsUser {        
+    public boolean addKnows(String fromUser, String toUser, Integer strength) throws InvalidUserId, UserAlreadyKnowsUser {
+        UserDao.instance.validOrException(fromUser, toUser);
         if (strength == null) {
             return false;
         }
@@ -121,9 +122,7 @@ public enum KnowsDao {
      * throws InvalidModel if multiple knows relationships found between users
      */
     public Edge getKnows(String fromUser, String toUser) throws InvalidUserId, InvalidModel {
-        if (!UserDao.instance.valid(fromUser, toUser)) {
-            throw new InvalidUserId();
-        }
+        UserDao.instance.validOrException(fromUser, toUser);
         try {
             // this is painful without Gremlin
             VertexQuery vq = ProxStorGraph.instance.getVertex(fromUser).query();
@@ -153,6 +152,7 @@ public enum KnowsDao {
      * @TODO check for existing relationship. currently the method is identical to addKnows. created duplicates.
      */
     public boolean updateKnows(String fromUser, String toUser, Integer strength) throws InvalidUserId {
+        UserDao.instance.validOrException(fromUser, toUser);
         Edge e;
         try {
             e = getKnows(fromUser, toUser);
@@ -180,7 +180,6 @@ public enum KnowsDao {
             if (e != null) {
                 e.remove();
                 return true;
-
             }
         } catch (InvalidModel ex) {
             Logger.getLogger(KnowsDao.class
