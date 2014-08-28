@@ -13,6 +13,8 @@ import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,7 +38,18 @@ public enum ProxStorGraph {
     instance;
     
     private Graph graph;
+    private final Map<String, AtomicInteger> stats = new ConcurrentHashMap<>();
+    private Map<String, Integer> statsPrev = new ConcurrentHashMap<>();
    
+    private int incCounter(String desc) {
+        if (stats.containsKey(desc)) {
+            return stats.get(desc).incrementAndGet();
+        } else {
+            stats.put(desc, new AtomicInteger(1));
+            return 1;
+        }
+    }
+    
     /*
      * nada. use createGraph()
      */
@@ -46,16 +59,18 @@ public enum ProxStorGraph {
      * preferred use of GraphFactory
      */
     public void start(Map<String, String> conf) throws ProxStorGraphDatabaseAlreadyRunning {
+        incCounter("start()");
         if (graph instanceof Graph) {
             throw new ProxStorGraphDatabaseAlreadyRunning("cannot create graph because an instance is already running");
         }
-        graph = GraphFactory.open(conf);
+        graph = GraphFactory.open(conf);        
     }     
      
     /*
      * shutting down Graph instance should flush all commits to disk
      */
     public void shutdown() throws ProxStorGraphDatabaseNotRunningException {
+        incCounter("shutdown()");
         _isRunningOrException();        
         if (graph instanceof TransactionalGraph) {
             ProxStorDebug.println("ProxStorGraph.commit(): detected TransactionalGraph. committing.");
@@ -68,7 +83,8 @@ public enum ProxStorGraph {
     /*
      * "running" is whether non-null Graph instance exists
      */
-    public boolean isRunning() {        
+    public boolean isRunning() {
+        incCounter("isRunning()");        
         return (graph != null);
     }
 
@@ -76,6 +92,7 @@ public enum ProxStorGraph {
      * add vertex to graph
      */
     public Vertex addVertex() throws ProxStorGraphDatabaseNotRunningException {
+        incCounter("addVertex()");        
         _isRunningOrException();
         return graph.addVertex(null);
     }
@@ -84,6 +101,7 @@ public enum ProxStorGraph {
      * add edge to graph
      */
     public Edge addEdge(Vertex outVertex, Vertex inVertex, String label) throws ProxStorGraphDatabaseNotRunningException {
+        incCounter("addEdge()");
         _isRunningOrException();
         return graph.addEdge(null, outVertex, inVertex, label);
     }
@@ -92,6 +110,7 @@ public enum ProxStorGraph {
      * return Vertex referenced by id
      */
     public Vertex getVertex(Object id) throws ProxStorGraphDatabaseNotRunningException, ProxStorGraphNonExistentObjectID {
+        incCounter("getVertex()");
         _isRunningOrException();
         /* 
          * getVertex() returns null if no Vertex exists (no Exception from Blueprints)
@@ -109,6 +128,7 @@ public enum ProxStorGraph {
      * @TODO deprecate with index interface
      */
     public Iterable<Vertex> getVertices(String key, Object value) throws ProxStorGraphDatabaseNotRunningException {
+        incCounter("getVertices()");
         _isRunningOrException();
         return graph.getVertices(key, value);
     }
@@ -119,6 +139,7 @@ public enum ProxStorGraph {
      * @TODO hide this behind an interface
      */
     public GraphQuery _query() throws ProxStorGraphDatabaseNotRunningException {
+        incCounter("_query()");
         _isRunningOrException();
         return graph.query();
     }
@@ -127,6 +148,7 @@ public enum ProxStorGraph {
      * return Edge referenced by id
      */
     public Edge getEdge(Object id) throws ProxStorGraphDatabaseNotRunningException, ProxStorGraphNonExistentObjectID {
+        incCounter("getEdge()");
         _isRunningOrException();
         /* 
          * getEdge() returns null if no Edege exists (no Exception from Blueprints)
@@ -139,6 +161,7 @@ public enum ProxStorGraph {
     }
     
     public List<Vertex> getVertices(String idA, String idB, Direction d, String ... labels) throws ProxStorGraphDatabaseNotRunningException, ProxStorGraphNonExistentObjectID {
+        incCounter("getVertices()");
         Vertex a = getVertex(idA);
         List<Vertex> vertices = new ArrayList<>();
         for (Vertex v : a.getVertices(d, labels)) {
@@ -156,6 +179,7 @@ public enum ProxStorGraph {
      * no status, no return.
      */
     public void commit() throws ProxStorGraphDatabaseNotRunningException {
+        incCounter("commit()");
         _isRunningOrException();
         if (graph instanceof TransactionalGraph) {
                 ((TransactionalGraph) graph).commit();
@@ -167,6 +191,7 @@ public enum ProxStorGraph {
      */
     @Override
     public String toString() {
+        incCounter("toString()");
         try {
             _isRunningOrException();
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
@@ -177,6 +202,17 @@ public enum ProxStorGraph {
         sb.append(graph.toString());
         sb.append("\n\nFeatures:\n\n");
         sb.append(graph.getFeatures());
+        sb.append("\n\nProxStorGraph Internal Stats:\n\n");
+        for (String k : stats.keySet()) {
+            sb.append(k).append(": ").append(stats.get(k));
+            if (statsPrev.containsKey(k)) {
+                sb.append(" (+");
+                sb.append(stats.get(k).get() - statsPrev.get(k));
+                sb.append(")");
+            }            
+            sb.append("\n");
+            statsPrev.put(k, stats.get(k).get());
+        }
         return sb.toString();    
     } 
     
