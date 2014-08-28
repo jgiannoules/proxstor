@@ -1,6 +1,7 @@
 package com.giannoules.proxstor.location;
 
 import com.giannoules.proxstor.exception.InvalidLocationId;
+import com.giannoules.proxstor.knows.NearbyResource;
 import com.giannoules.proxstor.sensor.SensorsResource;
 import com.giannoules.proxstor.within.WithinResource;
 import java.util.logging.Level;
@@ -10,6 +11,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -96,6 +98,14 @@ public class LocationResource {
     @Path("within")
     public WithinResource getWithinResource() {
         return new WithinResource(locId);
+    }
+    
+    /*
+     * return WithinResource handle for this location
+     */
+    @Path("nearby/{distance: [0-9]+}")
+    public NearbyResource getNearbyResource(@PathParam("distance") Integer distance) {
+        return new NearbyResource(locId, distance);
     }
 
 }

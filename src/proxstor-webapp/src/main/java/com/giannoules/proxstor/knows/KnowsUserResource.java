@@ -87,10 +87,9 @@ public class KnowsUserResource {
      * returns 204 (No Content) when successful
      * returns 404 (Not Found) if relationship was not already established or
      *                         the userIds are simply invalid
-     */
-    @Path("{otheruser: [0-9]+}")
+     */    
     @DELETE
-    public Response removeUserKnows(@PathParam("otheruser") String userIdB) {
+    public Response removeUserKnows() {
         ProxStorDebug.println("removeUserKnows()");        
         try {
             KnowsDao.instance.removeKnows(userIdA, userIdB);
