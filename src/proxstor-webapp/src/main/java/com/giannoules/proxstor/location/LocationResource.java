@@ -2,6 +2,7 @@ package com.giannoules.proxstor.location;
 
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.sensor.SensorsResource;
+import com.giannoules.proxstor.within.WithinResource;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
@@ -87,6 +88,14 @@ public class LocationResource {
     @Path("sensors")
     public SensorsResource getSensorResource() {
         return new SensorsResource(locId);
+    }
+    
+    /*
+     * return WithinResource handle for this location
+     */
+    @Path("within")
+    public WithinResource getWithinResource() {
+        return new WithinResource(locId);
     }
 
 }

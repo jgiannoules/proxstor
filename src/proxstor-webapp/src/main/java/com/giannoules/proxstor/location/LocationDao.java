@@ -234,65 +234,6 @@ public enum LocationDao {
         }
     }
     
-    public boolean locationWithinLocation(String innerLocId, String outerLocId) {
-        List<Vertex> vertices = null;
-        try {
-             vertices = ProxStorGraph.instance.getVertices(innerLocId, outerLocId, OUT, "within");
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);             
-        }
-        return ((vertices != null) && (!vertices.isEmpty()));
-    }
-    
-    /*
-     *
-     * @TODO don't recreate within if already exists
-     */
-    public boolean establishLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationId {            
-        if (!valid(innerLocId) || !valid(outerLocId)) {
-            throw new InvalidLocationId();
-        }
-        if (locationWithinLocation(innerLocId, outerLocId)) {
-            ProxStorDebug.println("Caught you!");
-        }
-        try {
-            Vertex outVertex = ProxStorGraph.instance.getVertex(innerLocId);
-            Vertex inVertex = ProxStorGraph.instance.getVertex(outerLocId);
-            ProxStorGraph.instance.addEdge(outVertex, inVertex, "within");
-            return true;
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-    }
-
-    /*
-     * removes an established Within relationship from in -> out
-     *
-     * returns true if succesful
-     * returns false if either locId is invalid or if a Within relationship
-     * was not already established 
-     */
-    public boolean removeLocationWithinLocation(String innerLocId, String outerLocId) throws InvalidLocationId {
-        if (!valid(innerLocId) || !valid(outerLocId)) {
-            throw new InvalidLocationId();
-        }
-        Vertex v;
-        try {
-            v = ProxStorGraph.instance.getVertex(innerLocId);
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-        for (Edge e : v.getEdges(OUT, "within")) {
-            if (e.getVertex(IN).getId().toString().equals(outerLocId)) {
-                e.remove();
-                return true;
-            }
-        }
-        return false;
-    }
-    
     /*
      * 2**64-1 = 18,446,744,073,709,551,615
      * 18,446,744,073,709,551,615 meters = 1,949.822 light years
