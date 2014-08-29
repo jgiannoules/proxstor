@@ -13,6 +13,7 @@ counter=$4
 echo "adding $firstName $lastName (address $address) $counter times"
 
 while [ $counter -gt 0 ]; do
-		curl -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"firstName\":\"$firstName\",\"lastName\":\"$lastName\", \"address\":\"$address\"}" http://localhost:8084/proxstor-webapp/api/users > /dev/null
+		curl -s -H "Content-Type: application/json" -H "Accept: application/json" -d "{\"firstName\":\"$firstName\",\"lastName\":\"$lastName\", \"email\":\"$address\"}" http://localhost:8080/proxstor-webapp/api/users > /dev/null
+		echo $counter
 		let counter-=1
 done
