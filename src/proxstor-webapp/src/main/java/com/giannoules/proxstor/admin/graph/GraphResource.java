@@ -1,8 +1,11 @@
 package com.giannoules.proxstor.admin.graph;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseAlreadyRunning;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,6 +15,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -95,6 +99,15 @@ public class GraphResource {
             Logger.getLogger(GraphResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(403).entity(ex.getMessage()).build();
         }
+    }
+    
+    @Path("orientdb")
+    @GET
+    public Response getOrientDB() {
+        ProxStorDebug.println("getOrientDB()");
+        OrientGraphFactory factory = new OrientGraphFactory("memory:temp").setupPool(1,10);
+        OrientGraph graph = factory.getTx();
+        return Response.ok().build();
     }
     
 }
