@@ -3,7 +3,7 @@ package com.giannoules.proxstor.knows;
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.UserAlreadyKnowsUser;
-import com.giannoules.proxstor.user.User;
+import com.giannoules.proxstor.api.User;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import java.net.URI;

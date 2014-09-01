@@ -6,7 +6,7 @@ import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.exception.UserAlreadyKnowsUser;
-import com.giannoules.proxstor.user.User;
+import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Compare.GREATER_THAN_EQUAL;
 import com.tinkerpop.blueprints.Direction;

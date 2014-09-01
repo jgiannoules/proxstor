@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.location;
 
+import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.InvalidLocationId;

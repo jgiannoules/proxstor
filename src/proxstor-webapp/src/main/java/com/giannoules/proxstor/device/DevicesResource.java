@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.device;
 
+import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.exception.InvalidUserId;
 import java.net.URI;
 import java.net.URISyntaxException;

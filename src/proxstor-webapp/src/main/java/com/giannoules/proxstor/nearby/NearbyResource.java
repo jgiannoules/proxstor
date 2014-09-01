@@ -2,7 +2,7 @@ package com.giannoules.proxstor.knows;
 
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.exception.InvalidLocationId;
-import com.giannoules.proxstor.location.Location;
+import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.nearby.NearbyDao;
 import java.util.Collection;
 import java.util.logging.Level;

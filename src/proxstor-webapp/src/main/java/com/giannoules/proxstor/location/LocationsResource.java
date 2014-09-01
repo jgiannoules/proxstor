@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.location;
 
+import com.giannoules.proxstor.api.Location;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;

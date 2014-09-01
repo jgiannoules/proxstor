@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.user;
 
+import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;

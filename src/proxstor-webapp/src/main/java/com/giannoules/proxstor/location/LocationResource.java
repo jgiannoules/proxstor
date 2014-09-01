@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.location;
 
+import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.knows.NearbyResource;
 import com.giannoules.proxstor.sensor.SensorsResource;

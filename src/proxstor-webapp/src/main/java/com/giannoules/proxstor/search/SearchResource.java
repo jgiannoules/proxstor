@@ -1,12 +1,12 @@
 package com.giannoules.proxstor.search;
 
-import com.giannoules.proxstor.device.Device;
+import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.device.DeviceDao;
-import com.giannoules.proxstor.location.Location;
+import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.location.LocationDao;
-import com.giannoules.proxstor.sensor.Sensor;
+import com.giannoules.proxstor.api.Sensor;
 import com.giannoules.proxstor.sensor.SensorDao;
-import com.giannoules.proxstor.user.User;
+import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.user.UserDao;
 import java.util.Collection;
 import javax.ws.rs.Consumes;

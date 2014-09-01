@@ -5,7 +5,7 @@ import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.LocationAlreadyWithinLocation;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
-import com.giannoules.proxstor.location.Location;
+import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.location.LocationDao;
 import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;

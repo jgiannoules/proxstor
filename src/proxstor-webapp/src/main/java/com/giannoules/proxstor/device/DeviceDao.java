@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.device;
 
+import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.DeviceNotOwnedByUser;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
