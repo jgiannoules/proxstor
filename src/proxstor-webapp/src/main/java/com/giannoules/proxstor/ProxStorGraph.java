@@ -37,18 +37,9 @@ import java.util.logging.Logger;
 public enum ProxStorGraph {
     instance;
     
-    private Graph graph;
+    public Graph graph;
     private final Map<String, AtomicInteger> stats = new ConcurrentHashMap<>();
     private final Map<String, Integer> statsPrev = new ConcurrentHashMap<>();
-   
-    private int incCounter(String desc) {
-        if (stats.containsKey(desc)) {
-            return stats.get(desc).incrementAndGet();
-        } else {
-            stats.put(desc, new AtomicInteger(1));
-            return 1;
-        }
-    }
     
     /*
      * nada. use createGraph()
@@ -182,8 +173,9 @@ public enum ProxStorGraph {
         incCounter("commit()");
         _isRunningOrException();
         if (graph instanceof TransactionalGraph) {
+                incCounter("TransactionalGraph commit()");
                 ((TransactionalGraph) graph).commit();
-            }
+        }
     } 
     
     /*
@@ -232,6 +224,15 @@ public enum ProxStorGraph {
     private Graph _getGraph() throws ProxStorGraphDatabaseNotRunningException {        
         _isRunningOrException();
         return instance.graph;
-    }    
-    
+    }
+   
+    private int incCounter(String desc) {
+        if (stats.containsKey(desc)) {
+            return stats.get(desc).incrementAndGet();
+        } else {
+            stats.put(desc, new AtomicInteger(1));
+            return 1;
+        }
+    }
+
 }
