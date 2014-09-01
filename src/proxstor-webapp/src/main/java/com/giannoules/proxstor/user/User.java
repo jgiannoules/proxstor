@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.user;
 
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /*
@@ -54,6 +55,37 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    @Override
+    public String toString() {
+        return userId + ": " + lastName + ", " + firstName + " [" + email + "]";
+    }
+    
+    @Override
+    public int hashCode() {
+        return firstName.hashCode() * lastName.hashCode() * email.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final User other = (User) obj;
+        if (!Objects.equals(this.firstName, other.firstName)) {
+            return false;
+        }
+        if (!Objects.equals(this.lastName, other.lastName)) {
+            return false;
+        }
+        if (!Objects.equals(this.email, other.email)) {
+            return false;
+        }
+        return true;
     }
 
 }
