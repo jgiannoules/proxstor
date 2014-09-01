@@ -123,6 +123,15 @@ public enum DeviceDao {
         if ((partial.getDescription() != null) && (!partial.getDescription().isEmpty())) {
             q.has("description", partial.getDescription());
         }
+        if ((partial.getManufacturer()!= null) && (!partial.getManufacturer().isEmpty())) {
+            q.has("manufacturer", partial.getManufacturer());
+        }
+        if ((partial.getModel()!= null) && (!partial.getModel().isEmpty())) {
+            q.has("model", partial.getModel());
+        }
+        if ((partial.getOs()!= null) && (!partial.getOs().isEmpty())) {
+            q.has("os", partial.getOs());
+        }
         for (Vertex v : q.vertices()) {
             if (valid(v)) {
                 devices.add(toDevice(v));
@@ -148,6 +157,9 @@ public enum DeviceDao {
             Vertex out = ProxStorGraph.instance.getVertex(userId);
             Vertex in = ProxStorGraph.instance.addVertex();
             in.setProperty("description", d.getDescription());
+            in.setProperty("manufacturer", d.getManufacturer());
+            in.setProperty("model", d.getModel());
+            in.setProperty("os", d.getOs());
             setType(in);
             d.setDevId(in.getId().toString());
             ProxStorGraph.instance.addEdge(out, in, "uses");
@@ -188,6 +200,9 @@ public enum DeviceDao {
             v = ProxStorGraph.instance.getVertex(d.getDevId());
             if (d.getDescription() != null) {
                 v.setProperty("description", d.getDescription());
+                v.setProperty("manufacturer", d.getManufacturer());
+                v.setProperty("model", d.getModel());
+                v.setProperty("os", d.getOs());
             }
             ProxStorGraph.instance.commit();
             return true;
@@ -336,6 +351,9 @@ public enum DeviceDao {
             try {
                 v = ProxStorGraph.instance.getVertex(d.getDevId());
                 v.setProperty("description", d.getDescription());
+                v.setProperty("manufacturer", d.getManufacturer());
+                v.setProperty("model", d.getModel());
+                v.setProperty("os", d.getOs());
                 ProxStorGraph.instance.commit();
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
