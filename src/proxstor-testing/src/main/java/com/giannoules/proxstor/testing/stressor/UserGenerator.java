@@ -5,7 +5,11 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-
+/*
+ * generate random uses composed of nonsense names and email addresses
+ * based on those names. a Set it used to ensure the object does not 
+ * accidentally return the same random user twice.
+ */
 public class UserGenerator {
     
     /*
@@ -16,9 +20,9 @@ public class UserGenerator {
     static final String consonants = "bcdfghjklmnpqrstvwxyz";   
     static final String vowels = "aeiou";
     
-    public UserGenerator() {
+    public UserGenerator(Random random) {
         this.emailAddresses = new HashSet<>();
-        this.random = new Random();
+        this.random = random;
     }
     
     public User genUser() {
