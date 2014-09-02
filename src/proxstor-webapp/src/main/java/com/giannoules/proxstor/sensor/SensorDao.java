@@ -123,6 +123,9 @@ public enum SensorDao {
         if (partial.getType() != null) {
             q.has("type", partial.getType().toString());
         }
+        if (partial.getTypeIdentifier() != null) {
+            q.has("typeIdentifier", partial.getTypeIdentifier());
+        }
         for (Vertex v : q.vertices()) {
             if (valid(v)) {
                 sensors.add(toSensor(v));
@@ -153,6 +156,7 @@ public enum SensorDao {
             Vertex in = ProxStorGraph.instance.addVertex();
             in.setProperty("description", s.getDescription());
             in.setProperty("type", s.getType().toString());
+            in.setProperty("typeIdentifier", s.getTypeIdentifier());
             setType(in);
             s.setSensorId(in.getId().toString());
             ProxStorGraph.instance.addEdge(out, in, "contains");
@@ -197,6 +201,9 @@ public enum SensorDao {
             }
             if (s.getType() != null) {
                 v.setProperty("type", s.getType().toString());
+            }
+            if (s.getTypeIdentifier() != null) {
+                v.setProperty("typeIdentifier", s.getTypeIdentifier());
             }
             ProxStorGraph.instance.commit();
             return true;
@@ -269,6 +276,7 @@ public enum SensorDao {
         Sensor s = new Sensor();
         s.setDescription((String) v.getProperty("description"));
         s.setType(SensorType.valueOf((String) v.getProperty("type")));
+        s.setTypeIdentifier((String) v.getProperty("typeIdentifier"));
         Object id = v.getId();
         if (id instanceof Long) {
             s.setSensorId(Long.toString((Long) v.getId()));
@@ -347,6 +355,7 @@ public enum SensorDao {
                 Vertex v = ProxStorGraph.instance.getVertex(s.getSensorId());
                 v.setProperty("description", s.getDescription());
                 v.setProperty("type", s.getType().toString());
+                v.setProperty("typeIdentifier", s.getTypeIdentifier());
                 ProxStorGraph.instance.commit();
                 return true;
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
