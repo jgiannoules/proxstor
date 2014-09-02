@@ -1,6 +1,8 @@
 package com.giannoules.proxstor.api;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /*
@@ -15,6 +17,10 @@ public class User {
     public String firstName;
     public String lastName;
     public String email;
+    /*
+     * contains devIDs of unique devices used by this user
+     */
+    public Set<String> devices;
 
     public User() {
     }
@@ -55,6 +61,20 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    public void addDevice(Device d) {
+        if (devices == null) {
+            devices = new HashSet<>();
+        }
+        devices.add(d.getDevId());
+    }
+    
+    public boolean hasDevice(Device d) {
+        if (devices == null) {
+            return false;
+        }
+        return (devices.contains(d.getDevId()));
     }
     
     @Override
