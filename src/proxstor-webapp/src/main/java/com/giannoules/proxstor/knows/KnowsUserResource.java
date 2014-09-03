@@ -36,7 +36,6 @@ public class KnowsUserResource {
      */    
     @POST
     public Response establishUserKnows() {
-        ProxStorDebug.println("establishUserKnows()");
         try {
             if (!KnowsDao.instance.addKnows(userIdA, userIdB, strengthVal)) {
                 return Response.status(500).build();
@@ -67,7 +66,6 @@ public class KnowsUserResource {
      */    
     @PUT
     public Response updateUserKnows() {
-        ProxStorDebug.println("updateUserKnows()");        
         try {
             if (KnowsDao.instance.updateKnows(userIdA, userIdB, strengthVal)) {
                 return Response.noContent().build();
@@ -90,7 +88,6 @@ public class KnowsUserResource {
      */    
     @DELETE
     public Response removeUserKnows() {
-        ProxStorDebug.println("removeUserKnows()");        
         try {
             KnowsDao.instance.removeKnows(userIdA, userIdB);
             return Response.noContent().build();

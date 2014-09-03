@@ -104,7 +104,8 @@ public enum KnowsDao {
              * temporary implementation to speed up Blueprints VertexQuery
              * using Gremlin later will remove the need for this
              */
-            e.setProperty("_target", toUser);         
+            e.setProperty("_target", toUser);
+            ProxStorGraph.instance.commit();
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(KnowsDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
@@ -156,15 +157,17 @@ public enum KnowsDao {
         Edge e;
         try {
             e = getKnows(fromUser, toUser);
-        } catch (InvalidModel ex) {
-            return false;
-        }
-        if (e != null) {
-            e.setProperty("strength", strength);
-            return true;
+            if (e != null) {
+                e.setProperty("strength", strength);
+                ProxStorGraph.instance.commit();
+                return true;
+            }
+        } catch (InvalidModel | ProxStorGraphDatabaseNotRunningException ex) {
+           Logger.getLogger(KnowsDao.class
+                    .getName()).log(Level.SEVERE, null, ex);
         }
         return false;
-    }
+        }
 
     /*
      * removes an established Knows relationship from fromUser -> toUser

@@ -44,7 +44,6 @@ public class KnowsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getKnownUsers() {
-        ProxStorDebug.println("getKnowsUsers()");
         Collection<User> users;
         try {
             users = KnowsDao.instance.getUserKnows(userIdA, strengthVal, OUT, 1024); // max 1024 users returned
@@ -69,7 +68,6 @@ public class KnowsResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getKnowsUsers() {
-        ProxStorDebug.println("getKnowsUsers()");
         Collection<User> users;
         try {
             users = KnowsDao.instance.getUserKnows(userIdA, strengthVal, IN, 1024); // max 1024 users returned
