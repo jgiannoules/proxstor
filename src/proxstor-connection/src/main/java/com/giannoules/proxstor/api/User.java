@@ -1,6 +1,8 @@
 package com.giannoules.proxstor.api;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -21,6 +23,11 @@ public class User {
      * contains devIDs of unique devices used by this user
      */
     public Set<String> devices;
+    /*
+     * track userId of known users and the getKnowsStrength relationship strength
+     */
+    public List<String> knows;
+    public List<Integer> strength;
 
     public User() {
     }
@@ -106,6 +113,38 @@ public class User {
             return false;
         }
         return true;
+    }
+
+    public List<String> getKnows() {
+        return knows;
+    }
+
+    public void setKnows(List<String> knows) {
+        this.knows = knows;
+    }
+    
+    public void addKnows(String id, int strength) {
+        if ((this.knows == null) || (this.strength == null)) {
+            this.knows = new ArrayList<>();
+            this.strength = new ArrayList<>();
+        }
+        this.knows.add(id);
+        this.strength.add(strength);
+    }
+    
+    public Integer getKnowsStrength(String id) {
+        if (this.knows != null && this.knows.contains(id)) {
+            return this.strength.get(this.knows.indexOf(id));
+        }
+        return null;
+    }
+        
+    public List<Integer> getStrength() {
+        return strength;
+    }
+
+    public void setStrength(List<Integer> strength) {
+        this.strength = strength;
     }
 
 }
