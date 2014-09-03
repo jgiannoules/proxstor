@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -23,6 +24,7 @@ import java.util.logging.Logger;
 public class ReaderWriter<T> {
     
     public static <T> boolean write(String filename, List<T> objs) {
+        BufferedWriter bw;
         Gson gson = new GsonBuilder()
                 .enableComplexMapKeySerialization()
                 .serializeNulls()
@@ -31,11 +33,11 @@ public class ReaderWriter<T> {
                 .setVersion(1.0)
                 .create();
         String json = gson.toJson(objs);        
-        try {                 
+        try {            
             FileWriter writer = new FileWriter(filename);            
             writer.write(json);
             writer.close();
-            return true;
+            return true;            
         } catch (IOException ex) {
             ex.printStackTrace();
         }

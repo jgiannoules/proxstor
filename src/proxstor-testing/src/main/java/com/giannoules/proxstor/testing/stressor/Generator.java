@@ -84,6 +84,7 @@ public class Generator {
         System.out.println();
 
         genUsers();
+        genKnows();
         genDevices();
         assignDevices();        
         genLocations();        
@@ -125,6 +126,47 @@ public class Generator {
         }
         long endTime = System.currentTimeMillis();
         System.out.println("done. (" + (endTime - startTime) + " ms)");
+    }
+    
+    public static void genKnows() {
+        System.out.print("Establishing knows between users...");
+        long startTime = System.currentTimeMillis();
+        /*
+         * 1. randomly select two users
+         * 2. if they already know each other, go back to #1
+         * 3. establish getKnowsStrength from a -> b
+         * 4. with 90% probability, estaliblish b -> a
+         * 5. repeat until knowsCount >= 3x userCount
+         */
+        long knowsCount = 0;
+        long reciprocated = 0;
+        while (knowsCount < (users.size() * 3)) {
+            User userA = users.get(random.nextInt(users.size()));
+            User userB = users.get(random.nextInt(users.size()));
+            if (userA.getKnowsStrength(userB.getUserId()) == null) {
+                int strength = random.nextInt(101);
+                userA.addKnows(userB.getUserId(), strength);
+                knowsCount++;
+                if (random.nextInt(10) != 0) {
+                    /*
+                     * reciprocal relationship within 20%
+                     */
+                    reciprocated++;
+                    strength += random.nextInt(41) - 20; // [0 - 40] - 20
+                    if (strength < 0) {
+                        strength = 0;
+                    }
+                    if (strength > 100) {
+                        strength = 100;
+                    }
+                    userB.addKnows(userA.getUserId(), strength);
+                    knowsCount++;
+                }
+            }
+        }
+       long endTime = System.currentTimeMillis();       
+       System.out.print("done. (" + (endTime - startTime) + " ms)");
+       System.out.println(" [knows: " + knowsCount + " reciprocated: " + reciprocated * 2 + "]");
     }
 
     /*
