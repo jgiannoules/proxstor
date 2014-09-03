@@ -62,6 +62,13 @@ public class ProxStorConnector {
                 .post(Entity.entity(u, MediaType.APPLICATION_JSON_TYPE), User.class);
     }
     
+    public void userKnows(User u, User v, int strength) {
+        String path = "users/" + u.getUserId() + "/knows/" + strength + "/" + v.getUserId();
+        target.path(path)
+                .request(MediaType.TEXT_PLAIN)
+                .post(null);
+    }
+    
     public Device getDevice(Integer userId, Integer devId) {
         return target.path("/users/" + userId + "/devices/" + devId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -85,7 +92,7 @@ public class ProxStorConnector {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(dev, MediaType.APPLICATION_JSON_TYPE), Device.class);
         } catch (javax.ws.rs.InternalServerErrorException ex) {
-            throw new Exception();
+            throw new Exception("Cannot add " + dev + " to " + userId);
         }
     }
     
