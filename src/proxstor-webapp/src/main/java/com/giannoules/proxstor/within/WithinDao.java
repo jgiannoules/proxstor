@@ -71,6 +71,7 @@ public enum WithinDao {
             Vertex outVertex = ProxStorGraph.instance.getVertex(innerLocId);
             Vertex inVertex = ProxStorGraph.instance.getVertex(outerLocId);
             ProxStorGraph.instance.addEdge(outVertex, inVertex, "within").setProperty("_target", outerLocId);
+            ProxStorGraph.instance.commit();
             return true;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
