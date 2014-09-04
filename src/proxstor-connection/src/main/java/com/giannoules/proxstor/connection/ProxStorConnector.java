@@ -7,6 +7,8 @@ package com.giannoules.proxstor.connection;
 
 
 import com.giannoules.proxstor.api.Device;
+import com.giannoules.proxstor.api.Location;
+import com.giannoules.proxstor.api.Sensor;
 import com.giannoules.proxstor.api.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -61,7 +63,13 @@ public class ProxStorConnector {
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(u, MediaType.APPLICATION_JSON_TYPE), User.class);
     }
-    
+
+    public Location putLocation(Location l) {
+        return target.path("/locations")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(l, MediaType.APPLICATION_JSON_TYPE), Location.class);
+    }
+
     public void userKnows(User u, User v, int strength) {
         String path = "users/" + u.getUserId() + "/knows/" + strength + "/" + v.getUserId();
         target.path(path)
@@ -96,5 +104,29 @@ public class ProxStorConnector {
         }
     }
     
+    public Sensor putSensor(Integer locId, Sensor s) throws Exception {
+        try {
+            return target.path("/locations/" + locId + "/sensors/")
+                    .request(MediaType.APPLICATION_JSON_TYPE)
+                    .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE), Sensor.class);
+        } catch (javax.ws.rs.InternalServerErrorException ex) {
+            throw new Exception("Cannot add " + s + " to " + locId);
+        }
+    }
+    
+    public void locationWithin(Location locA, Location locB) {
+        String path = "locations/" + locA.getLocId() + "/within/" + locB.getLocId();
+        target.path(path)
+                .request(MediaType.TEXT_PLAIN)
+                .post(null);
+    }
+    
+      
+    public void locationNearby(Location locA, Location locB, int d) {
+        String path = "locations/" + locA.getLocId() + "/nearby/" + d + "/" + locB.getLocId();
+        target.path(path)
+                .request(MediaType.TEXT_PLAIN)
+                .post(null);
+    }
 }
  
