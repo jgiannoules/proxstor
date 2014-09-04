@@ -110,7 +110,8 @@ public enum NearbyDao {
              * temporary implementation to speed up Blueprints VertexQuery
              * using Gremlin later will remove the need for this
              */
-            e.setProperty("_target", locIdB);         
+            e.setProperty("_target", locIdB);
+            ProxStorGraph.instance.commit();
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(NearbyDao.class.getName()).log(Level.SEVERE, null, ex);
             return false;
@@ -164,7 +165,12 @@ public enum NearbyDao {
         }
         if (e != null) {
             e.setProperty("distance", distance);
-            return true;
+            try {
+                ProxStorGraph.instance.commit();
+                return true;
+            } catch (ProxStorGraphDatabaseNotRunningException ex) {
+                Logger.getLogger(NearbyDao.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         return false;
     }
