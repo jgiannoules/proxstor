@@ -18,7 +18,7 @@ public class UserAddWorker implements Runnable {
 
     @Override
     public void run() {
-        u.setUserId(conn.putUser(u).getUserId());
+        u.setUserId(conn.addUser(u).getUserId());
         operations.getAndIncrement();
     }
 }
