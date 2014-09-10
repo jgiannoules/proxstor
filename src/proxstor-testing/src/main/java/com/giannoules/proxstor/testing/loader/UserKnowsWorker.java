@@ -27,7 +27,7 @@ public class UserKnowsWorker implements Runnable {
 
     @Override
     public void run() {
-        conn.userKnows(u, v, strength);
+        conn.addUserKnows(u, v, strength);
         operations.getAndIncrement();
     }
 }
