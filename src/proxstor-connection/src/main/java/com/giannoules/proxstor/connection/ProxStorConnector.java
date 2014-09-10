@@ -19,6 +19,8 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import org.glassfish.jersey.moxy.xml.MoxyXmlFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -40,12 +42,60 @@ public class ProxStorConnector {
         gson = new Gson();
     }
 
+    /*
+     * User actions
+     *
+     *   URI            Method	Header                          Description
+     *   --------------------------------------------------------------------------------------------------
+     *   /              POST	Content-Type: application/json	add new user; new userid in location header
+     *   /{userid}	GET	Accept: application/json	retrieve userid
+     *   /{userid}	PUT	Content-Type: application/json	update userid user
+     *   /{userid}	DELETE	n/a                             delete userid user
+     */
+    public User addUser(User u) {
+        return target.path("/users")
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(u, MediaType.APPLICATION_JSON_TYPE), User.class);
+    }
+
     public User getUser(Integer userId) {
         return target.path("users/" + userId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(User.class);
     }
 
+    public boolean updateUser(User u) {
+        Response response = target.path("users/" + u.getUserId())
+                .request()
+                .put(Entity.entity(u, MediaType.APPLICATION_JSON_TYPE));
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+
+    public boolean deleteUser(User u) {
+        Response response = target.path("users/" + u.getUserId())
+                .request()
+                .delete();
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+
+    
+    /*
+     * User Knows actions
+     *
+     * All User Knows actions relative to the URI:
+     *
+     *  /proxstor-webapp/api/users/{userid}/knows
+     *
+     *  URI             Method	Header                      Description
+     *  ----------------------------------------------------------------------------------------------------------------
+     *  /{s}            GET	Accept: application/json    get users userid knows with min strength s (0 for all)
+     *  /{s}/{user2}	POST	Accept: application/json    establish knows relationship with strength s from userid to user2
+     *  /{s}/{user2}    PUT	Accept: application/json    update knows relationship with strength s from userid to user2
+     *  /{s}/{user2}	DELETE	Accept: application/json    delete knows relationshipfrom userid to user2; strength ignored
+     *  /{s}/reverse	GET	Accept: application/json    get users who know userid with min strength s (0 for all)
+     *
+     */
+    
     public Collection<User> getKnows(Integer userId, Integer strength) {
         String json = target.path("users/" + userId + "/knows" + "/" + strength)
                 .request(MediaType.APPLICATION_JSON)
@@ -57,6 +107,21 @@ public class ProxStorConnector {
         return users;
     }
 
+    public void addUserKnows(User u, User v, int strength) {
+        String path = "users/" + u.getUserId() + "/knows/" + strength + "/" + v.getUserId();
+        target.path(path)
+                .request(MediaType.TEXT_PLAIN)
+                .post(null);
+    }
+
+    public void updateUserKnows(User u, User v, int strength) {
+        String path = "users/" + u.getUserId() + "/knows/" + strength + "/" + v.getUserId();
+        target.path(path)
+                .request(MediaType.TEXT_PLAIN)
+                .post(null);
+    }
+    
+    
     public Collection<User> searchUsers(User search) {
         String json = target.path("search/users")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -67,12 +132,6 @@ public class ProxStorConnector {
         Collection<User> users = gson.fromJson(json, collectionType);
 
         return users;
-    }
-
-    public User putUser(User u) {
-        return target.path("/users")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.entity(u, MediaType.APPLICATION_JSON_TYPE), User.class);
     }
 
     public Location putLocation(Location l) {
@@ -87,12 +146,7 @@ public class ProxStorConnector {
                 .get(Location.class);
     }
 
-    public void userKnows(User u, User v, int strength) {
-        String path = "users/" + u.getUserId() + "/knows/" + strength + "/" + v.getUserId();
-        target.path(path)
-                .request(MediaType.TEXT_PLAIN)
-                .post(null);
-    }
+
 
     public Device getDevice(Integer userId, Integer devId) {
         return target.path("/users/" + userId + "/devices/" + devId)
@@ -143,21 +197,20 @@ public class ProxStorConnector {
 
         return sensors;
     }
-    
+
     public Collection<Location> getNearby(Integer locId, long distance) {
-         String json = target.path("/locations/" + locId + "/nearby/" + distance)
+        String json = target.path("/locations/" + locId + "/nearby/" + distance)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
-
         Type collectionType = new TypeToken<Collection<Location>>() {
         }.getType();
         Collection<Location> locations = gson.fromJson(json, collectionType);
 
         return locations;
     }
-    
+
     public Collection<Location> getWithin(Integer locId) {
-         String json = target.path("/locations/" + locId + "/within")
+        String json = target.path("/locations/" + locId + "/within")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
@@ -167,9 +220,9 @@ public class ProxStorConnector {
 
         return locations;
     }
-    
+
     public Collection<Location> getWithinReverse(Integer locId) {
-         String json = target.path("/locations/" + locId + "/within/reverse")
+        String json = target.path("/locations/" + locId + "/within/reverse")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get(String.class);
 
@@ -179,12 +232,18 @@ public class ProxStorConnector {
 
         return locations;
     }
-    
+
     public void locationWithin(Location locA, Location locB) {
         String path = "locations/" + locA.getLocId() + "/within/" + locB.getLocId();
         target.path(path)
                 .request(MediaType.TEXT_PLAIN)
                 .post(null);
+    }
+
+    public boolean isWithin(Integer locId, Integer locId2) {
+        String path = "/locations/" + locId + "/within/" + locId2;
+        Response response = target.path(path).request().get();
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
 
     public void locationNearby(Location locA, Location locB, int d) {
@@ -193,4 +252,11 @@ public class ProxStorConnector {
                 .request(MediaType.TEXT_PLAIN)
                 .post(null);
     }
+
+    public boolean isNearby(Integer locId, Integer locId2, Integer distance) {
+        String path = "/locations/" + locId + "/nearby/" + distance + "/" + locId2;
+        Response response = target.path(path).request().get();
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+
 }
