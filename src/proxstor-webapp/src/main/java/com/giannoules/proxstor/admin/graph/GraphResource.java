@@ -104,7 +104,6 @@ public class GraphResource {
     @Path("orientdb")
     @GET
     public Response getOrientDB() {
-        ProxStorDebug.println("getOrientDB()");
         OrientGraphFactory factory = new OrientGraphFactory("memory:temp").setupPool(1,10);
         OrientGraph graph = factory.getTx();
         return Response.ok().build();

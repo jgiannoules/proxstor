@@ -42,7 +42,6 @@ public class WithinResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getContainingLocations() {
-        ProxStorDebug.println("getLocationsWithin()");
         Collection<Location> locations;
         try {
             locations = WithinDao.instance.getContaining(locId);

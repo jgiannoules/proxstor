@@ -56,7 +56,6 @@ public class NearbyLocationResource {
      */    
     @POST
     public Response establishLocationNearby() {
-        ProxStorDebug.println("establishLocationNearby()");
         try {
             if (!NearbyDao.instance.addNearby(locIdA, locIdB, distanceVal)) {
                 return Response.status(500).build();
@@ -87,7 +86,6 @@ public class NearbyLocationResource {
      */    
     @PUT
     public Response updateLocationNearby() {
-        ProxStorDebug.println("updateLocationNearby()");        
         try {
             if (NearbyDao.instance.updateNearby(locIdA, locIdB, distanceVal)) {
                 return Response.noContent().build();
@@ -111,7 +109,6 @@ public class NearbyLocationResource {
      */    
     @DELETE
     public Response removeLocationNearby() {
-        ProxStorDebug.println("removeLocationNearby()");        
         try {
             NearbyDao.instance.removeNearby(locIdA, locIdB);
             return Response.noContent().build();

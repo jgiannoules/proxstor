@@ -37,7 +37,6 @@ public class NearbyResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getNearbylocations() {
-        ProxStorDebug.println("getNearbyLocations()");
         Collection<Location> locations;
         try {
             locations = NearbyDao.instance.getLocationsNearby(locIdA, distanceVal, 1024); // max 1024 locations returned
