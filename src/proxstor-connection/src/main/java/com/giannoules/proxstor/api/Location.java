@@ -3,6 +3,7 @@ package com.giannoules.proxstor.api;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -121,6 +122,44 @@ public class Location {
         }
         nearbyLocId.add(locId);
         nearbyDistance.add(d);
+    }
+
+    @Override
+    public String toString() {
+        return locId + ": " + type + " - " + description + ", " + address + " [" + latitude + "/" + longitude + "]";
+    }
+    
+    @Override
+    public int hashCode() {
+        return (int) (description.hashCode() * address.hashCode() * type.hashCode()
+                * latitude * longitude);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Location other = (Location) obj;
+        if (!Objects.equals(this.description, other.description)) {
+            return false;
+        }
+        if (!Objects.equals(this.address, other.address)) {
+            return false;
+        }
+        if (!Objects.equals(this.type, other.type)) {
+            return false;
+        }
+        if (!Objects.equals(this.latitude, other.latitude)) {
+            return false;
+        }
+        if (!Objects.equals(this.longitude, other.longitude)) {
+            return false;
+        }
+        return true;
     }
 
 }
