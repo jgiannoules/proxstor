@@ -188,9 +188,10 @@ public enum NearbyDao {
             e = getNearby(locIdA, locIdB);
             if (e != null) {
                 e.remove();
+                ProxStorGraph.instance.commit();                
                 return true;
             }
-        } catch (InvalidModel ex) {
+        } catch (InvalidModel | ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(NearbyDao.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
