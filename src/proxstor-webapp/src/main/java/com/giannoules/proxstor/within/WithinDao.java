@@ -99,6 +99,8 @@ public enum WithinDao {
             vq.has("_target", outerLocId);
             for (Edge e : vq.edges()) {
                 e.remove();
+                ProxStorGraph.instance.commit();
+                return true;
             }
             return true;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
