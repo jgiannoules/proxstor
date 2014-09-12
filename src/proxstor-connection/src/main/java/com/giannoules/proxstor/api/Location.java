@@ -19,8 +19,8 @@ public class Location {
     public String description;
     public String address;
     public LocationType type;
-    public long latitude;
-    public long longitude;
+    public Double latitude;
+    public Double longitude;
     /*
      * contains sensorId of unique sensors found in this location
      */
@@ -29,7 +29,8 @@ public class Location {
     public List<String> nearbyLocId;
     public List<Integer> nearbyDistance;
     
-    public Location() {}
+    public Location() {        
+    }
     
     public String getLocId() {
         return this.locId;
@@ -63,19 +64,19 @@ public class Location {
         this.type = type;
     }
 
-    public long getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(long latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public long getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(long longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
