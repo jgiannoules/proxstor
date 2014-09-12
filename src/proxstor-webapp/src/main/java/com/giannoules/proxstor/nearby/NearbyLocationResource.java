@@ -27,6 +27,9 @@ public class NearbyLocationResource {
         this.distanceVal = distanceVal;
     }
     
+    /*
+     * test whether locA is within distance from locB
+     */
     @GET
     public Response getLocationsWithinDistance() {
         try {
@@ -110,8 +113,9 @@ public class NearbyLocationResource {
     @DELETE
     public Response removeLocationNearby() {
         try {
-            NearbyDao.instance.removeNearby(locIdA, locIdB);
-            return Response.noContent().build();
+            if (NearbyDao.instance.removeNearby(locIdA, locIdB)) {
+                return Response.noContent().build();
+            }
         } catch (InvalidLocationId ex) {
             Logger.getLogger(NearbyLocationResource.class.getName()).log(Level.SEVERE, null, ex);
         }
