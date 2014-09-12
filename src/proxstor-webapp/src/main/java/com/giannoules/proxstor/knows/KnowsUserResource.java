@@ -69,13 +69,11 @@ public class KnowsUserResource {
         try {
             if (KnowsDao.instance.updateKnows(userIdA, userIdB, strengthVal)) {
                 return Response.noContent().build();
-            } else {
-                return Response.status(400).build();
             }
         } catch (InvalidUserId ex) {
-            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(404).build();
-        }        
+            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);            
+        }
+        return Response.status(404).build();
     }
 
     /*
@@ -89,8 +87,9 @@ public class KnowsUserResource {
     @DELETE
     public Response removeUserKnows() {
         try {
-            KnowsDao.instance.removeKnows(userIdA, userIdB);
-            return Response.noContent().build();
+            if (KnowsDao.instance.removeKnows(userIdA, userIdB)) {
+                return Response.noContent().build();
+            }
         } catch (InvalidUserId ex) {
             Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
         }
