@@ -174,7 +174,7 @@ public enum UserDao {
      * used by UsersResource @POST
      */
     public User add(User u) {
-        if (u == null) {
+        if ((u == null) || (u.getEmail() == null) || (u.getFirstName() == null) || (u.getLastName() == null)) {
             return null;
         }
         try {
@@ -203,22 +203,28 @@ public enum UserDao {
     public boolean update(User u) throws InvalidUserId {
         validOrException(u.getUserId());
         try {
+            boolean updated = false;
             Vertex v = ProxStorGraph.instance.getVertex(u.getUserId());
             if (u.getFirstName() != null) {
                 v.setProperty("firstName", u.getFirstName());
+                updated = true;
             }
             if (u.getLastName() != null) {
                 v.setProperty("lastName", u.getLastName());
+                updated = true;
             }
             if (u.getEmail() != null) {
                 v.setProperty("email", u.getEmail());
+                updated = true;
             }
-            ProxStorGraph.instance.commit();
-            return true;
+            if (updated) {
+                ProxStorGraph.instance.commit();
+                return true;
+            }
         } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
+            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);            
         }        
+        return false;
     }
 
     /* 
