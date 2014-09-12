@@ -172,7 +172,7 @@ public enum KnowsDao {
     /*
      * removes an established Knows relationship from fromUser -> toUser
      *
-     * returns true if succesful
+     * returns true if successful
      * returns false if a Knows relationship was not already established fromUser -> toUser
      * throws InvalidUSerID() if either userID is invalid
      */
@@ -182,9 +182,10 @@ public enum KnowsDao {
             e = getKnows(fromUser, toUser);
             if (e != null) {
                 e.remove();
+                ProxStorGraph.instance.commit();
                 return true;
             }
-        } catch (InvalidModel ex) {
+        } catch (InvalidModel | ProxStorGraphDatabaseNotRunningException ex) {
             Logger.getLogger(KnowsDao.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
