@@ -1,8 +1,9 @@
 package com.giannoules.proxstor.location;
 
-import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
+import com.giannoules.proxstor.api.Location;
+import com.giannoules.proxstor.api.LocationType;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
@@ -170,12 +171,21 @@ public enum LocationDao {
      * used by LocationsResource @POST
      */
     public Location add(Location l) {
-        if (l == null) {
+        if ((l == null) || (l.getAddress() == null) 
+                || (l.description == null) || (l.getType() == null)) {
             return null;
         }
         try {
             Vertex v = ProxStorGraph.instance.addVertex();
             v.setProperty("description", l.getDescription());
+            v.setProperty("address", l.getAddress());
+            v.setProperty("type", l.getType().toString());
+            if (l.getLatitude() != null) {
+                v.setProperty("latitude", l.getLatitude());
+            }
+            if (l.getLongitude() != null) {
+                v.setProperty("longitude", l.getLongitude());
+            }
             setType(v);
             ProxStorGraph.instance.commit();
             l.setLocId(v.getId().toString());
@@ -198,9 +208,21 @@ public enum LocationDao {
        validOrException(l.getLocId());
         try {
             Vertex v = ProxStorGraph.instance.getVertex(l.getLocId());
-            if (l.getDescription()!= null) {
+            if (l.getDescription() != null) {
                 v.setProperty("description", l.getDescription());
-            }          
+            }
+            if (l.getAddress() != null) {
+                v.setProperty("address", l.getAddress());
+            }
+            if (l.getType() != null) {
+                v.setProperty("type", l.getType().toString());
+            }
+            if (l.getLatitude() != null) {
+                v.setProperty("latitude", l.getLatitude());
+            }
+            if (l.getLongitude() != null) {
+                v.setProperty("longitude", l.getLongitude());
+            }
             ProxStorGraph.instance.commit();
             return true;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
@@ -277,6 +299,10 @@ public enum LocationDao {
          * note: getProperty() will return null for non-existent props
          */ 
         l.setDescription((String) v.getProperty("description"));
+        l.setAddress((String) v.getProperty("address"));
+        l.setType(LocationType.valueOf((String) v.getProperty("type")));        
+        l.setLatitude((Double) v.getProperty("latitude"));
+        l.setLongitude((Double) v.getProperty("longitude"));
         Object id = v.getId();
         if (id instanceof Long) {
             l.setLocId(Long.toString((Long) v.getId()));
