@@ -61,12 +61,13 @@ public class UserResource {
             return Response.status(400).build();
         }
         try {
-            UserDao.instance.update(u);
-            return Response.noContent().build();
+            if (UserDao.instance.update(u)) {
+                return Response.noContent().build();
+            }
         } catch (InvalidUserId ex) {
-            Logger.getLogger(UserResource.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(404).build();
+            Logger.getLogger(UserResource.class.getName()).log(Level.SEVERE, null, ex);            
         }
+        return Response.status(404).build();
     }
 
     /*
