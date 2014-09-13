@@ -89,17 +89,36 @@ public class LocationNearbyConnectorTester {
     public void tearDown() {
     }
     
+    /*
+     * add location nearby which doesn't exist
+     * - expect true
+     */
     @Test
     public void addNearby() {
         assertTrue(conn.addLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(d.getLocId()), 10000));
     }
     
+    /*
+     * add location nearby, but relationship already established
+     * add location nearby with starting location invalid
+     * add location nearby with ending location invalid
+     * add location nearby with both locations invalid
+     * - expect false for all
+     */
     @Test
     public void addNearbyInvalid() {
         assertFalse(conn.addLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId()), 1000));
+        assertFalse(conn.addLocationNearby(invalidLocId, Integer.parseInt(b.getLocId()), 1000));
+        assertFalse(conn.addLocationNearby(Integer.parseInt(a.getLocId()), invalidLocId, 1000));
         assertFalse(conn.addLocationNearby(invalidLocId, invalidLocId, 1000));
     }
     
+    /*
+     * get all locations within 9m of location a
+     * - expect empty lisy
+     * get all locations within 10m of location a
+     * - expect set {b}
+     */
     @Test
     public void getNearby() {
         assertEquals(conn.getLocationsNearby(Integer.parseInt(a.getLocId()), 9), Collections.EMPTY_LIST);
@@ -108,11 +127,23 @@ public class LocationNearbyConnectorTester {
         assertTrue(locations.contains(b));
     }
     
+    /*
+     * get all locations within 1km of an invalid id
+     * - expect null
+     */
     @Test
     public void getNearbyInvalid() {
         assertNull(conn.getLocationsNearby(invalidLocId, 1000));        
     }
     
+    /*
+     * test location c within 1000m of location d
+     * test location b within 100000m of location c
+     * - expect true for both
+     * test location b within 50m of location c
+     * test location a within 9m of location b
+     * - expect false for both
+     */
     @Test
     public void testNearby() {
         assertTrue(conn.isLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId()), 1000));
@@ -121,6 +152,10 @@ public class LocationNearbyConnectorTester {
         assertFalse(conn.isLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId()), 9));
     }
     
+    /*
+     * update distance between a -> b, b -> c, c -> d
+     * - expect true for all
+     */
     @Test
     public void updateNearby() {
         assertTrue(conn.updateLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId()), 10));
@@ -128,6 +163,10 @@ public class LocationNearbyConnectorTester {
         assertTrue(conn.updateLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId()), 1));        
     }
     
+    /*
+     * update distance between a -> c (not valid nearby), invalidid -> c, c -> invalid, invalid -> invalid
+     * - expect false for all
+     */
     @Test
     public void updateNearbyInvalid() {
         assertFalse(conn.updateLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(c.getLocId()), 10));
@@ -136,6 +175,11 @@ public class LocationNearbyConnectorTester {
         assertFalse(conn.updateLocationNearby(invalidLocId, invalidLocId, 900));
     }
     
+    /*
+     * delete nearby relationship for all those created in @Before, then do it again
+     * - expect 1st delete to return true
+     * - expect 2nd delete to return false
+     */
     @Test
     public void deleteNearby() {
         assertFalse(conn.deleteLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(a.getLocId())));
@@ -147,11 +191,14 @@ public class LocationNearbyConnectorTester {
         assertFalse(conn.deleteLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId())));
     }
     
+    /*
+     * delete nearby from a -> invalid, invalid -> b, invalid -> invalid
+     * - expect false for all
+     */
     @Test
     public void deleteNearbyInvalid() {
         assertFalse(conn.deleteLocationNearby(Integer.parseInt(a.getLocId()), invalidLocId));
-        assertFalse(conn.deleteLocationNearby(invalidLocId, Integer.parseInt(b.getLocId())));
-        assertFalse(conn.deleteLocationNearby(Integer.parseInt(b.getLocId()), invalidLocId));
+        assertFalse(conn.deleteLocationNearby(invalidLocId, Integer.parseInt(b.getLocId())));        
         assertFalse(conn.deleteLocationNearby(invalidLocId, invalidLocId));
     }
 }
