@@ -1,10 +1,8 @@
 package com.giannoules.proxstor.connection;
 
 import com.giannoules.proxstor.api.User;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -67,19 +65,9 @@ public class UserKnowsConnectorTester {
         assertTrue(conn.addUserKnows(c, d, 20));
         assertTrue(conn.addUserKnows(d, c, 20));
     }
-    
+        
     @After
-    public void tearDown() {
-        conn.deleteKnows(a, b);
-        conn.deleteKnows(a, c);
-        conn.deleteKnows(a, d);
-        conn.deleteKnows(b, a);
-        conn.deleteKnows(c, a);
-        conn.deleteKnows(d, a);
-        conn.deleteKnows(b, c);
-        conn.deleteKnows(c, b);
-        conn.deleteKnows(c, d);
-        conn.deleteKnows(d, c);
+    public void tearDown() {    
     }
 
     /*
@@ -105,11 +93,11 @@ public class UserKnowsConnectorTester {
     
     /*
      * use a strength value above the known users
-     * - expect null
+     * - expect []
      */
     @Test
     public void getKnowsInvalidStrength() {
-        assertNull(conn.getKnows(Integer.parseInt(a.getUserId()), 99));
+        assertEquals(conn.getKnows(Integer.parseInt(a.getUserId()), 99), Collections.EMPTY_LIST);
     }
     
     /*
