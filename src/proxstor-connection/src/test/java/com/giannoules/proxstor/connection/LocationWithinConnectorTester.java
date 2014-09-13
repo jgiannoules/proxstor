@@ -37,6 +37,16 @@ public class LocationWithinConnectorTester {
     public static void tearDownClass() {
     }
     
+    /*
+     * create four locations (a, b, c, d) and establish within relationship
+     *
+     * a within b
+     * c within d
+     * b within d
+     *
+     * a --> b --> d <-- c
+     *
+     */
     @Before
     public void setUp() {
         Location l = new Location();
@@ -69,15 +79,8 @@ public class LocationWithinConnectorTester {
         l.setLatitude(30.267153);
         l.setLatitude(-97.7430608);
         l.setType(LocationType.BUSINESS);
-        d = conn.addLocation(l);
-        
-        /*
-         * a within b
-         * c within d
-         * b within d
-         *
-         * a --> b --> d <-- c
-         */
+        d = conn.addLocation(l);        
+     
         assertTrue(conn.addLocationWithin(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId())));
         assertTrue(conn.addLocationWithin(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId())));
         assertTrue(conn.addLocationWithin(Integer.parseInt(b.getLocId()), Integer.parseInt(d.getLocId())));      
@@ -89,17 +92,32 @@ public class LocationWithinConnectorTester {
     public void tearDown() {
     }
     
+    /*
+     * add c --within--> a
+     * - expect true
+     */
     @Test
     public void addWithin() {
         assertTrue(conn.addLocationWithin(Integer.parseInt(c.getLocId()), Integer.parseInt(a.getLocId())));
     }
     
+    /*
+     * add a --within--> b (already exists)
+     * add invalid --within--> invalid
+     * - expect false for both
+     */
     @Test
     public void addWithinInvalid() {
         assertFalse(conn.addLocationWithin(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId())));
         assertFalse(conn.addLocationWithin(invalidLocId, invalidLocId));       
     }
     
+    /*
+     * get all locations within d
+     * - expect empty list
+     * get all locations wtihin b
+     * - expect {d}
+     */
     @Test
     public void getWithin() {
         assertEquals(conn.getLocationsWithin(Integer.parseInt(d.getLocId())), Collections.EMPTY_LIST);
@@ -108,11 +126,21 @@ public class LocationWithinConnectorTester {
         assertTrue(locations.contains(d));
     }
     
+    /*
+     * get all locations within invalidlocId
+     * - expect null
+     */
     @Test
     public void getWithinInvalid() {
         assertNull(conn.getLocationsWithin(invalidLocId)); 
     }
     
+    /*
+     * get locations which a is within
+     * - expect []
+     * get locations which d is within
+     * - expect {b, c}
+     */
     @Test
     public void getWithinReverse() {
         assertEquals(conn.getLocationsWithinReverse(Integer.parseInt(a.getLocId())), Collections.EMPTY_LIST);
@@ -122,11 +150,23 @@ public class LocationWithinConnectorTester {
         assertTrue(locations.contains(b));
     }
     
+    /*
+     * get locations which invalidid is within
+     * - expect null
+     */
     @Test
     public void getWithinReverseInvalid() {
         assertNull(conn.getLocationsWithinReverse(invalidLocId)); 
     }
     
+    /*
+     * test that c is within d
+     * test that b is within d
+     * - expect true for both
+     * test that a is within a
+     * test that c is within b
+     * - expect false for both
+     */
     @Test
     public void testWithin() {
         assertTrue(conn.isLocationWithin(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId())));
@@ -135,14 +175,28 @@ public class LocationWithinConnectorTester {
         assertFalse(conn.isLocationWithin(Integer.parseInt(c.getLocId()), Integer.parseInt(b.getLocId())));
     }
     
+    /*
+     * test a within invalid
+     * test invalid within b
+     * test invalid within invalid
+     * - expect false for all
+     */
     @Test
     public void testWithinInvalid() {
         assertFalse(conn.isLocationWithin(Integer.parseInt(a.getLocId()), invalidLocId));
-        assertFalse(conn.isLocationWithin(invalidLocId, Integer.parseInt(b.getLocId())));
-        assertFalse(conn.isLocationWithin(Integer.parseInt(b.getLocId()), invalidLocId));
+        assertFalse(conn.isLocationWithin(invalidLocId, Integer.parseInt(b.getLocId())));        
         assertFalse(conn.isLocationWithin(invalidLocId, invalidLocId));
     }    
     
+    /*
+     * delete two times:
+     *  - c within a
+     *  - a within b
+     *  - b within d
+     *  - c wihtin d
+     * - expect 1st delete returns true
+     * - expect 2nd delete returns false
+     */
     @Test
     public void deleteWithin() {
         assertFalse(conn.deleteLocationWithin(Integer.parseInt(c.getLocId()), Integer.parseInt(a.getLocId())));
@@ -154,11 +208,14 @@ public class LocationWithinConnectorTester {
         assertFalse(conn.deleteLocationWithin(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId())));
     }
     
+    /*
+     * delete a within invalid, invalid within b, invalid within invalid
+     * - expect false for all
+     */
     @Test
     public void deleteWithinInvalid() {
         assertFalse(conn.deleteLocationWithin(Integer.parseInt(a.getLocId()), invalidLocId));
-        assertFalse(conn.deleteLocationWithin(invalidLocId, Integer.parseInt(b.getLocId())));
-        assertFalse(conn.deleteLocationWithin(Integer.parseInt(b.getLocId()), invalidLocId));
+        assertFalse(conn.deleteLocationWithin(invalidLocId, Integer.parseInt(b.getLocId())));        
         assertFalse(conn.deleteLocationWithin(invalidLocId, invalidLocId));
     }
 }
