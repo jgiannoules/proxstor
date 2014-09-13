@@ -49,7 +49,6 @@ public class DeviceConnectorTester {
     public void setUp() {
         goodUser = conn.addUser(new User("first", "last", "f_last@msn.com"));
         assertNotNull(goodUser);
-        System.out.println("goodUser = " + goodUser);
         goodDevice = new Device();
         goodDevice.setDescription("Mobile Thing for JUnit");        
         goodDevice.setManufacturer("FashionableBrand");
@@ -58,7 +57,6 @@ public class DeviceConnectorTester {
         goodDevice.setSerialNum(UUID.randomUUID().toString());
         goodDevice = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);                
         assertNotNull(goodDevice);
-        System.out.println("goodDevice = " + goodDevice);    
         invalidUserId = Integer.parseInt(goodUser.getUserId()) + 1;
         invalidDeviceId = Integer.parseInt(goodDevice.getDevId()) + 1;
     }
@@ -117,15 +115,14 @@ public class DeviceConnectorTester {
     public void getUserDevices() {
         Device d = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);   
         assertNotNull(d.getDevId());
-        d = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);   
+        Device d2 = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);   
         assertNotNull(d.getDevId());
         Collection<Device> devices = conn.getDevices(Integer.parseInt(goodUser.getUserId()));
         assertNotNull(devices);
-        assertEquals(devices.size(), 2);
-        Iterator di = devices.iterator();
-        while (di.hasNext()) {
-            assertEquals(goodDevice, di.next());
-        }
+        assertEquals(devices.size(), 3);
+        assertTrue(devices.contains(goodDevice));
+        assertTrue(devices.contains(d));
+        assertTrue(devices.contains(d2));
     }
     
     /*
@@ -178,6 +175,6 @@ public class DeviceConnectorTester {
     public void deleteInvalidDevice() {
         assertFalse(conn.deleteDevice(Integer.parseInt(goodUser.getUserId()), invalidDeviceId));
         assertFalse(conn.deleteDevice(invalidUserId, Integer.parseInt(goodDevice.getDevId())));
-        assertFalse(conn.deleteDevice(Integer.parseInt(conn.addUser(new User()).getUserId()), Integer.parseInt(goodDevice.getDevId())));
+        assertFalse(conn.deleteDevice(Integer.parseInt(goodDevice.getDevId()), Integer.parseInt(goodUser.getUserId())));
     }
 }
