@@ -50,8 +50,6 @@ public class ProxStorConnector {
      *   /{userid}	PUT	Content-Type: application/json	update userid user
      *   /{userid}	DELETE	n/a                             delete userid user
      */
-    
-    
     /*
      * returns User with userId populated
      */
@@ -97,7 +95,7 @@ public class ProxStorConnector {
                 .delete();
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
-    
+
     // END user actions
 
     /*
@@ -116,8 +114,6 @@ public class ProxStorConnector {
      *  /{s}/reverse	GET	Accept: application/json    get users who know userid with min strength s (0 for all)
      *
      */
-    
-    
     /*
      * return collection of users userId knows with at least strength
      */
@@ -155,7 +151,7 @@ public class ProxStorConnector {
         }
         return null;
     }
-    
+
     public boolean addUserKnows(User u, User v, int strength) {
         String path = "users/" + u.getUserId() + "/knows/" + strength + "/" + v.getUserId();
         Response response = target.path(path)
@@ -168,10 +164,10 @@ public class ProxStorConnector {
         String path = "users/" + u.getUserId() + "/knows/" + strength + "/" + v.getUserId();
         Response response = target.path(path)
                 .request()
-                .post(null);
+                .put((Entity.entity("", MediaType.TEXT_PLAIN_TYPE)));        
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
-    
+
     public boolean deleteKnows(User u, User v) {
         String path = "users/" + u.getUserId() + "/knows/0/" + v.getUserId();
         Response response = target.path(path)
@@ -179,14 +175,11 @@ public class ProxStorConnector {
                 .delete();
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
-    
+
     // END user knows actions
-    
-    
     /*
      * Location actions
      */
-   
     public Location addLocation(Location l) {
         Response response = target.path("/locations")
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -213,7 +206,7 @@ public class ProxStorConnector {
                 .put(Entity.entity(l, MediaType.APPLICATION_JSON_TYPE));
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
-    
+
     public boolean deleteLocation(Integer locId) {
         Response response = target.path("locations/" + locId)
                 .request()
@@ -224,7 +217,6 @@ public class ProxStorConnector {
     /*
      * Devices
      */
-    
     public Device getDevice(Integer userId, Integer devId) {
         Response response = target.path("/users/" + userId + "/devices/" + devId)
                 .request(MediaType.APPLICATION_JSON_TYPE)
@@ -252,12 +244,12 @@ public class ProxStorConnector {
 
     public Device addDevice(Integer userId, Device dev) {
         Response response = target.path("/users/" + userId + "/devices/")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Entity.entity(dev, MediaType.APPLICATION_JSON_TYPE));
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(dev, MediaType.APPLICATION_JSON_TYPE));
         if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
             return response.readEntity(Device.class);
         }
-        return null;        
+        return null;
     }
 
     /*
@@ -282,66 +274,107 @@ public class ProxStorConnector {
 
     // end Device Section
     
-    public Sensor putSensor(Integer locId, Sensor s) throws Exception {
-        try {
-            return target.path("/locations/" + locId + "/sensors/")
-                    .request(MediaType.APPLICATION_JSON_TYPE)
-                    .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE), Sensor.class);
-        } catch (javax.ws.rs.InternalServerErrorException ex) {
-            throw new Exception("Cannot add " + s + " to " + locId);
+    /*
+     * sensor
+     */
+    public Sensor addSensor(Integer locId, Sensor s) {
+        String path = "/locations/" + locId + "/sensors/";
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            return response.readEntity(Sensor.class);
         }
+        return null;
     }
 
     public Collection<Sensor> getSensors(Integer locId) {
-        String json = target.path("/locations/" + locId + "/sensors")
+        String path = "/locations/" + locId + "/sensors";
+        Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-
-        Type collectionType = new TypeToken<Collection<Sensor>>() {
-        }.getType();
-        Collection<Sensor> sensors = gson.fromJson(json, collectionType);
-
-        return sensors;
+                .get();
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            String json = response.readEntity(String.class);
+            Type collectionType = new TypeToken<Collection<Sensor>>() {
+            }.getType();
+            Collection<Sensor> sensors = gson.fromJson(json, collectionType);
+            return sensors;
+        }
+        return null;
+    }
+    
+    public boolean updateSensor(Integer locId, Sensor s) {
+        String path = "/locations/" + locId + "/sensors/" + s.getSensorId();
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .put(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+    
+    public boolean deleteSensor(Integer locId, Integer sensorId) {
+        String path = "/locations/" + locId + "/sensors/" + sensorId;
+        Response response = target.path(path)
+                .request(MediaType.TEXT_PLAIN)
+                .delete();
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+    
+    // end Sensors
+    
+    /*
+     * Within
+     */
+    public Collection<Location> getLocationsWithin(Integer locId) {
+        String path = "/locations/" + locId + "/within";
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            String json = response.readEntity(String.class);
+            Type collectionType = new TypeToken<Collection<Location>>() {
+            }.getType();
+            Collection<Location> locations = gson.fromJson(json, collectionType);
+            return locations;
+        }
+        return null;
     }
 
-
-    public Collection<Location> getWithin(Integer locId) {
-        String json = target.path("/locations/" + locId + "/within")
+    public Collection<Location> getLocationsWithinReverse(Integer locId) {
+        String path = "/locations/" + locId + "/within/reverse";
+        Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-
-        Type collectionType = new TypeToken<Collection<Location>>() {
-        }.getType();
-        Collection<Location> locations = gson.fromJson(json, collectionType);
-
-        return locations;
+                .get();
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            String json = response.readEntity(String.class);
+            Type collectionType = new TypeToken<Collection<Location>>() {
+            }.getType();
+            Collection<Location> locations = gson.fromJson(json, collectionType);
+            return locations;
+        }
+        return null;
     }
 
-    public Collection<Location> getWithinReverse(Integer locId) {
-        String json = target.path("/locations/" + locId + "/within/reverse")
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .get(String.class);
-
-        Type collectionType = new TypeToken<Collection<Location>>() {
-        }.getType();
-        Collection<Location> locations = gson.fromJson(json, collectionType);
-
-        return locations;
-    }
-
-    public void locationWithin(Location locA, Location locB) {
-        String path = "locations/" + locA.getLocId() + "/within/" + locB.getLocId();
-        target.path(path)
+    public boolean addLocationWithin(Integer locIdA, Integer locIdB) {
+        String path = "locations/" + locIdA + "/within/" + locIdB;
+        Response response = target.path(path)
                 .request(MediaType.TEXT_PLAIN)
                 .post(null);
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
 
-    public boolean isWithin(Integer locId, Integer locId2) {
-        String path = "/locations/" + locId + "/within/" + locId2;
+    public boolean isLocationWithin(Integer locIdA, Integer locIdB) {
+        String path = "/locations/" + locIdA + "/within/" + locIdB;
         Response response = target.path(path).request().get();
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
 
+    public boolean deleteLocationWithin(Integer locIdA, Integer locIdB) {
+       String path = "/locations/" + locIdA + "/within/" + locIdB;
+       Response response = target.path(path).request().delete();
+       return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+    
+    // end Within
     
     /*
      * Nearby
@@ -389,18 +422,22 @@ public class ProxStorConnector {
 
     // end Nearby
 
-        public Collection<User> searchUsers(User search) {
+    /*
+     * Searches !
+     */
+    public Collection<User> searchUsers(User search) {
         Response response = target.path("search/users")
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(search, MediaType.APPLICATION_JSON_TYPE));
         if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
             String json = response.readEntity(String.class);
-            Type collectionType = new TypeToken<Collection<User>>() {}.getType();
+            Type collectionType = new TypeToken<Collection<User>>() {
+            }.getType();
             Collection<User> users = gson.fromJson(json, collectionType);
 
             return users;
         }
         return null;
     }
-    
+
 }
