@@ -24,15 +24,12 @@ import javax.ws.rs.core.Response;
      @GET
      public Response getLocationWithinLocaton() {
         try {
-            System.out.println("1");
             if (WithinDao.instance.locationWithinLocation(locId, locId2)) {
-                System.out.println("2");
                 return Response.noContent().build();
             }
         } catch (InvalidLocationId ex) {
             Logger.getLogger(WithinLocationResource.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("2*");
         return Response.status(404).build();
      }
      
@@ -62,8 +59,9 @@ import javax.ws.rs.core.Response;
      @DELETE
      public Response deleteLocationWithinLocation() {
          try {
-             WithinDao.instance.removeWithin(locId, locId2);
-             return Response.noContent().build();
+             if (WithinDao.instance.removeWithin(locId, locId2)) {
+                 return Response.noContent().build();
+             }
          } catch (InvalidLocationId ex) {
              Logger.getLogger(WithinLocationResource.class.getName()).log(Level.SEVERE, null, ex);
          }
