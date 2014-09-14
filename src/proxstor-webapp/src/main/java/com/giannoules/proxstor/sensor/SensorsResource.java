@@ -41,9 +41,15 @@ public class SensorsResource {
         Collection<Sensor> sensors;
         try {
             sensors = SensorDao.instance.getAllLocationSensors(locId);
-            if (sensors.isEmpty()) {
-                return Response.noContent().build();
-            }
+            
+            /*
+             * changing to return emtpy list for no sensors insted of 204
+             */    
+            
+//            if (sensors.isEmpty()) {
+//                return Response.noContent().build();
+//            }
+            
             /*
              * ok() will not take Collection directly, so convert to array
              */
