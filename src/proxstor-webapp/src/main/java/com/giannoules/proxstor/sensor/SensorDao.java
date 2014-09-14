@@ -237,14 +237,7 @@ public enum SensorDao {
         if (!isLocationSensor(locId, sensorId)) {
             throw new SensorNotContainedWithinLocation();
         }
-        try {
-            ProxStorGraph.instance.getVertex(sensorId).remove();
-            ProxStorGraph.instance.commit();
-            return true;
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
+        return delete(sensorId);            
     }
 
     /**
@@ -252,7 +245,7 @@ public enum SensorDao {
      * nothing to the caller or throws an InvalidSensorId exception if any of
      * the sensor id are invalid.
      *
-     * @param sensorIds Variadic list of sensor id String representations
+     * @param sensorIds variadic list of sensor id String representations
      *
      * @throws InvalidSensorId If any of the sensorId String parameters are not
      * valid sensors
@@ -406,16 +399,21 @@ public enum SensorDao {
      *   5 Location is not container of Sensor     
      */
     private boolean isLocationSensor(String locId, String sensorId) {
-        try {
-            SensorDao.instance.validOrException(sensorId);
-            LocationDao.instance.validOrException(locId);
-        } catch (InvalidParameter ex) {
-            Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
+       
+       /*
+        * this code protected by callers who already check validity
+        */
+        
+//        try {
+//            SensorDao.instance.validOrException(sensorId);
+//            LocationDao.instance.validOrException(locId);
+//        } catch (InvalidParameter ex) {
+//            Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
+//            return false;
+//        }        
         try {
             for (Edge e : ProxStorGraph.instance.getVertex(sensorId).getEdges(IN, "contains")) {
-                if (e.getVertex(OUT).getId().equals(locId)) {
+                if (e.getVertex(OUT).getId().equals(Long.parseLong(locId))) {
                     return true;
                 }
             }
