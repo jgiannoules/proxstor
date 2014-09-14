@@ -414,7 +414,7 @@ public enum DeviceDao {
         }        
         try {            
             for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "uses")) {
-                if (e.getVertex(OUT).getId().equals(userId)) {
+                if (e.getVertex(OUT).getId().equals(Long.parseLong(userId))) {
                     return true;
                 }
             }
