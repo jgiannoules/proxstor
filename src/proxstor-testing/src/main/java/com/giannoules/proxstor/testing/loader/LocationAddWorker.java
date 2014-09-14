@@ -18,7 +18,7 @@ public class LocationAddWorker implements Runnable {
 
     @Override
     public void run() {
-        l.setLocId(conn.putLocation(l).getLocId());
+        l.setLocId(conn.addLocation(l).getLocId());
         operations.getAndIncrement();
     }
 }

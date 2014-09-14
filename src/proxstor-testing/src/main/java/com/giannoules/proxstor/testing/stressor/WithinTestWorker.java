@@ -32,7 +32,7 @@ public class WithinTestWorker implements Runnable {
         do {
             locId = locationIds.get(random.nextInt(locationIds.size()));
             locId2 = locationIds.get(random.nextInt(locationIds.size()));
-            result = conn.isWithin(Integer.parseInt(locId), Integer.parseInt(locId2));
+            result = conn.isLocationWithin(Integer.parseInt(locId), Integer.parseInt(locId2));
             counter.incrementAndGet();
         } while (running);
     }

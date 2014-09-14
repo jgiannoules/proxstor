@@ -32,7 +32,7 @@ public class NearbyTestWorker implements Runnable {
             locId2 = locationIds.get(random.nextInt(locationIds.size()));
             distance = random.nextInt(1000 + 1);
             boolean status;
-            status = conn.isNearby(Integer.parseInt(locId), Integer.parseInt(locId2), distance);
+            status = conn.isLocationNearby(Integer.parseInt(locId), Integer.parseInt(locId2), distance);
             counter.getAndIncrement();
         } while (running);
     }

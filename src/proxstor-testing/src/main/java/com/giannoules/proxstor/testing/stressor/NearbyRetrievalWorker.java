@@ -32,7 +32,7 @@ public class NearbyRetrievalWorker implements Runnable {
         do {
             locId = locationIds.get(random.nextInt(locationIds.size()));
             distance = random.nextInt(1000 + 1);
-            locations = conn.getNearby(Integer.parseInt(locId), distance);
+            locations = conn.getLocationsNearby(Integer.parseInt(locId), distance);
             counter.addAndGet(locations.size());
         } while (running);
     }

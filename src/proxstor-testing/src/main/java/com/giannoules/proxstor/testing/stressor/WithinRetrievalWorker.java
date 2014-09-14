@@ -30,7 +30,7 @@ public class WithinRetrievalWorker implements Runnable {
         Collection<Location> locations;
         do {
             locId = locationIds.get(random.nextInt(locationIds.size()));
-            locations = conn.getWithin(Integer.parseInt(locId));
+            locations = conn.getLocationsWithin(Integer.parseInt(locId));
             counter.addAndGet(locations.size());
         } while (running);
     }

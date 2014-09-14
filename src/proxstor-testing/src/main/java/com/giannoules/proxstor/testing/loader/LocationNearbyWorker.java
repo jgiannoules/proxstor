@@ -22,7 +22,7 @@ public class LocationNearbyWorker implements Runnable {
 
     @Override
     public void run() {
-        conn.locationNearby(l, v, d);
+        conn.addLocationNearby(Integer.parseInt(l.getLocId()), Integer.parseInt(v.getLocId()), d);
         operations.getAndIncrement();
     }
 }

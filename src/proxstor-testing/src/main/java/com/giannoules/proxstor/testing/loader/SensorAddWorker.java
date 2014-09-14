@@ -24,9 +24,9 @@ public class SensorAddWorker implements Runnable {
     @Override
     public void run() {
         try {
-            s.setSensorId(conn.putSensor(Integer.parseInt(l.getLocId()), s).getSensorId());
+            s.setSensorId(conn.addSensor(Integer.parseInt(l.getLocId()), s).getSensorId());
             operations.getAndIncrement();
-        } catch (Exception ex) {
+        } catch (NumberFormatException ex) {
             Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
