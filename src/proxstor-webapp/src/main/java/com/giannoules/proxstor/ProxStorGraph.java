@@ -178,6 +178,22 @@ public enum ProxStorGraph {
         }
     } 
     
+    public void rollback() throws ProxStorGraphDatabaseNotRunningException {
+        incCounter("rollback()");
+        _isRunningOrException();
+        if (graph instanceof TransactionalGraph) {
+                incCounter("TransactionalGraph rollback()");
+                ((TransactionalGraph) graph).rollback();
+        }
+    }
+    
+    public TransactionalGraph transactionalGraph() {
+        if (graph instanceof TransactionalGraph) {
+            return (TransactionalGraph) graph;
+        }
+        return null;
+    }
+    
     /*
      * return the .toString() of the Graph instance combined with Features
      */
