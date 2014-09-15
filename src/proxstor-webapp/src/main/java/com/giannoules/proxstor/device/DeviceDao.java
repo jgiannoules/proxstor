@@ -168,6 +168,11 @@ public enum DeviceDao {
             return d;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                ProxStorGraph.instance.rollback();
+            } catch (ProxStorGraphDatabaseNotRunningException ex1) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex1);
+            }
             return null;
         }
     }
@@ -209,6 +214,11 @@ public enum DeviceDao {
             return true;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                ProxStorGraph.instance.rollback();
+            } catch (ProxStorGraphDatabaseNotRunningException ex1) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex1);
+            }
             return false;
         }
     }
@@ -240,6 +250,11 @@ public enum DeviceDao {
             return true;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                ProxStorGraph.instance.rollback();
+            } catch (ProxStorGraphDatabaseNotRunningException ex1) {
+                Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex1);
+            }
             return false;
         }
     }
@@ -330,6 +345,11 @@ public enum DeviceDao {
                 ProxStorGraph.instance.commit();
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    ProxStorGraph.instance.rollback();
+                } catch (ProxStorGraphDatabaseNotRunningException ex1) {
+                    Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex1);
+                }
                 return false;
             }
             return true;
@@ -358,6 +378,11 @@ public enum DeviceDao {
                 ProxStorGraph.instance.commit();
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+                try {
+                    ProxStorGraph.instance.rollback();
+                } catch (ProxStorGraphDatabaseNotRunningException ex1) {
+                    Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex1);
+                }
                 return false;
             }
 
