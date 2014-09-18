@@ -3,6 +3,7 @@ package com.giannoules.proxstor.sensor;
 import com.giannoules.proxstor.api.Sensor;
 import com.giannoules.proxstor.api.SensorType;
 import com.giannoules.proxstor.ProxStorGraph;
+import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidParameter;
 import com.giannoules.proxstor.exception.InvalidSensorId;
@@ -15,6 +16,7 @@ import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.VertexQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -123,8 +125,8 @@ public enum SensorDao {
         if (partial.getType() != null) {
             q.has("type", partial.getType().toString());
         }
-        if (partial.getTypeIdentifier() != null) {
-            q.has("typeIdentifier", partial.getTypeIdentifier());
+        if (partial.getIdentifier()!= null) {
+            q.has("typeIdentifier", partial.getIdentifier());
         }
         for (Vertex v : q.vertices()) {
             if (valid(v)) {
@@ -156,7 +158,7 @@ public enum SensorDao {
             Vertex in = ProxStorGraph.instance.addVertex();
             in.setProperty("description", s.getDescription());
             in.setProperty("type", s.getType().toString());
-            in.setProperty("typeIdentifier", s.getTypeIdentifier());
+            in.setProperty("typeIdentifier", s.getIdentifier());
             setType(in);
             s.setSensorId(in.getId().toString());
             ProxStorGraph.instance.addEdge(out, in, "contains");
@@ -202,8 +204,8 @@ public enum SensorDao {
             if (s.getType() != null) {
                 v.setProperty("type", s.getType().toString());
             }
-            if (s.getTypeIdentifier() != null) {
-                v.setProperty("typeIdentifier", s.getTypeIdentifier());
+            if (s.getIdentifier()!= null) {
+                v.setProperty("typeIdentifier", s.getIdentifier());
             }
             ProxStorGraph.instance.commit();
             return true;
@@ -255,8 +257,73 @@ public enum SensorDao {
             throw new InvalidSensorId();
         }
     }
+            
+    public Location getSensorLocation(Sensor s) {
+        VertexQuery vq;
+        try {
+            vq = ProxStorGraph.instance.getVertex(s.getSensorId()).query();
+            vq.direction(IN);
+            vq.labels("contains");
+            List<String> locations = new ArrayList<>();
+            for (Vertex vertex : vq.vertices()) {
+                locations.add(vertex.getId().toString());
+            }
+            if (locations.size() != 1) {
+                return null;
+            }
+            return LocationDao.instance.get(locations.get(0));
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidLocationId ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public String getSensorLocation(String sensorId) throws InvalidSensorId {
+        SensorDao.instance.validOrException(sensorId);
+        VertexQuery vq;
+        try {
+            vq = ProxStorGraph.instance.getVertex(sensorId).query();
+            vq.direction(IN);
+            vq.labels("contains");
+            List<String> locations = new ArrayList<>();
+            for (Vertex vertex : vq.vertices()) {
+                locations.add(vertex.getId().toString());
+            }
+            if (locations.size() != 1) {
+                return null;
+            }
+            return locations.get(0);
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+     public Vertex getSensorLocationVertex(String sensorId) throws InvalidSensorId {
+        SensorDao.instance.validOrException(sensorId);
+        VertexQuery vq;
+        try {
+            vq = ProxStorGraph.instance.getVertex(sensorId).query();
+            vq.direction(IN);
+            vq.labels("contains");
+            List<Vertex> locations = new ArrayList<>();
+            for (Vertex vertex : vq.vertices()) {
+                locations.add(vertex);
+            }
+            if (locations.size() != 1) {
+                return null;
+            }
+            return locations.get(0);
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
 
     // ----> BEGIN private methods <----
+    
+    
     /*
      * converts vertex into Sensor object
      *
@@ -269,7 +336,7 @@ public enum SensorDao {
         Sensor s = new Sensor();
         s.setDescription((String) v.getProperty("description"));
         s.setType(SensorType.valueOf((String) v.getProperty("type")));
-        s.setTypeIdentifier((String) v.getProperty("typeIdentifier"));
+        s.setIdentifier((String) v.getProperty("typeIdentifier"));
         Object id = v.getId();
         if (id instanceof Long) {
             s.setSensorId(Long.toString((Long) v.getId()));
@@ -286,31 +353,6 @@ public enum SensorDao {
         if (v != null) {
             v.setProperty("_type", "sensor");
         }
-    }
-
-    /*
-     * returns Sensor stored under sensorId
-     *
-     * returns null if:
-     *   - sensorId does not map to any graph vertex
-     *   - vertex is not of type sensor
-     *
-     */
-    private Sensor get(String sensorId) {
-        if (sensorId == null) {
-            return null;
-        }
-        Vertex v;
-        try {
-            v = ProxStorGraph.instance.getVertex(sensorId);
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        if ((v != null) && valid(v)) {
-            return toSensor(v);
-        }
-        return null;
     }
 
     /* 
@@ -348,7 +390,7 @@ public enum SensorDao {
                 Vertex v = ProxStorGraph.instance.getVertex(s.getSensorId());
                 v.setProperty("description", s.getDescription());
                 v.setProperty("type", s.getType().toString());
-                v.setProperty("typeIdentifier", s.getTypeIdentifier());
+                v.setProperty("typeIdentifier", s.getIdentifier());
                 ProxStorGraph.instance.commit();
                 return true;
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
@@ -388,6 +430,31 @@ public enum SensorDao {
         return true;
     }
 
+    /*
+     * returns Sensor stored under sensorId
+     *
+     * returns null if:
+     *   - sensorId does not map to any graph vertex
+     *   - vertex is not of type sensor
+     *
+     */
+    private Sensor get(String sensorId) {
+        if (sensorId == null) {
+            return null;
+        }
+        Vertex v;
+        try {
+            v = ProxStorGraph.instance.getVertex(sensorId);
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(SensorDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        if ((v != null) && valid(v)) {
+            return toSensor(v);
+        }
+        return null;
+    }
+        
     /*
      * tests for validity of sensorId conatined by locId
      *

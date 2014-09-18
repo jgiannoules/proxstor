@@ -2,7 +2,6 @@ package com.giannoules.proxstor.sensor;
 
 import com.giannoules.proxstor.api.Sensor;
 import com.giannoules.proxstor.exception.InvalidLocationId;
-import com.giannoules.proxstor.exception.InvalidParameter;
 import com.giannoules.proxstor.exception.InvalidSensorId;
 import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
 import java.util.logging.Level;
