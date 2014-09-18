@@ -19,6 +19,7 @@ import org.junit.Test;
 /* 
  * unit tests for proxstorconnector's Device-centric methods
  */
+
 public class DeviceConnectorTester {
     
     private static ProxStorConnector conn;
