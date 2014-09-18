@@ -94,7 +94,7 @@ public class UserResource {
     /*
      * return DeviceResource handler for specified user
      */
-    @Path("devices")
+    @Path("device")
     public DevicesResource getDevicesResource() {
         return new DevicesResource(userId);
     }
@@ -104,7 +104,7 @@ public class UserResource {
      *
      * enforce rule that strength must be integers 0 to 100
      */
-    @Path("knows/{strength: [0-9]{1,2}|100}")
+    @Path("knows/strength/{strength: [0-9]{1,2}|100}")
     public KnowsResource getKnowsResource(@PathParam("strength") Integer strength) {
         return new KnowsResource(userId, strength);
     }
