@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Sensor {
     public String description;
     public SensorType type;
-    public String typeIdentifier;
+    public String identifier;
     public String sensorId;
  
     public Sensor() {}
@@ -43,22 +43,22 @@ public class Sensor {
         this.type = type;
     }
 
-    public String getTypeIdentifier() {
-        return typeIdentifier;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setTypeIdentifier(String typeIdentifier) {
-        this.typeIdentifier = typeIdentifier;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
     
     @Override
     public String toString() {
-        return sensorId + ": " + type.toString() + " - " + typeIdentifier + "(" + description + ")";
+        return sensorId + ": " + type.toString() + " - " + identifier  + ")";
     }
     
     @Override
     public int hashCode() {
-        return (type.hashCode() * typeIdentifier.hashCode());
+        return (type.hashCode() * identifier.hashCode());
     }
 
     @Override
@@ -73,7 +73,7 @@ public class Sensor {
         if (this.type != other.type) {
             return false;
         }
-        if (!Objects.equals(this.typeIdentifier, other.typeIdentifier)) {
+        if (!Objects.equals(this.identifier, identifier)) {
             return false;
         }
         return true;
