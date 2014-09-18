@@ -31,11 +31,11 @@ public class SensorGenerator {
             switch (s.getType()) {
                 case BLE_UUID:                    
                 case BT_UUID:
-                    s.setTypeIdentifier(UUID.randomUUID().toString());
+                    s.setIdentifier(UUID.randomUUID().toString());
                     if (s.getType() == SensorType.BLE_UUID) {
-                        s.setDescription("BLE UUID " + s.getTypeIdentifier());
+                        s.setDescription("BLE UUID " + s.getIdentifier());
                     } else {
-                        s.setDescription("BT UUID " + s.getTypeIdentifier());
+                        s.setDescription("BT UUID " + s.getIdentifier());
                     }
                     break;          
                 case WIFI_BSSID:
@@ -57,11 +57,11 @@ public class SensorGenerator {
                         }
                         len--;
                     }
-                    s.setTypeIdentifier(sb.toString());
+                    s.setIdentifier(sb.toString());
                     if (s.getType() == SensorType.WIFI_BSSID) {
-                        s.setDescription("WiFi BSSID " + s.getTypeIdentifier());
+                        s.setDescription("WiFi BSSID " + s.getIdentifier());
                     } else {
-                        s.setDescription("WiFi SSID " + s.getTypeIdentifier());
+                        s.setDescription("WiFi SSID " + s.getIdentifier());
                     }
                     break;                                                  
             }            
@@ -73,8 +73,8 @@ public class SensorGenerator {
              * ignored and assigned on the webapi side of ProxStor
              */
             s.setSensorId(UUID.randomUUID().toString());
-        } while (uniqueSensors.contains(s.getTypeIdentifier()));
-        uniqueSensors.add(s.getTypeIdentifier());
+        } while (uniqueSensors.contains(s.getIdentifier()));
+        uniqueSensors.add(s.getIdentifier());
         return s;
     }
     
