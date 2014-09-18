@@ -259,6 +259,22 @@ public enum DeviceDao {
         }
     }
 
+    public Vertex getDeviceUserVertex(String devId) throws InvalidDeviceId {
+        validOrException(devId);
+        List<Vertex> vertices = new ArrayList<>();
+        try {
+            for (Vertex v : ProxStorGraph.instance.getVertex(devId).getVertices(IN, "uses")) {
+                vertices.add(v);
+            }
+            if (vertices.size() == 1) {
+                return vertices.get(0);
+            }            
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
     /**
      * Helper method which accepts a device id strings and either returns
      * nothing to the caller or throws an InvalidDeviceId exception if any
@@ -274,6 +290,32 @@ public enum DeviceDao {
             throw new InvalidDeviceId();
         }
     }
+      
+    /*
+     * returns Device stored under devId
+     *
+     * returns null if:
+     *   - devId does not map to any graph vertex
+     *   - vertex is not of type device
+     *
+     */
+    public Device get(String devId) {
+        if (devId == null) {
+            return null;
+        }
+        Vertex v;
+        try {
+            v = ProxStorGraph.instance.getVertex(devId);
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        if ((v != null) && valid(v)) {
+            return toDevice(v);
+        }
+        return null;
+    }
+    
     
     // ----> BEGIN private methods <----
    
@@ -305,31 +347,6 @@ public enum DeviceDao {
         if (v != null) {
             v.setProperty("_type", "device");
         }
-    }
-    
-    /*
-     * returns Device stored under devId
-     *
-     * returns null if:
-     *   - devId does not map to any graph vertex
-     *   - vertex is not of type device
-     *
-     */
-    private Device get(String devId) {
-        if (devId == null) {
-            return null;
-        }
-        Vertex v;
-        try {
-            v = ProxStorGraph.instance.getVertex(devId);
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
-            return null;
-        }
-        if ((v != null) && valid(v)) {
-            return toDevice(v);
-        }
-        return null;
     }
     
     /* 
@@ -371,10 +388,18 @@ public enum DeviceDao {
             Vertex v;
             try {
                 v = ProxStorGraph.instance.getVertex(d.getDevId());
-                v.setProperty("description", d.getDescription());
-                v.setProperty("manufacturer", d.getManufacturer());
-                v.setProperty("model", d.getModel());
-                v.setProperty("os", d.getOs());
+                if (d.getDescription() != null) {
+                    v.setProperty("description", d.getDescription());
+                }
+                if (d.getManufacturer() != null) {
+                    v.setProperty("manufacturer", d.getManufacturer());
+                }
+                if (d.getModel() != null) {
+                    v.setProperty("model", d.getModel());
+                }
+                if (d.getOs() != null) {
+                    v.setProperty("os", d.getOs());
+                }
                 ProxStorGraph.instance.commit();
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
                 Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
@@ -390,7 +415,7 @@ public enum DeviceDao {
         }
         return false;
     }
-    
+
     /*
      * test Vertex for Device-ness
      */
@@ -401,8 +426,8 @@ public enum DeviceDao {
             }
         }
         return true;
-    }
-
+    }    
+     
     /*
      * test device id for Device-ness
      */
