@@ -1,6 +1,5 @@
 package com.giannoules.proxstor.knows;
 
-import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.nearby.NearbyDao;
@@ -50,7 +49,7 @@ public class NearbyResource {
         return Response.ok((Location[]) locations.toArray(new Location[locations.size()])).build();
     }
 
-    @Path("{otherloc: [0-9]+}")
+    @Path("location/{otherloc: [0-9]+}")
     public NearbyLocationResource returnNearbyLocationResource(@PathParam("otherloc") String otherLoc) {
         return new NearbyLocationResource(locIdA, otherLoc, distanceVal);
     }
