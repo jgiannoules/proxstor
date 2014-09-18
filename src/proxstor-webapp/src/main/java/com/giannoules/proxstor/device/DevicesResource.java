@@ -89,6 +89,8 @@ public class DevicesResource {
     }
 
     // ---- BEGIN sub-resource locators ----
+    
+    
     /*
      * return DeviceResource handler for specified devid
      */
