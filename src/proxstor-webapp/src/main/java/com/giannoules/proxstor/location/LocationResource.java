@@ -88,7 +88,7 @@ public class LocationResource {
     /*
      * return SensorResource handler for this Location
      */
-    @Path("sensors")
+    @Path("sensor")
     public SensorsResource getSensorResource() {
         return new SensorsResource(locId);
     }
