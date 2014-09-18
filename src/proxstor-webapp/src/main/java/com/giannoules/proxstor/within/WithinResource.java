@@ -1,6 +1,5 @@
 package com.giannoules.proxstor.within;
 
-import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.api.Location;
 import java.util.Collection;
@@ -54,7 +53,7 @@ public class WithinResource {
         }
     }
 
-    @Path("{locid2: [0-9]+}")
+    @Path("location/{locid2: [0-9]+}")
     public WithinLocationResource getWithinLocationResource(@PathParam("locid2") String locId2) {
         return new WithinLocationResource(locId, locId2);
     }
