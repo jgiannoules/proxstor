@@ -55,7 +55,7 @@ public class SensorConnectorTester {
         Sensor s = new Sensor();
         s.setDescription("WiFi in Shopping Mall");
         s.setType(SensorType.WIFI_BSSID);
-        s.setTypeIdentifier(UUID.randomUUID().toString());
+        s.setIdentifier(UUID.randomUUID().toString());
         
         goodSensor = conn.addSensor(Integer.parseInt(goodLocation.getLocId()), s);
         
@@ -65,7 +65,7 @@ public class SensorConnectorTester {
         s = new Sensor();
         s.setDescription("BLE Device in Bathroom");
         s.setType(SensorType.BLE_UUID);
-        s.setTypeIdentifier(UUID.randomUUID().toString());
+        s.setIdentifier(UUID.randomUUID().toString());
         
         goodSensor2 = conn.addSensor(Integer.parseInt(goodLocation.getLocId()), s);
         
@@ -86,7 +86,7 @@ public class SensorConnectorTester {
         Sensor s = new Sensor();
         s.setDescription("WiFi in Coffee Shop");
         s.setType(SensorType.WIFI_BSSID);
-        s.setTypeIdentifier(UUID.randomUUID().toString());
+        s.setIdentifier(UUID.randomUUID().toString());
         Sensor s2 = conn.addSensor(Integer.parseInt(goodLocation.getLocId()), s);
         assertNotNull(s2.getSensorId());
         assertEquals(s, s2);
