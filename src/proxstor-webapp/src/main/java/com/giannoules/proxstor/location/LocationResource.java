@@ -75,12 +75,13 @@ public class LocationResource {
     @DELETE
     public Response deleteLocation() {
         try {
-            LocationDao.instance.delete(locId);
-            return Response.noContent().build();
+            if (LocationDao.instance.delete(locId)) {
+                return Response.noContent().build();
+            }
         } catch (InvalidLocationId ex) {
-            Logger.getLogger(LocationResource.class.getName()).log(Level.SEVERE, null, ex);
-            return Response.status(404).build();
+            Logger.getLogger(LocationResource.class.getName()).log(Level.SEVERE, null, ex);            
         }
+        return Response.status(404).build();
     }
 
     // ---- BEGIN sub-resource locators
