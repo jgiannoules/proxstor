@@ -14,7 +14,8 @@ import org.junit.runners.Suite;
    LocationWithinConnectorTester.class,
    SensorConnectorTester.class,
    UserConnectorTester.class,
-   UserKnowsConnectorTester.class
+   UserKnowsConnectorTester.class,
+   LocalityConnectorTester.class
 })
 public class ConnectionTesterSuite {
   
