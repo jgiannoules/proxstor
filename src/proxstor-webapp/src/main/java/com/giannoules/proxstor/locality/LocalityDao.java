@@ -2,27 +2,18 @@ package com.giannoules.proxstor.locality;
 
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.api.Locality;
-import com.giannoules.proxstor.api.Location;
-import com.giannoules.proxstor.api.Sensor;
-import com.giannoules.proxstor.api.SensorType;
-import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.device.DeviceDao;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
 import com.giannoules.proxstor.exception.InvalidLocalityId;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidSensorId;
-import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
 import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.sensor.SensorDao;
-import com.giannoules.proxstor.user.UserDao;
-import static com.tinkerpop.blueprints.Direction.IN;
-import static com.tinkerpop.blueprints.Direction.OUT;
-import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.VertexQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -116,259 +107,8 @@ public enum LocalityDao {
         } catch (ProxStorGraphNonExistentObjectID ex) {
             throw new InvalidLocalityId();
         }
-    }
-
-    
-    /**
-     * Lookup and retrieve the current Locality of userId
-     * 
-     * @param userId The User userId to reference
-     * @return Locality if userId has active Locality, null otherwise
-     * @throws com.giannoules.proxstor.exception.InvalidUserId if provided userId is not valid
-     */
-    public Locality getCurrentLocality(String userId) throws InvalidUserId {
-        UserDao.instance.validOrException(userId);
-        try {
-            Vertex u = ProxStorGraph.instance.getVertex(userId);
-            Iterable<Vertex> i = u.getVertices(OUT, "currently_at");
-            List<Vertex> localities = new ArrayList<>();
-            for (Vertex v : localities) {            
-                localities.add(v);
-            }
-            if (localities.size() == 1) {
-                return toLocality(localities.get(0));
-            }
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
-        }        
-        return null;
-    }
-    
-     /**
-     * Lookup and retrieve the current Locality of userId
-     * 
-     * @param userId The User userId to reference
-     * @return Vertex of userId if active Locality, null otherwise
-     * @throws com.giannoules.proxstor.exception.InvalidUserId if provided userId is not valid
-     */
-    private Vertex getCurrentLocalityVertex(String userId) throws InvalidUserId {
-        UserDao.instance.validOrException(userId);
-        try {
-            Vertex u = ProxStorGraph.instance.getVertex(userId);
-            Iterable<Vertex> i = u.getVertices(OUT, "currently_at");
-            List<Vertex> localities = new ArrayList<>();
-            for (Vertex v : localities) {            
-                localities.add(v);
-            }
-            if (localities.size() == 1) {
-                return localities.get(0);
-            }
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
-        }        
-        return null;
-    }
-    
-    
-    /**
-     * Returns the Vertex "previously_at" a given Vertex
-     * 
-     * @param v
-     * @return 
-     */
-    private Vertex getPrevioulsyAt(Vertex v) {
-        Iterable<Vertex> i = v.getVertices(OUT, "previously_at");
-        List<Vertex> localities = new ArrayList<>();
-        for (Vertex prevVertex : localities) {
-            localities.add(prevVertex);
-        }
-        if (localities.size() == 1) {
-            return localities.get(0);
-        }
-        return null;
-    }
-    
-    public List<Locality> getPreviousLocalities(String userId, int depth) throws InvalidUserId {
-        UserDao.instance.validOrException(userId);
-        int count = 0;
-        List<Locality> localities = new ArrayList<>();
-        Vertex v, w;
-        try {
-            v = ProxStorGraph.instance.getVertex(userId);
-            do {
-                w = getPrevioulsyAt(v);
-                if (w != null) {
-                    localities.add(toLocality(w));
-                    v = w;
-                }
-            } while (((count < depth) || (depth == 0)) && (w != null));
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return localities;
-    }
-    
-    private List<Vertex> getPreviousLocalityVertices(String userId, int depth) throws InvalidUserId {
-        UserDao.instance.validOrException(userId);
-        int count = 0;
-        List<Vertex> localities = new ArrayList<>();
-        Vertex v, w;
-        try {
-            v = ProxStorGraph.instance.getVertex(userId);
-            do {
-                w = getPrevioulsyAt(v);
-                if (w != null) {
-                    localities.add(w);
-                    v = w;
-                }
-            } while (((count < depth) || (depth == 0)) && (w != null));
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return localities;
-    }
-    
-    public boolean userCurrentLocalityToPrevious(String userId) throws InvalidUserId {
-        Vertex current = getCurrentLocalityVertex(userId);
-        if (current != null) {
-            /*
-             * Locality is now inactive
-             */
-            current.setProperty("active", false);
-            try {
-                /*
-                 * reference to User Vertex
-                 */
-                Vertex u = ProxStorGraph.instance.getVertex(userId);
-                /*
-                * delete "currently_at" Edge
-                */
-                for (Edge e : u.getEdges(OUT, "currently_at")) {
-                    e.remove();
-                }                
-                /*
-                 * get the most recent previously_at vertex
-                 */
-                Vertex previous = getPreviousLocalityVertices(userId, 1).get(0);
-                /*
-                 * point the about-to-be-previously_at vertex to the previous one
-                 */
-                if (previous != null) {
-                    current.addEdge("previously_at", previous);
-                }
-                /*
-                 * delete "previously_at" Edge
-                 */
-                for (Edge e : u.getEdges(OUT, "previously_at")) {
-                    e.remove();
-                }     
-                /*
-                 * establish previoulsy_at from user to current
-                 */
-                u.addEdge("previously_at", current);
-                
-                ProxStorGraph.instance.commit();
-                return true;
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-                Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
-            }                        
-        }
-        return false;
-    }
-        
-    /**
-     * When a Device detects a Sensor then ProxStor can infer that the User of
-     * the device is the Location containing Sensor.
-     * 
-     * @param devId
-     * @param sensorId
-     * @return
-     * @throws InvalidSensorId
-     * @throws InvalidDeviceId
-     * @throws InvalidUserId
-     * @throws InvalidLocationId
-     * @throws SensorNotContainedWithinLocation 
-     */
-     
-    public Locality deviceDetectSensor(String devId, String sensorId) throws InvalidSensorId, InvalidDeviceId, InvalidUserId, InvalidLocationId, SensorNotContainedWithinLocation {        
-        Vertex user = DeviceDao.instance.getDeviceUserVertex(devId);       
-        Vertex location = SensorDao.instance.getSensorLocationVertex(sensorId);
-        String userId = user.getId().toString();
-        String locId = location.getId().toString();
-
-        userCurrentLocalityToPrevious(userId);
-        
-        Locality l = new Locality();
-        l.setActive(true);
-        l.setArrival(new DateTime());
-        l.setDeviceId(devId);
-        l.setLocationId(locId);
-        l.setSensorId(sensorId);
-        l.setManual(false);
-        
-        l = add(l);
-        
-        try {
-            user.addEdge("currently_at", ProxStorGraph.instance.getVertex(l.getLocalityId()));
-            ProxStorGraph.instance.commit();
-            return l;
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-    
-    /**
-     * When a device no longer detects a sensor, then ProxStor can
-     * infer that the Sensor's Location is no longer the User's current location.
-     * Care must be taken that the User was indeed in the referenced location.
-     * 
-     * @param devId
-     * @param sensorId
-     * @return 
-     * @throws com.giannoules.proxstor.exception.InvalidDeviceId 
-     * @throws com.giannoules.proxstor.exception.InvalidSensorId 
-     * @throws com.giannoules.proxstor.exception.InvalidUserId 
-     */
-    public boolean deviceUndetectSensor(String devId, String sensorId) throws InvalidDeviceId, InvalidSensorId, InvalidUserId {
-        Vertex user = DeviceDao.instance.getDeviceUserVertex(devId);       
-        Vertex location = SensorDao.instance.getSensorLocationVertex(sensorId);
-        String userId = user.getId().toString();
-        String locId = location.getId().toString();
-        
-        Locality currentLocality = getCurrentLocality(userId);
-        if ((currentLocality != null) && (currentLocality.getLocationId().equals(locId))) {
-            userCurrentLocalityToPrevious(userId);
-            return true;
-        }           
-        return false;
-    }
-    
-    public Locality userInLocation(String userId, String locId) throws InvalidUserId, InvalidLocationId {
-        UserDao.instance.validOrException(userId);
-        LocationDao.instance.validOrException(locId);
-        Vertex user;
-        try {
-            user = ProxStorGraph.instance.getVertex(userId);
-            userCurrentLocalityToPrevious(userId);
-
-            Locality l = new Locality();
-            l.setActive(true);
-            l.setArrival(new DateTime());
-            l.setLocationId(locId);
-            l.setManual(true);
-
-            l = add(l);
-
-            user.addEdge("currently_at", ProxStorGraph.instance.getVertex(l.getLocalityId()));
-            ProxStorGraph.instance.commit();
-            return l;
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidDeviceId | InvalidSensorId | SensorNotContainedWithinLocation ex) {
-            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
+    }  
+       
     /*
      * returns Locality stored under Vertex v
      *
@@ -387,14 +127,52 @@ public enum LocalityDao {
 
     // @TODO
     public Collection<Locality> getMatching(Locality partial) {
-        return null;
+        List<Locality> localities = new ArrayList<>();
+         if ((partial.getLocalityId() != null) && (!partial.getLocalityId().isEmpty())) {
+            // invalid localityID is not an exception, it is just no match condition
+            try { 
+                localities.add(LocalityDao.this.get(partial.getLocalityId()));
+                return localities;
+            } catch (InvalidLocalityId ex) {
+                Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
+        }
+        GraphQuery q;
+        try {
+            q = ProxStorGraph.instance._query();
+        } catch (ProxStorGraphDatabaseNotRunningException ex) {
+            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        q.has("_type", "locality");
+        /*
+         * not including arrival and departure DateTime due to extreme unlikely
+         * condition that a search query would match.
+         * @TODO allow ranges to be specified (e.g. a Locality arrive between a and b)
+         */
+        if ((partial.getDeviceId() != null) && (!partial.getDeviceId().isEmpty())) {
+            q.has("deviceId", partial.getDeviceId());
+        }
+        if ((partial.getLocationId() != null) && (!partial.getLocationId().isEmpty())) {
+            q.has("locationId", partial.getLocationId());
+        }
+        if ((partial.getSensorId() != null) && (!partial.getSensorId().isEmpty())) {
+            q.has("sensorId", partial.getSensorId());
+        }
+        for (Vertex v : q.vertices()) {
+            if (LocalityDao.this.valid(v)) {
+                localities.add(toLocality(v));
+            }
+        }
+        return localities;
     }
 
-    public Locality add(Locality l) throws InvalidLocationId, InvalidDeviceId, InvalidSensorId, SensorNotContainedWithinLocation {
+    public Locality add(Locality l) throws InvalidLocationId, InvalidDeviceId, 
+            InvalidSensorId, SensorNotContainedWithinLocation {
         if (l == null) {
             return null;
         }
-        System.out.println(l);
 
         l.setArrival(new DateTime());
 
@@ -411,35 +189,34 @@ public enum LocalityDao {
             String locId = SensorDao.instance.getSensorLocation(l.getSensorId());
             l.setLocationId(locId);
         }
-
         try {
             Vertex v = ProxStorGraph.instance.addVertex();
             /*
              * set properties of the Locality vertex            
              */
             if (l.getLocationId() != null) {
-                v.setProperty("locId", l.getLocationId());
+                v.setProperty("locationId", l.getLocationId());
             }
             if (l.getDeviceId() != null) {
-                v.setProperty("devId", l.getDeviceId());
+                v.setProperty("deviceId", l.getDeviceId());
             }
             if (l.getSensorId() != null) {
                 v.setProperty("sensorId", l.getSensorId());
             }
             v.setProperty("manual", l.isManual());
             v.setProperty("active", l.isActive());            
-            v.setProperty("arrive", l.getArrival().toString());            
-            setType(v);
-            /*
-             * associate with User            
-             */
-//            Vertex user = ProxStorGraph.instance.getVertex(l.getDeviceId()).getVertices(IN, "uses").iterator().next();
-//            user.addEdge("currently_at", v);
+            if (l.getArrival() != null) {
+                v.setProperty("arrival", l.getArrival().toString());
+            }
+            if (l.getDeparture() != null) {
+                v.setProperty("departure", l.getDeparture().toString());
+            }
+            setType(v);            
             ProxStorGraph.instance.commit();
             l.setLocalityId(v.getId().toString());
             return l;
         } catch (ProxStorGraphDatabaseNotRunningException ex) {
-            Logger.getLogger(UserDao.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
             try {
                 ProxStorGraph.instance.rollback();
             } catch (ProxStorGraphDatabaseNotRunningException ex1) {
@@ -449,8 +226,74 @@ public enum LocalityDao {
         }
     }
 
-    // ----> BEGIN private methods <----
+    /*
+     * updates Locality based on Locality's localityId
+     *
+     * returns true if valid localityId
+     * throws InvalidLocalityId if id is invalid
+     *     
+     */
+    public boolean update(Locality l) throws InvalidLocalityId {
+        validOrException(l.getLocalityId());
+        try {
+            boolean updated = false;
+            Vertex v = ProxStorGraph.instance.getVertex(l.getLocalityId());
+            if (l.getArrival() != null) {
+                v.setProperty("arrrival", l.getArrival());
+                updated = true;
+            }
+            if (l.getDeparture() != null) {
+                v.setProperty("departure", l.getDeparture());
+                updated = true;
+            }
+            if (l.getDeviceId() != null) {
+                v.setProperty("deviceId", l.getDeviceId());
+                updated = true;
+            }
+            if (l.getLocationId() != null) {
+                v.setProperty("locationId", l.getLocationId());
+                updated = true;
+            }
+            if (l.getSensorId() != null) {
+                v.setProperty("sensorId", l.getSensorId());
+                updated = true;
+            }
+            if (updated) {
+                ProxStorGraph.instance.commit();
+                return true;
+            }
+        } catch (ProxStorGraphDatabaseNotRunningException| ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);            
+        }        
+        return false;
+    }
     
+     /* 
+     * remove localityId from graph
+     *
+     * returns true upon success
+     * throws InvalidLocalityId if localityId invalid
+     *
+     */
+    public boolean delete(String localityId) throws InvalidLocalityId {
+        validOrException(localityId);        
+        try {
+            ProxStorGraph.instance.getVertex(localityId).remove();
+            ProxStorGraph.instance.commit();
+            return true;
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(LocalityDao.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }        
+    }
+
+    public void validOrException(String ... ids) throws InvalidLocalityId {
+        if (!valid(ids)) {
+            throw new InvalidLocalityId();
+        }
+    }
+    
+    // ----> BEGIN private methods <----
     
     /*
      * converts vertex into Locality object
@@ -461,7 +304,7 @@ public enum LocalityDao {
      *
      * no exceptions thrown
      */
-    private Locality toLocality(Vertex v) {
+    public Locality toLocality(Vertex v) {
         if (v == null) {
             return null;
         }
@@ -470,17 +313,16 @@ public enum LocalityDao {
          * note: getProperty() will return null for non-existent props
          */
         l.setActive((Boolean) v.getProperty("active"));
-        l.setManual((Boolean) v.getProperty("manual"));
-        l.setArrival(new DateTime(v.getProperty("arrive")));
+        l.setManual((Boolean) v.getProperty("manual"));       
+        if (v.getProperty("arrival") != null) {
+            l.setArrival(new DateTime(v.getProperty("arrival")));
+        }
         if (v.getProperty("departure") != null) {
             l.setDeparture(new DateTime(v.getProperty("departure")));
         }
-        l.setDeviceId((String) v.getProperty("devId"));
-        l.setLocationId((String) v.getProperty("locId"));
+        l.setDeviceId((String) v.getProperty("deviceId"));
+        l.setLocationId((String) v.getProperty("locationId"));
         l.setSensorId((String) v.getProperty("sensorId"));
-//        l.setSensorType(SensorType.valueOf((String) v.getProperty("sensorType")));
-//        l.setSensorValue((String) v.getProperty("sensorValue"));        
-        //l.setSensors(v.getProperty("sensors"));
         Object id = v.getId();
         if (id instanceof Long) {
             l.setLocalityId(Long.toString((Long) v.getId()));

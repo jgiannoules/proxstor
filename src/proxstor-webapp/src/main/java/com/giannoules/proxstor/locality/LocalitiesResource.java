@@ -5,8 +5,6 @@ import com.giannoules.proxstor.exception.InvalidDeviceId;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidSensorId;
 import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
-import com.giannoules.proxstor.user.UserDao;
-import com.giannoules.proxstor.user.UserResource;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -18,6 +16,16 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+/*
+ * Locality represents a period of time that a Device (and thus a User) is
+ * within sensing range of a Sensor (and thus in a Location). In the abstract
+ * the /locality (and com.giannoules.proxstor.locality) provide only the 
+ * proxstor 'object' store/retrieval/update/delete. The full functionality is
+ * achieved in concert with com.giannoules.proxstor.checkin. Thus these
+ * interfaces in a production system would be consumed internally only. They
+ * are provided here for development and debug purposes.
+ */
 
 @Path("/locality")
 public class LocalitiesResource {
