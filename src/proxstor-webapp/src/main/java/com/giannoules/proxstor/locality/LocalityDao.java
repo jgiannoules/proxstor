@@ -16,6 +16,7 @@ import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -174,7 +175,7 @@ public enum LocalityDao {
             return null;
         }
 
-        l.setArrival(new DateTime());
+        l.setArrival(new Date());
 
         if (l.isManual()) {
             /*
@@ -206,10 +207,10 @@ public enum LocalityDao {
             v.setProperty("manual", l.isManual());
             v.setProperty("active", l.isActive());            
             if (l.getArrival() != null) {
-                v.setProperty("arrival", l.getArrival().toString());
+                v.setProperty("arrival", (new DateTime(l.getArrival())).toString());
             }
             if (l.getDeparture() != null) {
-                v.setProperty("departure", l.getDeparture().toString());
+                v.setProperty("departure", (new DateTime(l.getDeparture())).toString());
             }
             setType(v);            
             ProxStorGraph.instance.commit();
@@ -239,11 +240,11 @@ public enum LocalityDao {
             boolean updated = false;
             Vertex v = ProxStorGraph.instance.getVertex(l.getLocalityId());
             if (l.getArrival() != null) {
-                v.setProperty("arrrival", l.getArrival());
+                v.setProperty("arrrival", (new DateTime(l.getArrival())).toString());
                 updated = true;
             }
             if (l.getDeparture() != null) {
-                v.setProperty("departure", l.getDeparture());
+                v.setProperty("departure", (new DateTime(l.getDeparture())).toString());
                 updated = true;
             }
             if (l.getDeviceId() != null) {
@@ -315,10 +316,10 @@ public enum LocalityDao {
         l.setActive((Boolean) v.getProperty("active"));
         l.setManual((Boolean) v.getProperty("manual"));       
         if (v.getProperty("arrival") != null) {
-            l.setArrival(new DateTime(v.getProperty("arrival")));
+            l.setArrival(new DateTime(v.getProperty("arrival")).toDate());
         }
         if (v.getProperty("departure") != null) {
-            l.setDeparture(new DateTime(v.getProperty("departure")));
+            l.setDeparture(new DateTime(v.getProperty("departure")).toDate());
         }
         l.setDeviceId((String) v.getProperty("deviceId"));
         l.setLocationId((String) v.getProperty("locationId"));
