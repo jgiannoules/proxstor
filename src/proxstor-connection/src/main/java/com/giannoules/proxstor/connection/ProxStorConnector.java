@@ -1,6 +1,7 @@
 package com.giannoules.proxstor.connection;
 
 import com.giannoules.proxstor.api.Device;
+import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.api.Sensor;
 import com.giannoules.proxstor.api.User;
@@ -56,7 +57,8 @@ public class ProxStorConnector {
                                 User.class,
                                 Device.class,
                                 Location.class,
-                                Sensor.class));
+                                Sensor.class,
+                                Locality.class));
         target = ClientBuilder.newClient(config).target(path);
         gson = new Gson();
     }
@@ -634,6 +636,72 @@ public class ProxStorConnector {
             return users;
         }
         return null;
+    }
+        
+     /**
+     * Add a new Locality to the ProxStor
+     * 
+     * @param l Instance of the Locality to add to the database.
+     * @return If successful the added Locality object is reflected back to the caller,
+     * but now the localityId field has been filled in with the object id from the backing
+     * graph relational database. If the operation was not successful null will be
+     * returned.
+     */
+    public Locality addLocality(Locality l) {
+        String path = "locality";
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(l, MediaType.APPLICATION_JSON_TYPE));
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            return response.readEntity(Locality.class);
+        }
+        return null;
+    }
+
+    /**
+     * Retrieve the Locality instance stored under the specified object ID.
+     * 
+     * @param localityId The backing store's object ID for the desired Locality.
+     * @return Instance of Locality stored under localityId, if the localityId specified
+     * is a valid User Object ID. If the localityId is not valid null is returned.
+     */
+    public Locality getLocality(Integer localityId) {
+        String path = "locality/" + localityId;
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            return response.readEntity(Locality.class);
+        }
+        return null;
+    }
+
+    /**
+     * using l.localityId to update Locality; return of true is success
+     * 
+     * @param l
+     * @return 
+     */
+    public boolean updateLocality(Locality l) {
+        String path = "locality/" + l.getLocalityId();
+        Response response = target.path(path)
+                .request()
+                .put(Entity.entity(l, MediaType.APPLICATION_JSON_TYPE));
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+
+    /**
+     * delete locality based on localityId; return true if successful
+     * 
+     * @param localityId
+     * @return 
+     */
+    public boolean deleteLocality(Integer localityId) {
+        String path = "locality/" + localityId;
+        Response response = target.path(path)
+                .request()
+                .delete();
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
 
 }
