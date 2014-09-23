@@ -58,8 +58,6 @@ public class LocationConnectorTester {
     @Test
     public void getLocation() {
         Location l = conn.getLocation(Integer.parseInt(goodLocation.getLocId()));
-        System.out.println("l: " + l);
-        System.out.println("goodLocation: " + goodLocation);
         assertEquals(l, goodLocation);
     }
   
