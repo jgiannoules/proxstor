@@ -92,12 +92,13 @@ public class Locality {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(localityId).append(": ");
-        sb.append("devId: ").append(deviceId).append(" ");
-        sb.append("manual: ").append(manual).append(" ");
-        sb.append("sensorId: ").append(sensorId).append(" ");
-        sb.append("arrive: ").append(arrival).append(" ");
-        sb.append("depart: ").append(departure);
+        sb.append("Locality [").append(localityId).append("]:\n");
+        sb.append("\tmanual: ").append(manual).append("\n");
+        sb.append("\tdevId: ").append(deviceId).append("\n");        
+        sb.append("\tsensorId: ").append(sensorId).append("\n");
+        sb.append("\tlocId: ").append(locationId).append("\n");
+        sb.append("\tarrive: ").append(arrival).append("\n");
+        sb.append("\tdepart: ").append(departure);
         return sb.toString();
     }
     
