@@ -10,8 +10,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath com.giannoules.proxstor.testing.generator.Generator 1000 50 2 500 4 539015006218569</exec.args>
+                <exec.args>-classpath %classpath com.giannoules.proxstor.testing.generator.Generator 1000000 5000 2 100000 10 761238613</exec.args>
                 <exec.executable>java</exec.executable>
+                <exec.workingdir>/home/jim/Documents/proxstor/src/proxstor-testing</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -24,9 +25,10 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath com.giannoules.proxstor.testing.generator.Generator 1000 50 2 500 4 539015006218569</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath com.giannoules.proxstor.testing.generator.Generator 1000000 5000 2 100000 10 761238613</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
+                <exec.workingdir>/home/jim/Documents/proxstor/src/proxstor-testing</exec.workingdir>
             </properties>
         </action>
         <action>
@@ -39,8 +41,9 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath com.giannoules.proxstor.testing.generator.Generator 1000 50 2 500 4 539015006218569</exec.args>
+                <exec.args>-classpath %classpath com.giannoules.proxstor.testing.generator.Generator 1000000 5000 2 100000 10 761238613</exec.args>
                 <exec.executable>java</exec.executable>
+                <exec.workingdir>/home/jim/Documents/proxstor/src/proxstor-testing</exec.workingdir>
             </properties>
         </action>
     </actions>

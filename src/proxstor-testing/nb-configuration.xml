@@ -11,6 +11,7 @@ Without this configuration present, some functionality in the IDE may be limited
             <configuration id="Generator - small" profiles=""/>
             <configuration id="Loader" profiles=""/>
             <configuration id="Stressor" profiles=""/>
+            <configuration id="Generator" profiles=""/>
         </configurations>
     </config-data>
 </project-shared-configuration>
