@@ -1,15 +1,19 @@
 package com.giannoules.proxstor.locality;
 
 import com.giannoules.proxstor.api.Locality;
+import com.giannoules.proxstor.checkin.CheckinDao;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidSensorId;
+import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -75,6 +79,26 @@ public class LocalitiesResource {
     }
 
     
+    @Path("user/{userid}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUserLocalities(@PathParam("userid") String userId) {
+        Collection<Locality> localities;
+        try {
+            localities = CheckinDao.instance.getPreviousLocalities(userId, 1024); // @TODO set depth?
+            if (localities.isEmpty()) {
+                return Response.noContent().build();
+            }
+            /*
+             * ok() will not take Collection directly, so convert to array
+             */
+            return Response.ok((Locality[]) localities.toArray(new Locality[localities.size()])).build();
+        } catch (InvalidUserId ex) {
+            Logger.getLogger(LocalitiesResource.class.getName()).log(Level.SEVERE, null, ex);
+            return Response.status(404).build();
+        }
+    }
+
     // ----> BEGIN sub-resource locators <----
     
     
