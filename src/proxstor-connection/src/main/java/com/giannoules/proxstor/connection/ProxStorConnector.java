@@ -703,5 +703,62 @@ public class ProxStorConnector {
                 .delete();
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
+    
+    public Locality userCheckinLocation(Integer userId, Integer locId) {
+        String path = "/checkin/user/" + userId + "/location/" + locId;
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(null);
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            return response.readEntity(Locality.class);
+        }
+        return null;
+    }
+    
+    public boolean userCheckoutLocation(Integer userId, Integer locId) {
+        String path = "/checkin/user/" + userId + "/location/" + locId;
+        Response response = target.path(path)
+                .request()
+                .delete();
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }     
+     
+    public Locality deviceDetectsSensorId(Integer devId, Integer sensorId) {
+        String path = "/checkin/device/" + devId + "/sensor/" + sensorId;
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(null);
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            return response.readEntity(Locality.class);
+        }
+        return null;
+    }
+    
+    public boolean deviceUndetectsSensorId(Integer devId, Integer sensorId) {
+        String path = "/checkin/device/" + devId + "/sensor/" + sensorId;
+        Response response = target.path(path)
+                .request()
+                .delete();
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+    
+    public Locality deviceDetectsSensor(Integer devId, Sensor s) {
+        String path = "/checkin/device/" + devId + "/sensor/";
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            return response.readEntity(Locality.class);
+        }
+        return null;
+    }
+    
+    public boolean deviceUndetectsSensor(Integer devId, Sensor s) {
+        String path = "/checkin/device/" + devId + "/sensor/";
+        Response response = target.path(path)
+                .request()
+                .method("DELETE", Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
+        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
 
 }
