@@ -8,10 +8,11 @@ Without this configuration present, some functionality in the IDE may be limited
 -->
     <config-data xmlns="http://www.netbeans.org/ns/maven-config-data/1">
         <configurations>
+            <configuration id="Generator" profiles=""/>
             <configuration id="Generator - small" profiles=""/>
             <configuration id="Loader" profiles=""/>
             <configuration id="Stressor" profiles=""/>
-            <configuration id="Generator" profiles=""/>
+            <configuration id="userCheckinLocation" profiles=""/>
         </configurations>
     </config-data>
 </project-shared-configuration>
