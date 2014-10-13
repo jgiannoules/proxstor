@@ -1,11 +1,23 @@
 package com.giannoules.proxstor;
 
-// @TODO document
+/**
+ * Useful debugging methods provided statically.
+ * 
+ * @author Jim Giannoules
+ */
  
 public class ProxStorDebug {
-    
+   
+    /**
+     * Simple mechanism to control debugging behavior in a global manner
+     */
     private static boolean DEBUG_ON = false;
     
+    /**
+     * Print debug string prepended with debug text
+     * 
+     * @param msgs Message to print
+     */
     public static void println(String... msgs) {
         if (!DEBUG_ON) {
             return;
