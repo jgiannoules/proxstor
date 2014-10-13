@@ -196,19 +196,6 @@ public enum ProxStorGraph {
         return e;
     }
     
-    @Deprecated
-    public List<Vertex> getVertices(String idA, String idB, Direction d, String ... labels) throws ProxStorGraphDatabaseNotRunningException, ProxStorGraphNonExistentObjectID {
-        incCounter("getVertices()");
-        Vertex a = getVertex(idA);
-        List<Vertex> vertices = new ArrayList<>();
-        for (Vertex v : a.getVertices(d, labels)) {
-            if (idB.equals((String) v.getId())) {
-                vertices.add(v);
-            }
-        }
-        return vertices;
-    }      
-    
     /**
      * For pending transactions to be committed to the database. If the graph
      * instance is not transactional this method simply exits.
@@ -237,14 +224,6 @@ public enum ProxStorGraph {
                 incCounter("TransactionalGraph rollback()");
                 ((TransactionalGraph) graph).rollback();
         }
-    }
-    
-    @Deprecated
-    public TransactionalGraph transactionalGraph() {
-        if (graph instanceof TransactionalGraph) {
-            return (TransactionalGraph) graph;
-        }
-        return null;
     }
     
     /**
@@ -294,15 +273,6 @@ public enum ProxStorGraph {
         if (!isRunning()) {
             throw new ProxStorGraphDatabaseNotRunningException("No running graph instance");
         }
-    }
-    
-    /*
-     * @TODO get away from providing this...
-     */
-    @Deprecated
-    private Graph _getGraph() throws ProxStorGraphDatabaseNotRunningException {        
-        _isRunningOrException();
-        return instance.graph;
     }
    
     /**
