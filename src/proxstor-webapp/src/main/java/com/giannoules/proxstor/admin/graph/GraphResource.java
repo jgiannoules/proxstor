@@ -21,21 +21,23 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-/*
- *
+/**
  * administer the graph instance held in ProxStorGraph
  * 
  *  - create (@POST)
  *  - retrieve status (@GET)
  *  - shutdown (@DELETE) 
+ * 
+ * @author Jim Giannoules
  */
 public class GraphResource {
 
-    /*
+    /**
      * return basic status & configuration information on running graph
-     *
-     * success - returns 200 (OK)
-     * failure - returns 503 (Service Unavailable)
+     *  success - returns 200 (OK)
+     *  failure - returns 503 (Service Unavailable)
+     * 
+     * @return  Response to request containing current Graph information/statistics
      */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -46,12 +48,14 @@ public class GraphResource {
         return Response.ok().entity(ProxStorGraph.instance.toString()).build();
     }
 
-    /*
+    /**
      * shutdown running Graph instance
      * DELETE HttpMethod is the closest match to the concept of "stopping"
      *
-     * success - returns 200 (OK)
-     * failure - returns 404 (Not Found)
+     *  success - returns 200 (OK)
+     *  failure - returns 404 (Not Found)
+     * 
+     * @return  Response to request containing status of request
      */
     @DELETE
     @Produces(MediaType.TEXT_PLAIN)
@@ -65,7 +69,7 @@ public class GraphResource {
         }        
     }
 
-    /*
+    /**
      * create a new Graph instance using the form parameters as entries into
      * a Map to be used as configuration
      *  
@@ -77,6 +81,8 @@ public class GraphResource {
      * success - returns 200 (Ok)
      * failure - returns 500 (Internal Server Error) if unable to start graph instance
      * failure - returns 403 (Forbidden) if graph instance already running
+     * 
+     * @return Response to request containing status
      */
     @POST    
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -101,6 +107,13 @@ public class GraphResource {
         }
     }
     
+    /**
+     * Handle requests to OrientDB subpath to the admin/graph/ path. OrientDB differs
+     * from other Graph type in that it does not use the GraphFactory. Instead it uses
+     * OrientGraphFactory.
+     * 
+     * @return Response to request.
+     */
     @Path("orientdb")
     @GET
     public Response getOrientDB() {
