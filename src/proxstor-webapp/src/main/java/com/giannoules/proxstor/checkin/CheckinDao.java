@@ -32,10 +32,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.joda.time.DateTime;
 
+/**
+ * Checkin operations interface to ProxStor back-end
+ * 
+ * @author Jim Giannoules
+ */
+
 public enum CheckinDao {
 
     instance;
-
     
     /*
      * common methods used throughout CheckinDao

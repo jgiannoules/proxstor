@@ -78,6 +78,9 @@ public enum KnowsDao {
      * from fromUser to toUser, or if the user ids are the same.
      */
     public boolean addKnows(String fromUser, String toUser, Integer strength) throws InvalidUserId, UserAlreadyKnowsUser {
+        if ((strength > 100) || (strength < 1)) {
+            return false;
+        }
         UserDao.instance.validOrException(fromUser, toUser);
         if (strength == null) {
             return false;
@@ -153,6 +156,9 @@ public enum KnowsDao {
      * @TODO check for existing relationship. currently the method is identical to addKnows. created duplicates.
      */
     public boolean updateKnows(String fromUser, String toUser, Integer strength) throws InvalidUserId {
+        if ((strength > 100) || (strength < 1)) {
+            return false;
+        }
         UserDao.instance.validOrException(fromUser, toUser);
         Edge e;
         try {
