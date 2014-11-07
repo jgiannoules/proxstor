@@ -58,7 +58,7 @@ public enum SensorDao {
     /**
      * Returns all the sensors within the location
      *
-     * @param locId String representation of locaiton id
+     * @param locId String representation of location id
      *
      * @return Collection of Sensor objects contained in location, or null if
      * none

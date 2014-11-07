@@ -3,6 +3,7 @@ package com.giannoules.proxstor.connection;
 import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.api.Location;
+import com.giannoules.proxstor.api.Query;
 import com.giannoules.proxstor.api.Sensor;
 import com.giannoules.proxstor.api.User;
 import com.google.gson.Gson;
@@ -759,6 +760,26 @@ public class ProxStorConnector {
                 .request()
                 .method("DELETE", Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
+    }
+    
+    public Collection<Locality> query(Query q) {
+        String path = "/query";
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .post(Entity.entity(q, MediaType.APPLICATION_JSON_TYPE));
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            String json = response.readEntity(String.class);
+            Type collectionType = new TypeToken<Collection<Locality>>() {
+            }.getType();
+            Collection<Locality> localities = gson.fromJson(json, collectionType);
+            return localities;
+        }
+        return null;
+    }
+    
+    // @TODO
+    public Collection<Locality> queryComplex() {
+        return null;
     }
 
 }

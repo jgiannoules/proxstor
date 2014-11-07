@@ -11,3 +11,8 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 /src/proxstor-webapp/target/
+/src/ProxStorClient/target/
+/src/proxstor-client/target/
+/src/proxstor-connection/target/
+/src/proxstor-staticdatagenerator/target/
+/src/proxstor-testing/target/
