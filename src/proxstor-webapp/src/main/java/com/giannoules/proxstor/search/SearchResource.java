@@ -44,7 +44,7 @@ public class SearchResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getMathingDevices(Device d) {
+    public Response getMatchingDevices(Device d) {
         Collection<Device> devices = DeviceDao.instance.getMatching(d);      
         if (devices == null || devices.isEmpty()) {
             return Response.noContent().build();
