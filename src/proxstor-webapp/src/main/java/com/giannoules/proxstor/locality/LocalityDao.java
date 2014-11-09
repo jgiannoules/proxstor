@@ -152,6 +152,9 @@ public enum LocalityDao {
          * condition that a search query would match.
          * @TODO allow ranges to be specified (e.g. a Locality arrive between a and b)
          */
+        if ((partial.getUserId() != null) && (!partial.getUserId().isEmpty())) {
+            q.has("userId", partial.getUserId());
+        }
         if ((partial.getDeviceId() != null) && (!partial.getDeviceId().isEmpty())) {
             q.has("deviceId", partial.getDeviceId());
         }
@@ -197,6 +200,9 @@ public enum LocalityDao {
              */
             if (l.getLocationId() != null) {
                 v.setProperty("locationId", l.getLocationId());
+            }
+            if (l.getUserId() != null) {
+                v.setProperty("userId", l.getUserId());
             }
             if (l.getDeviceId() != null) {
                 v.setProperty("deviceId", l.getDeviceId());
@@ -245,6 +251,10 @@ public enum LocalityDao {
             }
             if (l.getDeparture() != null) {
                 v.setProperty("departure", (new DateTime(l.getDeparture())).toString());
+                updated = true;
+            }
+            if (l.getUserId() != null) {
+                v.setProperty("userId", l.getUserId());
                 updated = true;
             }
             if (l.getDeviceId() != null) {
@@ -321,6 +331,7 @@ public enum LocalityDao {
         if (v.getProperty("departure") != null) {
             l.setDeparture(new DateTime(v.getProperty("departure")).toDate());
         }
+        l.setUserId((String) v.getProperty("userId"));
         l.setDeviceId((String) v.getProperty("deviceId"));
         l.setLocationId((String) v.getProperty("locationId"));
         l.setSensorId((String) v.getProperty("sensorId"));
