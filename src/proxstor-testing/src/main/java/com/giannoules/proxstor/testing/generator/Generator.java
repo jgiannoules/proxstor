@@ -3,8 +3,8 @@ package com.giannoules.proxstor.testing.generator;
 import com.giannoules.proxstor.testing.generator.DeviceGenerator;
 import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.api.Location;
-import com.giannoules.proxstor.api.Sensor;
-import com.giannoules.proxstor.api.SensorType;
+import com.giannoules.proxstor.api.Environmental;
+import com.giannoules.proxstor.api.EnvironmentalType;
 import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.testing.ReaderWriter;
 import java.io.File;
@@ -36,13 +36,13 @@ public class Generator {
     static List<User> users;
     static List<Device> devices;
     static List<Location> locations;
-    static List<Sensor> sensors;
+    static List<Environmental> environmentals;
 
     static Integer userCount;
     static Integer uniqueDevices;
     static Integer avgDeviceCount;
     static Integer locationCount;
-    static Integer avgSensorCount;
+    static Integer avgEnvironmentalCount;
     static Long randomSeed;
 
     /*
@@ -50,7 +50,7 @@ public class Generator {
      * args[1] number of unique devices
      * args[2] average number of devices per user
      * args[3] number of locations
-     * args[4] average number of sensors per location
+     * args[4] average number of environmentals per location
      * args[5] random seed (optional)
      */
     public static void main(String[] args) throws Exception {
@@ -66,7 +66,7 @@ public class Generator {
         uniqueDevices = Integer.parseInt(args[1]);
         avgDeviceCount = Integer.parseInt(args[2]);
         locationCount = Integer.parseInt(args[3]);
-        avgSensorCount = Integer.parseInt(args[4]);
+        avgEnvironmentalCount = Integer.parseInt(args[4]);
         if (args.length > 5) {
             randomSeed = Long.parseLong(args[5]);
             random.setSeed(randomSeed);
@@ -79,7 +79,7 @@ public class Generator {
         System.out.println("\tNumber of Unique Devices: " + uniqueDevices);
         System.out.println("\tAverage Number of Devices per User: " + avgDeviceCount);
         System.out.println("\tNumber of Locations: " + locationCount);
-        System.out.println("\tAverage Number of Sensors per Location: " + avgSensorCount);
+        System.out.println("\tAverage Number of Environmentals per Location: " + avgEnvironmentalCount);
         if (randomSeed != null) {
             System.out.println("\tRandom Seed: " + randomSeed);
         }
@@ -90,7 +90,7 @@ public class Generator {
         genDevices();
         assignDevices();        
         genLocations();        
-        genAndAssignSensors();
+        genAndAssignEnvironmentals();
         assignWithinLocations();
         assignNearbyLocations();
 
@@ -99,7 +99,7 @@ public class Generator {
         writeToFile(dir, "users.json", users);
         writeToFile(dir, "devices.json", devices);
         writeToFile(dir, "locations.json", locations);
-        writeToFile(dir, "sensors.json", sensors);
+        writeToFile(dir, "environmentals.json", environmentals);
 
         System.out.println("\nFiles saved to:");
         System.out.println("\t" + new File(".").getCanonicalPath() + "/" + dir + "/");        
@@ -284,13 +284,13 @@ public class Generator {
     }
     
     /*
-     * use SensorGenerator() to continually generate random sensors and add them
-     * to the sensors list. 
+     * use EnvironmentalGenerator() to continually generate random environmentals and add them
+     * to the environmentals list. 
      */
-    public static void genAndAssignSensors() {
-        System.out.print("Generating and assigning sensors...");
-        sensors = new ArrayList<>();
-        SensorGenerator sg = new SensorGenerator(random);
+    public static void genAndAssignEnvironmentals() {
+        System.out.print("Generating and assigning environmentals...");
+        environmentals = new ArrayList<>();
+        EnvironmentalGenerator sg = new EnvironmentalGenerator(random);
         long startTime = System.currentTimeMillis();
         long tenth = locationCount / 10;
         long passCount = 0; 
@@ -298,38 +298,38 @@ public class Generator {
         int maxAssigned = 0;
         int minAssigned = Integer.MAX_VALUE;
         /*
-         * each location is assigned an average of averageSensorCount sensors
-         * generated uniquely from one SensorGenerator instance
+         * each location is assigned an average of averageEnvironmentalCount environmentals
+         * generated uniquely from one EnvironmentalGenerator instance
          */
         outer: for (Location l : locations) {
             /*
              * each location has a 70% change of being dead-on average in the
-             * sensor count; otherwise chose sensor count from 1 to 5x avg count.
+             * environmental count; otherwise chose environmental count from 1 to 5x avg count.
              */
             boolean average = (random.nextInt(10) <= 6);
-            int numSensors;
+            int numEnvironmentals;
             if (average) {
-                numSensors = avgSensorCount;
+                numEnvironmentals = avgEnvironmentalCount;
             } else {
-                numSensors = 1 + random.nextInt(avgSensorCount * random.nextInt(5) + 1);
+                numEnvironmentals = 1 + random.nextInt(avgEnvironmentalCount * random.nextInt(5) + 1);
             }
             // some simple statistics collection
-            assignedCount += numSensors;
-            if (numSensors > maxAssigned) {
-                maxAssigned = numSensors;
+            assignedCount += numEnvironmentals;
+            if (numEnvironmentals > maxAssigned) {
+                maxAssigned = numEnvironmentals;
             }
-            if (numSensors < minAssigned) {
-                minAssigned = numSensors;
+            if (numEnvironmentals < minAssigned) {
+                minAssigned = numEnvironmentals;
             }
-            while (numSensors > 0) {
-                Sensor s = sg.genSensor();
-                if (s.getType() == SensorType.UNKNOWN) {
+            while (numEnvironmentals > 0) {
+                Environmental s = sg.genEnvironmentals();
+                if (s.getType() == EnvironmentalType.UNKNOWN) {
                     System.out.println("How!");
                 }
                 if (s != null) {                                    
-                    sensors.add(s);
-                    l.addSensor(s);
-                    numSensors--;   
+                    environmentals.add(s);
+                    l.addEnvironmental(s);
+                    numEnvironmentals--;   
                 }
             }            
             if (passCount++ % tenth == 10) {

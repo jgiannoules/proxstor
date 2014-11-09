@@ -2,7 +2,7 @@ package com.giannoules.proxstor.testing.loader;
 
 import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.api.Location;
-import com.giannoules.proxstor.api.Sensor;
+import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.connection.ProxStorConnector;
 import com.giannoules.proxstor.testing.ReaderWriter;
@@ -24,12 +24,12 @@ public class Loader {
     static List<User> users;
     static List<Device> devices;
     static List<Location> locations;
-    static List<Sensor> sensors;
+    static List<Environmental> environmentals;
 
     static Map<String, User> userMap = new HashMap<>();
     static Map<String, Device> deviceMap = new HashMap<>();
     static Map<String, Location> locationMap = new HashMap<>();
-    static Map<String, Sensor> sensorMap = new HashMap<>();
+    static Map<String, Environmental> environmentalMap = new HashMap<>();
 
     static ProxStorConnector conn;
 
@@ -55,7 +55,7 @@ public class Loader {
         users = readFromFile(dir, "users.json", User.class);
         devices = readFromFile(dir, "devices.json", Device.class);
         locations = readFromFile(dir, "locations.json", Location.class);
-        sensors = readFromFile(dir, "sensors.json", Sensor.class);
+        environmentals = readFromFile(dir, "environmentals.json", Environmental.class);
         System.out.println();
 
         conn = new ProxStorConnector("http://localhost:8080/api");
@@ -66,7 +66,7 @@ public class Loader {
         addKnows();     // associate each user with knows relationship
 
         addLocations(); // insert all locations into graph        
-        addSensors();   // insert locations' sensors
+        addEnvironmentals();   // insert locations' environmentals
         addWithin();    // associate locations within locations
         addNearby();    // set distance from location to location for those nearby
         
@@ -163,14 +163,14 @@ public class Loader {
         System.out.println();
     }
 
-    private static void addSensors() {
-        System.out.println("Loading sensors into graph...");
+    private static void addEnvironmentals() {
+        System.out.println("Loading environmental into graph...");
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         AtomicInteger counter = startMonitoring();
         for (Location l : locations) {
-            for (String sensorId : l.sensors) {
-                Sensor s = sensorMap.get(sensorId);
-                Runnable worker = new SensorAddWorker(l, s, conn, counter);
+            for (String environmentalId : l.environmentals) {
+                Environmental s = environmentalMap.get(environmentalId);
+                Runnable worker = new EnvironmentalAddWorker(l, s, conn, counter);
                 executor.execute(worker);
             }
         }
@@ -178,7 +178,7 @@ public class Loader {
         while (!executor.isTerminated()) {
         }
         stopMontoring();
-        System.out.println("Sensor load complete.");
+        System.out.println("Environmental load complete.");
         System.out.println();
     }
 
@@ -261,10 +261,10 @@ public class Loader {
         }
         writeToFile(dir, "locationIds.json", ids);
         ids.clear();
-        for (Sensor s : sensors) {
-            ids.add(s.sensorId);
+        for (Environmental s : environmentals) {
+            ids.add(s.environmentalId);
         }
-        writeToFile(dir, "sensorIds.json", ids);
+        writeToFile(dir, "environmentalIds.json", ids);
     }
     
     /*
@@ -300,10 +300,10 @@ public class Loader {
             locationMap.put(l.getLocId(), l);
         }
         System.out.println("Created location map");
-        for (Sensor s : sensors) {
-            sensorMap.put(s.getSensorId(), s);
+        for (Environmental s : environmentals) {
+            environmentalMap.put(s.getEnvironmentalId(), s);
         }
-        System.out.println("Created sensors map");
+        System.out.println("Created environmentals map");
         System.out.println();
     }
      

@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class DeviceDetectsSensorIdWorker implements Runnable {
+public class DeviceDetectsEnvironmentalIdWorker implements Runnable {
 
     private final ProxStorConnector conn;
-    private final List<String> sensorIds;
+    private final List<String> environmentalIds;
     private final AtomicInteger counter;
 
     private final Random random;
@@ -17,10 +17,10 @@ public class DeviceDetectsSensorIdWorker implements Runnable {
     
     public boolean running;
 
-    public DeviceDetectsSensorIdWorker(ProxStorConnector conn, String devId, List<String> sensorIds, AtomicInteger counter) {
+    public DeviceDetectsEnvironmentalIdWorker(ProxStorConnector conn, String devId, List<String> environmentalIds, AtomicInteger counter) {
         this.conn = conn;
         this.devId = devId;
-        this.sensorIds = sensorIds;
+        this.environmentalIds = environmentalIds;
         this.counter = counter;
         random = new Random();
         running = true;        
@@ -28,12 +28,12 @@ public class DeviceDetectsSensorIdWorker implements Runnable {
 
     @Override
     public void run() {
-        String sensorId;
+        String environmentalId;
         Locality l;
         do {
-            sensorId = sensorIds.get(random.nextInt(sensorIds.size()));
-            l = conn.deviceDetectsSensorId(Integer.parseInt(devId), Integer.parseInt(sensorId));
-            conn.deviceUndetectsSensorId(Integer.parseInt(devId), Integer.parseInt(sensorId));
+            environmentalId = environmentalIds.get(random.nextInt(environmentalIds.size()));
+            l = conn.deviceDetectsEnvironmentalId(Integer.parseInt(devId), Integer.parseInt(environmentalId));
+            conn.deviceUndetectsEnvironmentalId(Integer.parseInt(devId), Integer.parseInt(environmentalId));
             counter.getAndIncrement();
         } while (running);
     }

@@ -10,12 +10,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DynamicStressor {
 
     private static final int USER_CHECKIN_LOCATION_WORKERS = 128; 
-    private static final int DEVICE_DISCOVERS_SENSORID_WORKERS = 32;
+    private static final int DEVICE_DISCOVERS_ENVIRONMENTALID_WORKERS = 32;
 
     static List<String> userIds;
     static List<String> deviceIds;
     static List<String> locationIds;
-    static List<String> sensorIds;
+    static List<String> environmentalIds;
 
     static ProxStorConnector conn;
 
@@ -35,7 +35,7 @@ public class DynamicStressor {
         userIds = ReaderWriter.read(dir + "/userIds.json", String.class);
         deviceIds = ReaderWriter.read(dir + "/devIds.json", String.class);
         locationIds = ReaderWriter.read(dir + "/locationIds.json", String.class);
-        sensorIds = ReaderWriter.read(dir + "/sensorIds.json", String.class);
+        environmentalIds = ReaderWriter.read(dir + "/environmentalIds.json", String.class);
         System.out.println();
 
         conn = new ProxStorConnector("http://localhost:8080/api");
@@ -50,12 +50,12 @@ public class DynamicStressor {
             userCheckinLocationExecutor.execute(worker);
         }      
 
-        System.out.println("Creating Device Discovers Sensor ID Workers @ " + DEVICE_DISCOVERS_SENSORID_WORKERS + " threads");
-        ExecutorService deviceDiscoverSensorIdExecutor = Executors.newFixedThreadPool(DEVICE_DISCOVERS_SENSORID_WORKERS);
-        counter = smw.register("Device Discover Sensor ID:\t");        
-        for (int i = 0; i < DEVICE_DISCOVERS_SENSORID_WORKERS; i++) {
-            DeviceDetectsSensorIdWorker worker = new DeviceDetectsSensorIdWorker(conn, deviceIds.get(i), sensorIds, counter);
-            deviceDiscoverSensorIdExecutor.execute(worker);
+        System.out.println("Creating Device Discovers Environmental ID Workers @ " + DEVICE_DISCOVERS_ENVIRONMENTALID_WORKERS + " threads");
+        ExecutorService deviceDiscoverEnvironmentalIdExecutor = Executors.newFixedThreadPool(DEVICE_DISCOVERS_ENVIRONMENTALID_WORKERS);
+        counter = smw.register("Device Discover Environmental ID:\t");        
+        for (int i = 0; i < DEVICE_DISCOVERS_ENVIRONMENTALID_WORKERS; i++) {
+            DeviceDetectsEnvironmentalIdWorker worker = new DeviceDetectsEnvironmentalIdWorker(conn, deviceIds.get(i), environmentalIds, counter);
+            deviceDiscoverEnvironmentalIdExecutor.execute(worker);
         }      
         
         System.out.println("Starting Monitor Worker....\n");

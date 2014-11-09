@@ -13,7 +13,7 @@ public class StaticStressor {
     private static final int DEVICE_RETRIEVAL_WORKERS = 32;
     private static final int KNOWS_RETRIEVAL_WORKERS = 128;
     private static final int LOCATION_RETRIEVAL_WORKERS = 128;
-    private static final int SENSOR_RETRIEVAL_WORKERS = 128;
+    private static final int ENVIRONMENTAL_RETRIEVAL_WORKERS = 128;
     private static final int NEARBY_RETRIEVAL_WORKERS = 128;
     private static final int WITHIN_RETRIEVAL_WORKERS = 128;
     private static final int WITHINREV_RETRIEVAL_WORKERS = 64;    
@@ -23,7 +23,7 @@ public class StaticStressor {
     static List<String> userIds;
     static List<String> deviceIds;
     static List<String> locationIds;
-    static List<String> sensorIds;
+    static List<String> environmentalIds;
 
     static ProxStorConnector conn;
 
@@ -43,7 +43,7 @@ public class StaticStressor {
         userIds = ReaderWriter.read(dir + "/userIds.json", String.class);
         deviceIds = ReaderWriter.read(dir + "/devIds.json", String.class);
         locationIds = ReaderWriter.read(dir + "/locationIds.json", String.class);
-        sensorIds = ReaderWriter.read(dir + "/sensorIds.json", String.class);
+        environmentalIds = ReaderWriter.read(dir + "/environmentalIds.json", String.class);
         System.out.println();
 
         conn = new ProxStorConnector("http://localhost:8080/api");
@@ -82,15 +82,15 @@ public class StaticStressor {
             locationRetrievalExecutor.execute(worker);
         }
         
-        System.out.println("Creating Sensor Retrieval Workers @ " + SENSOR_RETRIEVAL_WORKERS + " threads");
-        ExecutorService sensorRetrievalExecutor = Executors.newFixedThreadPool(SENSOR_RETRIEVAL_WORKERS);
-        counter = smw.register("Sensor Retrieval:\t");
-        for (int i = 0; i < SENSOR_RETRIEVAL_WORKERS; i++) {
-            SensorRetrievalWorker worker = new SensorRetrievalWorker(conn, locationIds, counter);
-            sensorRetrievalExecutor.execute(worker);
+        System.out.println("Creating Environmental Retrieval Workers @ " + ENVIRONMENTAL_RETRIEVAL_WORKERS + " threads");
+        ExecutorService environmentalRetrievalExecutor = Executors.newFixedThreadPool(ENVIRONMENTAL_RETRIEVAL_WORKERS);
+        counter = smw.register("Environmental Retrieval:\t");
+        for (int i = 0; i < ENVIRONMENTAL_RETRIEVAL_WORKERS; i++) {
+            EnvironmentalRetrievalWorker worker = new EnvironmentalRetrievalWorker(conn, locationIds, counter);
+            environmentalRetrievalExecutor.execute(worker);
         }
         
-        System.out.println("Creating Sensor Retrieval Workers @ " + NEARBY_RETRIEVAL_WORKERS + " threads");
+        System.out.println("Creating Nearby Retrieval Workers @ " + NEARBY_RETRIEVAL_WORKERS + " threads");
         ExecutorService nearbyRetrievalExecutor = Executors.newFixedThreadPool(NEARBY_RETRIEVAL_WORKERS);
         counter = smw.register("Nearby Retrieval:\t");
         for (int i = 0; i < NEARBY_RETRIEVAL_WORKERS; i++) {
