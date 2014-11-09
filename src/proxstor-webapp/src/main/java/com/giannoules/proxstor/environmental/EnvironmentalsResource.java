@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.environmental;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidParameter;
@@ -105,6 +106,7 @@ public class EnvironmentalsResource {
      */
     @Path("{environmentalid: [0-9]+}")
     public EnvironmentalResource getEnvironmentalResource(@PathParam("environmentalid") String environmentalId) {
+        ProxStorDebug.println("getEnvironmentalResource(" + environmentalId + ")");
         return new EnvironmentalResource(locId, environmentalId);
     }
 }
