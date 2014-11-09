@@ -9,6 +9,7 @@ public class Locality {
     
     String localityId;             // unique ID of locality
     
+    public String userId;          // associated userId
     public String locationId;      // associated locationId (manual & auto)
     public String deviceId;        // device associated with checkin
     public String sensorId;        // sensor associated with checkin
@@ -27,6 +28,14 @@ public class Locality {
     
     public void setLocalityId(String id) {
         localityId = id;
+    }
+    
+    public String getUserId() {
+        return userId;
+    }
+    
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
     
     public String getLocalityId() {
@@ -60,7 +69,7 @@ public class Locality {
     public void setSensorId(String sensorId) {
         this.sensorId = sensorId;
     }
-    
+        
     public String getSensorId() {
         return sensorId;
     }
@@ -94,6 +103,7 @@ public class Locality {
         StringBuilder sb = new StringBuilder();
         sb.append("Locality [").append(localityId).append("]:\n");
         sb.append("\tmanual: ").append(manual).append("\n");
+        sb.append("\tuserId: ").append(userId).append("\n");
         sb.append("\tdevId: ").append(deviceId).append("\n");        
         sb.append("\tsensorId: ").append(sensorId).append("\n");
         sb.append("\tlocId: ").append(locationId).append("\n");
@@ -113,6 +123,9 @@ public class Locality {
         }
         if (deviceId != null) {
             hashCode *= deviceId.hashCode();
+        }
+        if (userId != null) {
+            hashCode *= userId.hashCode();
         }
         if (sensorId != null) {
             hashCode *= sensorId.hashCode();
@@ -142,6 +155,9 @@ public class Locality {
             return false;
         }
         if (!Objects.equals(this.deviceId, other.deviceId)) {
+            return false;
+        }
+        if (!Objects.equals(this.userId, other.userId)) {
             return false;
         }
         if (!Objects.equals(this.sensorId, other.sensorId)) {
