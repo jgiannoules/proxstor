@@ -13,16 +13,13 @@ import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningExceptio
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
 import com.giannoules.proxstor.exception.UserAlreadyInLocation;
-import com.giannoules.proxstor.exception.UserCurrentlyInMultipleLocalities;
 import com.giannoules.proxstor.locality.LocalityDao;
 import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.sensor.SensorDao;
 import com.giannoules.proxstor.user.UserDao;
-import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.VertexQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -59,18 +56,11 @@ public enum CheckinDao {
         UserDao.instance.validOrException(userId);
         try {
             Vertex u = ProxStorGraph.instance.getVertex(userId);           
-            Iterable<Vertex> iter = u.getVertices(OUT, "currently_at");
-            List<Vertex> localities = new ArrayList<>();
-            for (Vertex v : iter) {
-                localities.add(v);
-            }
-            // @TODO detect this condition?
-//            if (localities.size() > 1) {
-//                throw new UserCurrentlyInMultipleLocalities();
-//            }
-            if (localities.size() >= 1) {
-                return LocalityDao.instance.get(localities.get(0));
-            }
+            Iterable<Vertex> i = u.getVertices(OUT, "currently_at");
+            Iterator<Vertex> it = i.iterator();
+            if (it.hasNext()) {
+                return LocalityDao.instance.get(it.next());
+            }          
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidLocalityId ex) {
             Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -109,15 +99,12 @@ public enum CheckinDao {
      * @param v
      * @return
      */
-    private Vertex getPrevioulsyAt(Vertex v) {
+    public Vertex getPrevioulsyAt(Vertex v) {
         Iterable<Vertex> i = v.getVertices(OUT, "previously_at");
-        List<Vertex> localities = new ArrayList<>();
-        for (Vertex prevVertex : i) {
-            localities.add(prevVertex);
-        }
-        if (localities.size() >= 1) {
-            return localities.get(0);
-        }
+        Iterator<Vertex> it = i.iterator();
+        if (it.hasNext()) {
+            return it.next();
+        }        
         return null;
     }
 
@@ -231,6 +218,7 @@ public enum CheckinDao {
         Locality l = new Locality();
         l.setActive(true);
         l.setArrival(new Date());
+        l.setUserId(userId);
         l.setDeviceId(devId);
         l.setLocationId(locId);
         l.setSensorId(sensorId);
@@ -308,6 +296,7 @@ public enum CheckinDao {
             userCurrentLocalityToPrevious(userId);
 
             Locality l = new Locality();
+            l.setUserId(userId);
             l.setActive(true);
             l.setArrival(new Date());
             l.setLocationId(locId);
@@ -315,7 +304,8 @@ public enum CheckinDao {
 
             l = LocalityDao.instance.add(l);
 
-            user.addEdge("currently_at", ProxStorGraph.instance.getVertex(l.getLocalityId()));
+            user.addEdge("currently_at", ProxStorGraph.instance.getVertex(l.getLocalityId()));            
+                        
             ProxStorGraph.instance.commit();
             return l;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidDeviceId | InvalidSensorId | SensorNotContainedWithinLocation ex) {
