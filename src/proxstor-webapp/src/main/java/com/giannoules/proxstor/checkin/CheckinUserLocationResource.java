@@ -35,10 +35,10 @@ public class CheckinUserLocationResource {
             URI createdUri = new URI("locality/" + l.getLocalityId());
             return Response.created(createdUri).entity(l).build();
         } catch (InvalidLocationId | InvalidUserId | UserAlreadyInLocation ex) {
-            Logger.getLogger(CheckinDeviceSensorResource.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CheckinDeviceEnvironmentalResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(400).build();
         } catch (URISyntaxException ex) {
-            Logger.getLogger(CheckinDeviceSensorResource.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CheckinDeviceEnvironmentalResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }

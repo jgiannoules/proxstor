@@ -4,8 +4,8 @@ import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.device.DeviceDao;
 import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.location.LocationDao;
-import com.giannoules.proxstor.api.Sensor;
-import com.giannoules.proxstor.sensor.SensorDao;
+import com.giannoules.proxstor.api.Environmental;
+import com.giannoules.proxstor.environmental.EnvironmentalDao;
 import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.user.UserDao;
 import java.util.Collection;
@@ -74,21 +74,21 @@ public class SearchResource {
     }
     
     /*
-     * returns all sensors matching criteria in partially expressed User JSON
+     * returns all environmentals matching criteria in partially expressed User JSON
      */
-    @Path("sensors")
+    @Path("environmentals")
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getMatchingSensors(Sensor s) {
-        Collection<Sensor> sensors = SensorDao.instance.getMatching(s);
-        if (sensors == null | sensors.isEmpty()) {
+    public Response getMatchingEnvironmentals(Environmental s) {
+        Collection<Environmental> environmentals = EnvironmentalDao.instance.getMatching(s);
+        if (environmentals == null || environmentals.isEmpty()) {
             return Response.noContent().build();
         }
         /*
          * ok() will not take Collection directly, so convert to array
          */
-        return Response.ok((Sensor[]) sensors.toArray(new Sensor[sensors.size()])).build();
+        return Response.ok((Environmental[]) environmentals.toArray(new Environmental[environmentals.size()])).build();
     }
 
 }

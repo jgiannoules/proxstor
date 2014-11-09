@@ -4,9 +4,9 @@ import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.checkin.CheckinDao;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
 import com.giannoules.proxstor.exception.InvalidLocationId;
-import com.giannoules.proxstor.exception.InvalidSensorId;
+import com.giannoules.proxstor.exception.InvalidEnvironmentalId;
 import com.giannoules.proxstor.exception.InvalidUserId;
-import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
+import com.giannoules.proxstor.exception.EnvironmentalNotContainedWithinLocation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -23,7 +23,7 @@ import javax.ws.rs.core.Response;
 
 /*
  * Locality represents a period of time that a Device (and thus a User) is
- * within sensing range of a Sensor (and thus in a Location). In the abstract
+ * within sensing range of a Environmental (and thus in a Location). In the abstract
  * the /locality (and com.giannoules.proxstor.locality) provide only the 
  * proxstor 'object' store/retrieval/update/delete. The full functionality is
  * achieved in concert with com.giannoules.proxstor.checkin. Thus these
@@ -43,12 +43,12 @@ public class LocalitiesResource {
      * The minimum information inside the Locality:
      *  - devId must be a valid device
      *  - if manual mode, the locId must be a valid location
-     *  - if !manual mode, the sensorType must be valid and sensorValue must uniquely ID a sensor
+     *  - if !manual mode, the environmentalType must be valid and environmentalValue must uniquely ID a environmental
      *  
      * The returned Locality will include:
      *  - localityId
      *  - active set to true
-     *  - sensors[] updated to include sensorId of referenced sensorValue (if !manual mode)
+     *  - environmentals[] updated to include environmentalIds of referenced environmentalValue (if !manual mode)
      *  - arrive set
      *
      * returns Locality if the check-in can be associated with a device
@@ -68,7 +68,7 @@ public class LocalitiesResource {
             URI createdUri = new URI("locality/" + l.getLocalityId());
             return Response.created(createdUri).entity(l).build();
 
-        } catch (InvalidLocationId | InvalidDeviceId | InvalidSensorId | SensorNotContainedWithinLocation ex) {
+        } catch (InvalidLocationId | InvalidDeviceId | InvalidEnvironmentalId | EnvironmentalNotContainedWithinLocation ex) {
             Logger.getLogger(LocalitiesResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(400).build();
         } catch (URISyntaxException ex) {

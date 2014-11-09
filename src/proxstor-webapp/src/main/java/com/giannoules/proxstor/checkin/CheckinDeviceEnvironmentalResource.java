@@ -1,12 +1,12 @@
 package com.giannoules.proxstor.checkin;
 
 import com.giannoules.proxstor.api.Locality;
-import com.giannoules.proxstor.api.Sensor;
+import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
 import com.giannoules.proxstor.exception.InvalidLocationId;
-import com.giannoules.proxstor.exception.InvalidSensorId;
+import com.giannoules.proxstor.exception.InvalidEnvironmentalId;
 import com.giannoules.proxstor.exception.InvalidUserId;
-import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
+import com.giannoules.proxstor.exception.EnvironmentalNotContainedWithinLocation;
 import com.giannoules.proxstor.exception.UserAlreadyInLocation;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -21,49 +21,49 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class CheckinDeviceSensorResource {
+public class CheckinDeviceEnvironmentalResource {
 
     private final String devId;
 
-    public CheckinDeviceSensorResource(String devId) {
+    public CheckinDeviceEnvironmentalResource(String devId) {
         this.devId = devId;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response postCheckinDeviceSensor(Sensor s) { 
+    public Response postCheckinDeviceEnvironmental(Environmental e) { 
         try {
-            Locality l = CheckinDao.instance.deviceDetectSensor(devId, s);
+            Locality l = CheckinDao.instance.deviceDetectEnvironmental(devId, e);
             if (l == null) {
                 return Response.status(400).build();
             }
             URI createdUri = new URI("locality/" + l.getLocalityId());
             return Response.created(createdUri).entity(l).build();
-        } catch (InvalidDeviceId | InvalidLocationId | InvalidSensorId | InvalidUserId | SensorNotContainedWithinLocation | UserAlreadyInLocation ex) {
-            Logger.getLogger(CheckinDeviceSensorResource.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidDeviceId | InvalidLocationId | InvalidEnvironmentalId | InvalidUserId | EnvironmentalNotContainedWithinLocation | UserAlreadyInLocation ex) {
+            Logger.getLogger(CheckinDeviceEnvironmentalResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(400).build();
         } catch (URISyntaxException ex) {
-            Logger.getLogger(CheckinDeviceSensorResource.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CheckinDeviceEnvironmentalResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
 
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteCheckinDeviceSensor(Sensor s) {
+    public Response deleteCheckinDeviceEnvironmental(Environmental e) {
         try {
-            if (CheckinDao.instance.deviceUndetectSensor(devId, s)) {
+            if (CheckinDao.instance.deviceUndetectEnvironmental(devId, e)) {
                 return Response.noContent().build();
             }
-        } catch (InvalidUserId | InvalidDeviceId | InvalidSensorId ex) {
-            Logger.getLogger(CheckinDeviceSensorIdResource.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InvalidUserId | InvalidDeviceId | InvalidEnvironmentalId ex) {
+            Logger.getLogger(CheckinDeviceEnvironmentalIdResource.class.getName()).log(Level.SEVERE, null, ex);
         }
         return Response.status(404).build();
     }
 
-    @Path("{sensorid}")
-    public CheckinDeviceSensorIdResource getCheckinDeviceSensorIdResource(@PathParam("sensorid") String sensorId) {
-        return new CheckinDeviceSensorIdResource(devId, sensorId);
+    @Path("{environmentalid}")
+    public CheckinDeviceEnvironmentalIdResource getCheckinDeviceEnvironmentalIdResource(@PathParam("environmentalid") String environmentalId) {
+        return new CheckinDeviceEnvironmentalIdResource(devId, environmentalId);
     }
 }

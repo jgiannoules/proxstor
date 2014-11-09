@@ -3,7 +3,7 @@ package com.giannoules.proxstor.location;
 import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.knows.NearbyResource;
-import com.giannoules.proxstor.sensor.SensorsResource;
+import com.giannoules.proxstor.environmental.EnvironmentalsResource;
 import com.giannoules.proxstor.within.WithinResource;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -87,11 +87,11 @@ public class LocationResource {
     // ---- BEGIN sub-resource locators
     
     /*
-     * return SensorResource handler for this Location
+     * return EnvironmentalResource handler for this Location
      */
-    @Path("sensor")
-    public SensorsResource getSensorResource() {
-        return new SensorsResource(locId);
+    @Path("environmental")
+    public EnvironmentalsResource getEnvironmentalResource() {
+        return new EnvironmentalsResource(locId);
     }
     
     /*

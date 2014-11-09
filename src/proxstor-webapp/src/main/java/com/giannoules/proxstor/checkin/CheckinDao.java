@@ -2,20 +2,20 @@ package com.giannoules.proxstor.checkin;
 
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.api.Locality;
-import com.giannoules.proxstor.api.Sensor;
+import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.device.DeviceDao;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
 import com.giannoules.proxstor.exception.InvalidLocalityId;
 import com.giannoules.proxstor.exception.InvalidLocationId;
-import com.giannoules.proxstor.exception.InvalidSensorId;
+import com.giannoules.proxstor.exception.InvalidEnvironmentalId;
 import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
-import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
+import com.giannoules.proxstor.exception.EnvironmentalNotContainedWithinLocation;
 import com.giannoules.proxstor.exception.UserAlreadyInLocation;
 import com.giannoules.proxstor.locality.LocalityDao;
 import com.giannoules.proxstor.location.LocationDao;
-import com.giannoules.proxstor.sensor.SensorDao;
+import com.giannoules.proxstor.environmental.EnvironmentalDao;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
@@ -183,30 +183,30 @@ public enum CheckinDao {
     }
 
     /*
-     * methods related to devices detecting sensors
+     * methods related to devices detecting environmentals
      */
 
     /**
-     * When a Device detects a Sensor then ProxStor can infer that the User of
-     * the device is the Location containing Sensor.
+     * When a Device detects a Environmental then ProxStor can infer that the User of
+     * the device is the Location containing Environmental.
      *
      * @param devId
      * @param partial
      * @return
-     * @throws InvalidSensorId
+     * @throws InvalidEnvironmentalId
      * @throws InvalidDeviceId
      * @throws InvalidUserId
      * @throws InvalidLocationId
-     * @throws SensorNotContainedWithinLocation
+     * @throws EnvironmentalNotContainedWithinLocation
      */
-    public Locality deviceDetectSensor(String devId, Sensor partial) throws InvalidSensorId, InvalidDeviceId, InvalidUserId, InvalidLocationId, SensorNotContainedWithinLocation, UserAlreadyInLocation {
+    public Locality deviceDetectEnvironmental(String devId, Environmental partial) throws InvalidEnvironmentalId, InvalidDeviceId, InvalidUserId, InvalidLocationId, EnvironmentalNotContainedWithinLocation, UserAlreadyInLocation {
         Vertex user = DeviceDao.instance.getDeviceUserVertex(devId);
-        Collection<Sensor> matches = SensorDao.instance.getMatching(partial);
+        Collection<Environmental> matches = EnvironmentalDao.instance.getMatching(partial);
         if ((matches == null) || (matches.size() != 1)) {
             return null;    // only one match allowed
         }
-        String sensorId = matches.iterator().next().getSensorId();        
-        String locId = SensorDao.instance.getSensorLocation(sensorId);
+        String environmentalId = matches.iterator().next().getEnvironmentalId();        
+        String locId = EnvironmentalDao.instance.getEnvironmentalLocation(environmentalId);
         String userId = user.getId().toString();        
 
         if (userInLocation(userId, locId)) {
@@ -221,7 +221,7 @@ public enum CheckinDao {
         l.setUserId(userId);
         l.setDeviceId(devId);
         l.setLocationId(locId);
-        l.setSensorId(sensorId);
+        l.setEnvironmentalId(environmentalId);
         l.setManual(false);
 
         l = LocalityDao.instance.add(l);
@@ -238,25 +238,25 @@ public enum CheckinDao {
     }
 
     /**
-     * When a device no longer detects a sensor, then ProxStor can infer that
-     * the Sensor's Location is no longer the User's current location. Care must
+     * When a device no longer detects a environmental, then ProxStor can infer that
+     * the Environmental's Location is no longer the User's current location. Care must
      * be taken that the User was indeed in the referenced location.
      *
      * @param devId
      * @param partial
      * @return
      * @throws com.giannoules.proxstor.exception.InvalidDeviceId
-     * @throws com.giannoules.proxstor.exception.InvalidSensorId
+     * @throws com.giannoules.proxstor.exception.InvalidEnvironmentalId
      * @throws com.giannoules.proxstor.exception.InvalidUserId
      */
-    public boolean deviceUndetectSensor(String devId, Sensor partial) throws InvalidDeviceId, InvalidSensorId, InvalidUserId {
+    public boolean deviceUndetectEnvironmental(String devId, Environmental partial) throws InvalidDeviceId, InvalidEnvironmentalId, InvalidUserId {
         Vertex user = DeviceDao.instance.getDeviceUserVertex(devId);
-        Collection<Sensor> matches = SensorDao.instance.getMatching(partial);
+        Collection<Environmental> matches = EnvironmentalDao.instance.getMatching(partial);
         if ((matches == null) || (matches.size() != 1)) {
             return false;   // only one match allowed
         }
-        String sensorId = matches.iterator().next().getSensorId();
-        String locId = SensorDao.instance.getSensorLocation(sensorId);
+        String environmentalId = matches.iterator().next().getEnvironmentalId();
+        String locId = EnvironmentalDao.instance.getEnvironmentalLocation(environmentalId);
         String userId = user.getId().toString();
 
         if (userInLocation(userId, locId)) {        
@@ -308,7 +308,7 @@ public enum CheckinDao {
                         
             ProxStorGraph.instance.commit();
             return l;
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidDeviceId | InvalidSensorId | SensorNotContainedWithinLocation ex) {
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidDeviceId | InvalidEnvironmentalId | EnvironmentalNotContainedWithinLocation ex) {
             Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;

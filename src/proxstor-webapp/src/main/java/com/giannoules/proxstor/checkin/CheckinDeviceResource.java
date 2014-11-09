@@ -10,9 +10,9 @@ public class CheckinDeviceResource {
         this.devId = devId;
     }
     
-    @Path("sensor")
-    public CheckinDeviceSensorResource getCheckinDeviceSensorResource()  {          
-        return new CheckinDeviceSensorResource(devId);
+    @Path("environmental")
+    public CheckinDeviceEnvironmentalResource getCheckinDeviceEnvironmentalResource()  {          
+        return new CheckinDeviceEnvironmentalResource(devId);
     }
     
 }

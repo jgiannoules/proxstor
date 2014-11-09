@@ -6,12 +6,12 @@ import com.giannoules.proxstor.device.DeviceDao;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
 import com.giannoules.proxstor.exception.InvalidLocalityId;
 import com.giannoules.proxstor.exception.InvalidLocationId;
-import com.giannoules.proxstor.exception.InvalidSensorId;
+import com.giannoules.proxstor.exception.InvalidEnvironmentalId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
-import com.giannoules.proxstor.exception.SensorNotContainedWithinLocation;
+import com.giannoules.proxstor.exception.EnvironmentalNotContainedWithinLocation;
 import com.giannoules.proxstor.location.LocationDao;
-import com.giannoules.proxstor.sensor.SensorDao;
+import com.giannoules.proxstor.environmental.EnvironmentalDao;
 import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
@@ -161,8 +161,8 @@ public enum LocalityDao {
         if ((partial.getLocationId() != null) && (!partial.getLocationId().isEmpty())) {
             q.has("locationId", partial.getLocationId());
         }
-        if ((partial.getSensorId() != null) && (!partial.getSensorId().isEmpty())) {
-            q.has("sensorId", partial.getSensorId());
+        if ((partial.getEnvironmentalId() != null) && (!partial.getEnvironmentalId().isEmpty())) {
+            q.has("environmentalId", partial.getEnvironmentalId());
         }
         for (Vertex v : q.vertices()) {
             if (LocalityDao.this.valid(v)) {
@@ -173,7 +173,7 @@ public enum LocalityDao {
     }
 
     public Locality add(Locality l) throws InvalidLocationId, InvalidDeviceId, 
-            InvalidSensorId, SensorNotContainedWithinLocation {
+            InvalidEnvironmentalId, EnvironmentalNotContainedWithinLocation {
         if (l == null) {
             return null;
         }
@@ -187,10 +187,10 @@ public enum LocalityDao {
             LocationDao.instance.validOrException(l.getLocationId());
         } else {
             /*
-             * if !manual we need device + sensor
+             * if !manual we need device + environmental
              */
             DeviceDao.instance.validOrException(l.getDeviceId());
-            String locId = SensorDao.instance.getSensorLocation(l.getSensorId());
+            String locId = EnvironmentalDao.instance.getEnvironmentalLocation(l.getEnvironmentalId());
             l.setLocationId(locId);
         }
         try {
@@ -207,8 +207,8 @@ public enum LocalityDao {
             if (l.getDeviceId() != null) {
                 v.setProperty("deviceId", l.getDeviceId());
             }
-            if (l.getSensorId() != null) {
-                v.setProperty("sensorId", l.getSensorId());
+            if (l.getEnvironmentalId() != null) {
+                v.setProperty("environmentalId", l.getEnvironmentalId());
             }
             v.setProperty("manual", l.isManual());
             v.setProperty("active", l.isActive());            
@@ -265,8 +265,8 @@ public enum LocalityDao {
                 v.setProperty("locationId", l.getLocationId());
                 updated = true;
             }
-            if (l.getSensorId() != null) {
-                v.setProperty("sensorId", l.getSensorId());
+            if (l.getEnvironmentalId() != null) {
+                v.setProperty("environmentalId", l.getEnvironmentalId());
                 updated = true;
             }
             if (updated) {
@@ -334,7 +334,7 @@ public enum LocalityDao {
         l.setUserId((String) v.getProperty("userId"));
         l.setDeviceId((String) v.getProperty("deviceId"));
         l.setLocationId((String) v.getProperty("locationId"));
-        l.setSensorId((String) v.getProperty("sensorId"));
+        l.setEnvironmentalId((String) v.getProperty("environmentalId"));
         Object id = v.getId();
         if (id instanceof Long) {
             l.setLocalityId(Long.toString((Long) v.getId()));
