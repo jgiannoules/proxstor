@@ -1,9 +1,7 @@
 package com.giannoules.proxstor.testing.dynamicstressor;
 
-import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.connection.ProxStorConnector;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;

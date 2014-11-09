@@ -1,9 +1,7 @@
 package com.giannoules.proxstor.testing.staticstressor;
 
 import com.giannoules.proxstor.api.Location;
-import com.giannoules.proxstor.api.Sensor;
 import com.giannoules.proxstor.connection.ProxStorConnector;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
