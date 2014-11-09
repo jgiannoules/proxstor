@@ -4,8 +4,8 @@ import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.api.LocationType;
-import com.giannoules.proxstor.api.Sensor;
-import com.giannoules.proxstor.api.SensorType;
+import com.giannoules.proxstor.api.Environmental;
+import com.giannoules.proxstor.api.EnvironmentalType;
 import com.giannoules.proxstor.api.User;
 import java.util.Date;
 import java.util.UUID;
@@ -30,7 +30,7 @@ public class LocalityConnectorTester  {
     private static Integer invalidId;
     private Locality goodLocality;
     private Location goodLocation;
-    private Sensor goodSensor;
+    private Environmental goodEnvironmental;
     private User goodUser;
     private Device goodDevice;
     
@@ -61,13 +61,13 @@ public class LocalityConnectorTester  {
         goodLocation = conn.addLocation(l);
         assertNotNull(goodLocation.getLocId());
         assertEquals(l, goodLocation);        
-        Sensor s = new Sensor();
+        Environmental s = new Environmental();
         s.setDescription("WiFi in Shopping Mall");
-        s.setType(SensorType.WIFI_BSSID);
+        s.setType(EnvironmentalType.WIFI_BSSID);
         s.setIdentifier(UUID.randomUUID().toString());        
-        goodSensor = conn.addSensor(Integer.parseInt(goodLocation.getLocId()), s);        
-        assertNotNull(goodSensor.getSensorId());
-        assertEquals(s, goodSensor);
+        goodEnvironmental = conn.addEnvironmental(Integer.parseInt(goodLocation.getLocId()), s);        
+        assertNotNull(goodEnvironmental.getEnvironmentalId());
+        assertEquals(s, goodEnvironmental);
         goodUser = conn.addUser(new User("first", "last", "f_last@msn.com"));
         assertNotNull(goodUser);
         goodDevice = new Device();
@@ -82,7 +82,7 @@ public class LocalityConnectorTester  {
         loc.setActive(true);
         loc.setDeviceId(goodDevice.getDevId());
         loc.setManual(false);
-        loc.setSensorId(goodSensor.getSensorId());
+        loc.setEnvironmentalId(goodEnvironmental.getEnvironmentalId());
         goodLocality = conn.addLocality(loc);
         assertNotNull(goodLocality);
         loc.setArrival(goodLocality.getArrival());
@@ -178,7 +178,7 @@ public class LocalityConnectorTester  {
         Locality m = new Locality();
         m.setActive(true);
         m.setDeviceId(goodDevice.getDevId());
-        m.setSensorId(goodSensor.getSensorId());
+        m.setEnvironmentalId(goodEnvironmental.getEnvironmentalId());
         Locality l = conn.addLocality(m);
         assertNotNull(l);
         assertNotNull(l.getLocalityId());

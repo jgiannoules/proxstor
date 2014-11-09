@@ -5,19 +5,19 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 /*
- * JAXB representation of a ProxStor sensor
+ * JAXB representation of a ProxStor environmental
  *
  *      @TODO move out to separate package/jar for client use as well
  *
  */
 @XmlRootElement
-public class Sensor {
+public class Environmental {
     public String description;
-    public SensorType type;
+    public EnvironmentalType type;
     public String identifier;
-    public String sensorId;
+    public String environmentalId;
  
-    public Sensor() {}
+    public Environmental() {}
     
     public String getDescription() {
         return description;
@@ -27,19 +27,19 @@ public class Sensor {
         this.description = description;
     }
     
-    public String getSensorId() {
-        return sensorId;
+    public String getEnvironmentalId() {
+        return environmentalId;
     }
     
-    public void setSensorId(String sensorId) {
-        this.sensorId = sensorId;
+    public void setEnvironmentalId(String environmentalId) {
+        this.environmentalId = environmentalId;
     }
     
-    public SensorType getType() {
+    public EnvironmentalType getType() {
         return type;
     }
     
-    public void setType(SensorType type) {
+    public void setType(EnvironmentalType type) {
         this.type = type;
     }
 
@@ -53,7 +53,7 @@ public class Sensor {
     
     @Override
     public String toString() {
-        return sensorId + ": " + type.toString() + " - " + identifier  + ")";
+        return environmentalId + ": " + type.toString() + " - " + identifier  + ")";
     }
     
     @Override
@@ -69,7 +69,7 @@ public class Sensor {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Sensor other = (Sensor) obj;
+        final Environmental other = (Environmental) obj;
         if (this.type != other.type) {
             return false;
         }

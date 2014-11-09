@@ -4,7 +4,7 @@ import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.api.Query;
-import com.giannoules.proxstor.api.Sensor;
+import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.api.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -28,7 +28,7 @@ import org.glassfish.jersey.server.ResourceConfig;
  * <li>Users
  * <li>Devices
  * <li>Locations
- * <li>Sensors
+ * <li>Environmental
  * </ul>
  * 
  * Note that instantiation of back-end Graph instance is not provided. That must
@@ -58,7 +58,7 @@ public class ProxStorConnector {
                                 User.class,
                                 Device.class,
                                 Location.class,
-                                Sensor.class,
+                                Environmental.class,
                                 Locality.class));
         target = ClientBuilder.newClient(config).target(path);
         gson = new Gson();
@@ -404,13 +404,13 @@ public class ProxStorConnector {
      * @param s
      * @return 
      */
-    public Sensor addSensor(Integer locId, Sensor s) {
-        String path = "/location/" + locId + "/sensor/";
+    public Environmental addEnvironmental(Integer locId, Environmental s) {
+        String path = "/location/" + locId + "/environmental/";
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
         if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
-            return response.readEntity(Sensor.class);
+            return response.readEntity(Environmental.class);
         }
         return null;
     }
@@ -420,17 +420,17 @@ public class ProxStorConnector {
      * @param locId
      * @return 
      */
-    public Collection<Sensor> getSensors(Integer locId) {
-        String path = "/location/" + locId + "/sensor";
+    public Collection<Environmental> getEnvironmentals(Integer locId) {
+        String path = "/location/" + locId + "/environmental";
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
         if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
             String json = response.readEntity(String.class);
-            Type collectionType = new TypeToken<Collection<Sensor>>() {
+            Type collectionType = new TypeToken<Collection<Environmental>>() {
             }.getType();
-            Collection<Sensor> sensors = gson.fromJson(json, collectionType);
-            return sensors;
+            Collection<Environmental> environmentals = gson.fromJson(json, collectionType);
+            return environmentals;
         }
         return null;
     }
@@ -441,8 +441,8 @@ public class ProxStorConnector {
      * @param s
      * @return 
      */
-    public boolean updateSensor(Integer locId, Sensor s) {
-        String path = "/location/" + locId + "/sensor/" + s.getSensorId();
+    public boolean updateEnvironmental(Integer locId, Environmental s) {
+        String path = "/location/" + locId + "/environmental/" + s.getEnvironmentalId();
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .put(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
@@ -452,11 +452,11 @@ public class ProxStorConnector {
     /**
      * 
      * @param locId
-     * @param sensorId
+     * @param envivornmentalId
      * @return 
      */
-    public boolean deleteSensor(Integer locId, Integer sensorId) {
-        String path = "/location/" + locId + "/sensor/" + sensorId;
+    public boolean deleteEnvironmental(Integer locId, Integer environmentalId) {
+        String path = "/location/" + locId + "/environmental/" + environmentalId;
         Response response = target.path(path)
                 .request(MediaType.TEXT_PLAIN)
                 .delete();
@@ -724,8 +724,8 @@ public class ProxStorConnector {
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }     
      
-    public Locality deviceDetectsSensorId(Integer devId, Integer sensorId) {
-        String path = "/checkin/device/" + devId + "/sensor/" + sensorId;
+    public Locality deviceDetectsEnvironmentalId(Integer devId, Integer environmentalId) {
+        String path = "/checkin/device/" + devId + "/environmental/" + environmentalId;
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(null);
@@ -735,16 +735,16 @@ public class ProxStorConnector {
         return null;
     }
     
-    public boolean deviceUndetectsSensorId(Integer devId, Integer sensorId) {
-        String path = "/checkin/device/" + devId + "/sensor/" + sensorId;
+    public boolean deviceUndetectsEnvironmentalId(Integer devId, Integer environmentalId) {
+        String path = "/checkin/device/" + devId + "/environmental/" + environmentalId;
         Response response = target.path(path)
                 .request()
                 .delete();
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
     
-    public Locality deviceDetectsSensor(Integer devId, Sensor s) {
-        String path = "/checkin/device/" + devId + "/sensor/";
+    public Locality deviceDetectsEnvironmental(Integer devId, Environmental s) {
+        String path = "/checkin/device/" + devId + "/environmental/";
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
@@ -754,8 +754,8 @@ public class ProxStorConnector {
         return null;
     }
     
-    public boolean deviceUndetectsSensor(Integer devId, Sensor s) {
-        String path = "/checkin/device/" + devId + "/sensor/";
+    public boolean deviceUndetectsEnvironmental(Integer devId, Environmental s) {
+        String path = "/checkin/device/" + devId + "/environmental/";
         Response response = target.path(path)
                 .request()
                 .method("DELETE", Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));

@@ -12,7 +12,7 @@ public class Locality {
     public String userId;          // associated userId
     public String locationId;      // associated locationId (manual & auto)
     public String deviceId;        // device associated with checkin
-    public String sensorId;        // sensor associated with checkin
+    public String environmentalId; // environmental associated with checkin
 
     public boolean manual;         // manual entry?
     public boolean active;         // is locality currently active?
@@ -66,12 +66,12 @@ public class Locality {
         this.active = active;
     }
 
-    public void setSensorId(String sensorId) {
-        this.sensorId = sensorId;
+    public void setEnvironmentalId(String environmentalId) {
+        this.environmentalId = environmentalId;
     }
         
-    public String getSensorId() {
-        return sensorId;
+    public String getEnvironmentalId() {
+        return environmentalId;
     }
     
     public String getLocationId() {
@@ -105,7 +105,7 @@ public class Locality {
         sb.append("\tmanual: ").append(manual).append("\n");
         sb.append("\tuserId: ").append(userId).append("\n");
         sb.append("\tdevId: ").append(deviceId).append("\n");        
-        sb.append("\tsensorId: ").append(sensorId).append("\n");
+        sb.append("\tenvironmentalId: ").append(environmentalId).append("\n");
         sb.append("\tlocId: ").append(locationId).append("\n");
         sb.append("\tarrive: ").append(arrival).append("\n");
         sb.append("\tdepart: ").append(departure);
@@ -127,8 +127,8 @@ public class Locality {
         if (userId != null) {
             hashCode *= userId.hashCode();
         }
-        if (sensorId != null) {
-            hashCode *= sensorId.hashCode();
+        if (environmentalId != null) {
+            hashCode *= environmentalId.hashCode();
         }
         if (active) {
             hashCode *= 5;
@@ -160,7 +160,7 @@ public class Locality {
         if (!Objects.equals(this.userId, other.userId)) {
             return false;
         }
-        if (!Objects.equals(this.sensorId, other.sensorId)) {
+        if (!Objects.equals(this.environmentalId, other.environmentalId)) {
             return false;
         }
         if (!Objects.equals(this.locationId, other.locationId)) {

@@ -12,7 +12,7 @@ import org.junit.runners.Suite;
    LocationConnectorTester.class,
    LocationNearbyConnectorTester.class,
    LocationWithinConnectorTester.class,
-   SensorConnectorTester.class,
+   EnvironmentalConnectorTester.class,
    UserConnectorTester.class,
    UserKnowsConnectorTester.class,
    LocalityConnectorTester.class

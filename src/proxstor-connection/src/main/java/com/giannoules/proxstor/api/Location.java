@@ -22,9 +22,9 @@ public class Location {
     public Double latitude;
     public Double longitude;
     /*
-     * contains sensorId of unique sensors found in this location
+     * contains environmentalId of unique environmentals found in this location
      */
-    public Set<String> sensors;
+    public Set<String> environmentals;
     public Set<String> within;
     public List<String> nearbyLocId;
     public List<Integer> nearbyDistance;
@@ -80,18 +80,18 @@ public class Location {
         this.longitude = longitude;
     }
 
-    public void addSensor(Sensor s) {
-        if (sensors == null) {
-            sensors = new HashSet<>();
+    public void addEnvironmental(Environmental s) {
+        if (environmentals == null) {
+            environmentals = new HashSet<>();
         }
-        sensors.add(s.getSensorId());
+        environmentals.add(s.getEnvironmentalId());
     }
 
-    public boolean hasSensor(Sensor s) {
-        if (sensors == null) {
+    public boolean hasEnvironmental(Environmental s) {
+        if (environmentals == null) {
             return false;
         }
-        return (sensors.contains(s.getSensorId()));
+        return (environmentals.contains(s.getEnvironmentalId()));
     }
 
     public Set<String> getWithin() {
