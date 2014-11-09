@@ -96,78 +96,7 @@ public enum QueryDao {
 
         return null;
     }
-
-    /**
-     * private helper method to determine whether a date range overlaps with the
-     * period of active time for a Locality.
-     *
-     * @param l Locality to check against
-     * @param start Start of date range to compare
-     * @param end End of date range to compare
-     * @return true if date range (start, end) overlap with Locality l; false
-     * otherwise.
-     */
-    private boolean localityWithinDates(Locality l, Date start, Date end) {
-        ProxStorDebug.println("localityWithinDates");
-        Date startLocality = l.getArrival();
-        Date endLocality = l.getDeparture();
-        return (startLocality.before(end) && start.before(endLocality));
-    }
-
-    private Locality getLocalityFirstInDateRange(String userId, Date start, Date end) {
-        ProxStorDebug.println("getLocalityFirstInDateRange");
-        Locality l;
-        Vertex v, u;
-        try {            
-            u = ProxStorGraph.instance.getVertex(userId);
-            v = CheckinDao.instance.getPrevioulsyAt(u);
-            while (v != null) {
-                ProxStorDebug.println(v.toString());
-                ProxStorDebug.println("stepA");
-                l = LocalityDao.instance.get(v);
-                ProxStorDebug.println("stepB");
-                if (localityWithinDates(l, start, end)) {
-                    return l;
-                }
-                if (l.getArrival().before(start)) {
-                    return null;
-                }
-                ProxStorDebug.println("stepC");
-                v = CheckinDao.instance.getPrevioulsyAt(v);
-            }
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidLocalityId ex) {
-            Logger.getLogger(QueryDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    private List<Locality> getPrevioulsyAtDateRange(String userId, Date start, Date end) throws InvalidUserId {
-        ProxStorDebug.println("getPrevioulsyAtDateRange");
-        List<Locality> localities = new ArrayList<>();
-        try {
-            Locality l = getLocalityFirstInDateRange(userId, start, end);
-            if (l == null) {
-                return null;
-            }              
-            Vertex v = ProxStorGraph.instance.getVertex(l.getLocalityId());            
-            do {
-                if (localityWithinDates(l, start, end)) {
-                    localities.add(l);
-                } else {
-                    return localities;                    
-                }
-                v = CheckinDao.instance.getPrevioulsyAt(v);
-                if (v != null) {
-                    l = LocalityDao.instance.get(v);
-                }
-            } while (v != null);
-            return localities;
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidLocalityId ex) {
-            Logger.getLogger(QueryDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return localities;
-    }
-
+  
     /*
      * type 0 - only userId specified.
      * action - return userId's current active Locality (if any)
@@ -184,19 +113,19 @@ public enum QueryDao {
     
     /*
      * type 1 - userId and dateStart specified. dateEnd is optional. others null.
-     * action - return userId's previous localities within date range
+     * action - return userId's previous localities within date range (up to 1024)
      */
     private Collection<Locality> queryType1(String userId, Date dateStart, Date dateEnd) throws InvalidUserId {
         ProxStorDebug.println("queryType1");
         if (dateEnd == null) {      // if no dateEnd then assume end is current date
             dateEnd = new Date();
-        }
-        return getPrevioulsyAtDateRange(userId, dateStart, dateEnd);
+        }        
+        return CheckinDao.instance.getPreviousLocalitiesDateRange(userId, dateStart, dateEnd, 1024); // NOTE: 1024 limit
     }
 
     /*
      * type 2 - userId and strength specified. others null
-     * action - return matching friends' current locality
+     * action - return matching friends' current locality (up to 1024)
      */
     private Collection<Locality> queryType2(String userId, Integer strength) throws InvalidUserId {
         ProxStorDebug.println("queryType2");
@@ -216,7 +145,7 @@ public enum QueryDao {
 
     /*
      * type 3 - userId, strength, and dateStart specified. dateEnd optional. others null
-     * action - return matching friends' localities in date range
+     * action - return matching friends' localities in date range (1048576 max)
      */
     private Collection<Locality> queryType3(String userId, Integer strength, Date dateStart, Date dateEnd) throws InvalidUserId {
         ProxStorDebug.println("queryType3");
@@ -228,7 +157,7 @@ public enum QueryDao {
         friends = KnowsDao.instance.getUserKnows(userId, strength, OUT, 1024); // NOTE: max 1024 users returned
         for (User u : friends) {
             List<Locality> friendLocalities;
-            friendLocalities = getPrevioulsyAtDateRange(u.getUserId(), dateStart, dateEnd);
+            friendLocalities = CheckinDao.instance.getPreviousLocalitiesDateRange(u.getUserId(), dateStart, dateEnd, 1024); // NOTE: 1024 max
             if ((friendLocalities != null) && (!friendLocalities.isEmpty())) {
                 for (Locality l : friendLocalities) {
                     localities.add(l);
@@ -260,12 +189,19 @@ public enum QueryDao {
      */
     private Collection<Locality> queryType5(String userId, Integer strength, String locId, Date dateStart, Date dateEnd) throws InvalidUserId {
         ProxStorDebug.println("queryType5");
-        Collection<Locality> candidates = queryType3(userId, strength, dateStart, dateEnd);
         Collection<Locality> localities = new ArrayList<>();
-        for (Locality l : candidates) {
-            ProxStorDebug.println(l.toString());
-            if (l.getLocationId().equals(locId)) {
-                localities.add(l);
+        if (dateEnd == null) {      // if no dateEnd then assume NOW
+            dateEnd = new Date();
+        }
+        Collection<User> friends;
+        friends = KnowsDao.instance.getUserKnows(userId, strength, OUT, 1024); // NOTE: max 1024 users returned
+        for (User u : friends) {
+            List<Locality> friendLocalities;
+            friendLocalities = CheckinDao.instance.getPreviousLocalitiesDateRangeLocation(u.getUserId(), dateStart, dateEnd, locId, 1024); // NOTE: 1024 max
+            if ((friendLocalities != null) && (!friendLocalities.isEmpty())) {
+                for (Locality l : friendLocalities) {
+                    localities.add(l);
+                }
             }
         }
         return localities;

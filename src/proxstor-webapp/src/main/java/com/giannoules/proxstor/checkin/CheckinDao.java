@@ -17,10 +17,16 @@ import com.giannoules.proxstor.locality.LocalityDao;
 import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.environmental.EnvironmentalDao;
 import com.giannoules.proxstor.user.UserDao;
+import static com.tinkerpop.blueprints.Compare.EQUAL;
+import static com.tinkerpop.blueprints.Compare.GREATER_THAN_EQUAL;
+import static com.tinkerpop.blueprints.Compare.LESS_THAN_EQUAL;
+import static com.tinkerpop.blueprints.Direction.IN;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.VertexQuery;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -53,15 +59,13 @@ public enum CheckinDao {
      * a valid User object id.
      */
     public Locality getCurrentLocality(String userId) throws InvalidUserId {
-        UserDao.instance.validOrException(userId);
+        UserDao.instance.validOrException(userId);        
         try {
-            Vertex u = ProxStorGraph.instance.getVertex(userId);           
-            Iterable<Vertex> i = u.getVertices(OUT, "currently_at");
-            Iterator<Vertex> it = i.iterator();
-            if (it.hasNext()) {
-                return LocalityDao.instance.get(it.next());
-            }          
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidLocalityId ex) {
+            Vertex v = getCurrentLocalityVertex(userId);
+            if (v != null) {
+                return LocalityDao.instance.get(v);
+            }
+        } catch (InvalidLocalityId ex) {
             Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
@@ -79,77 +83,99 @@ public enum CheckinDao {
         UserDao.instance.validOrException(userId);
         try {
             Vertex u = ProxStorGraph.instance.getVertex(userId);
-            Iterable<Vertex> iter = u.getVertices(OUT, "currently_at");
-            List<Vertex> localities = new ArrayList<>();
-            for (Vertex v : iter) {
+            Iterable<Vertex> i = u.getVertices(OUT, "currently_at");
+            Iterator<Vertex> it = i.iterator();
+            if (it.hasNext()) {
+                return it.next();
+            }
+        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+  
+    public List<Locality> getPreviousLocalitiesDateRange(String userId, Date start, Date end, int max) throws InvalidUserId {
+        UserDao.instance.validOrException(userId);
+        if ((start != null) && (end != null)) {
+            List<Locality> localities = new ArrayList<>();
+            try {
+                VertexQuery vq = ProxStorGraph.instance.getVertex(userId).query();
+                vq.direction(OUT);
+                vq.labels("previously_at");
+                vq.has("arrival", LESS_THAN_EQUAL, new DateTime(end).getMillis());
+                vq.has("departure", GREATER_THAN_EQUAL, new DateTime(start).getMillis());
+                vq.limit(max);
+                for (Vertex v : vq.vertices()) {
+                    localities.add(LocalityDao.instance.get(v));
+                }
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidLocalityId ex) {
+                Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
+            return localities;
+        }
+        return null;        
+    }
+    
+     public List<Locality> getPreviousLocalitiesDateRangeLocation(String userId, Date start, Date end, String locId, int max) throws InvalidUserId {
+        UserDao.instance.validOrException(userId);
+        if ((start != null) && (end != null)) {
+            List<Locality> localities = new ArrayList<>();
+            try {
+                VertexQuery vq = ProxStorGraph.instance.getVertex(userId).query();
+                vq.direction(OUT);
+                vq.labels("previously_at");
+                vq.has("arrival", LESS_THAN_EQUAL, new DateTime(end).getMillis());
+                vq.has("departure", GREATER_THAN_EQUAL, new DateTime(start).getMillis());
+                vq.has("locationId", EQUAL, locId);
+                vq.limit(max);
+                for (Vertex v : vq.vertices()) {
+                    localities.add(LocalityDao.instance.get(v));
+                }
+            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidLocalityId ex) {
+                Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
+                return null;
+            }
+            return localities;
+        }
+        return null;        
+     }
+    
+    public List<Locality> getPreviousLocalities(String userId, int max) throws InvalidUserId {
+        UserDao.instance.validOrException(userId);
+        List<Vertex> localityVertices = getPreviousLocalityVertices(userId, max);
+        List<Locality> localities = new ArrayList<>();
+        try {            
+            for (Vertex v : localityVertices) {
+                localities.add(LocalityDao.instance.get(v));
+            }
+        } catch (InvalidLocalityId ex) {
+            Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        return localities;        
+    }
+
+    private List<Vertex> getPreviousLocalityVertices(String userId, int max) throws InvalidUserId {
+        UserDao.instance.validOrException(userId);
+        List<Vertex> localities = new ArrayList<>();
+        try {
+            VertexQuery vq = ProxStorGraph.instance.getVertex(userId).query();
+            vq.direction(OUT);
+            vq.labels("previously_at");          
+            vq.limit(max);
+            for (Vertex v : vq.vertices()) {
                 localities.add(v);
             }
-            if (localities.size() >= 1) {
-                return localities.get(0);
-            }
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
-        return null;
+        return localities;      
     }
 
     /**
-     * Returns the Vertex "previously_at" a given Vertex (i.e. a User)
-     *
-     * @param v
-     * @return
-     */
-    public Vertex getPrevioulsyAt(Vertex v) {
-        Iterable<Vertex> i = v.getVertices(OUT, "previously_at");
-        Iterator<Vertex> it = i.iterator();
-        if (it.hasNext()) {
-            return it.next();
-        }        
-        return null;
-    }
-
-    public List<Locality> getPreviousLocalities(String userId, int depth) throws InvalidUserId {
-        UserDao.instance.validOrException(userId);
-        int count = 0;
-        List<Locality> localities = new ArrayList<>();
-        Vertex v, w;
-        try {
-            v = ProxStorGraph.instance.getVertex(userId);
-            do {
-                w = getPrevioulsyAt(v);
-                if (w != null) {
-                    localities.add(LocalityDao.instance.toLocality(w));
-                    v = w;
-                }
-            } while (((count < depth) || (depth == 0)) && (w != null));
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return localities;
-    }
-
-    private List<Vertex> getPreviousLocalityVertices(String userId, int depth) throws InvalidUserId {
-        UserDao.instance.validOrException(userId);
-        int count = 0;
-        List<Vertex> localities = new ArrayList<>();
-        Vertex v, w;
-        try {
-            v = ProxStorGraph.instance.getVertex(userId);
-            do {
-                w = getPrevioulsyAt(v);
-                if (w != null) {
-                    localities.add(w);
-                    v = w;
-                }
-            } while (((count < depth) || (depth == 0)) && (w != null));
-        } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
-            Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return localities;
-    }
-
-    /**
-     * Move a currently_at Locality into the head of the previously_at list
+     * Turn a currently_at Locality into a previously_at one
      * @param current
      * @return
      * @throws InvalidUserId 
@@ -158,21 +184,28 @@ public enum CheckinDao {
         UserDao.instance.validOrException(userId);        
         Vertex current = getCurrentLocalityVertex(userId);
         if (current != null) {            
+            // update Locality to inactive and the date now
+            DateTime now = new DateTime();
             current.setProperty("active", false);
-            current.setProperty("departure", (new DateTime().toString()));
+            current.setProperty("departure", now.toString());
             try {
-                Vertex u = ProxStorGraph.instance.getVertex(userId);                
+                Vertex u = ProxStorGraph.instance.getVertex(userId);
+                // remove all currently_at edges (Yes, there should never be >1)
                 for (Edge e : u.getEdges(OUT, "currently_at")) {
                     e.remove();
                 }                
-                Vertex previous = getPrevioulsyAt(u);
-                if (previous != null) {
-                    current.addEdge("previously_at", previous);
-                }                
-                for (Edge e : u.getEdges(OUT, "previously_at")) {
-                    e.remove();
-                }                                     
-                u.addEdge("previously_at", current);                
+                              
+                /*
+                 * add new previously_at edge with the following properties:
+                 *   - date start
+                 *   - date end                 
+                 *   - location id
+                 */
+                Edge e = u.addEdge("previously_at", current);
+                e.setProperty("arrival", new DateTime(current.getProperty("arrival")).getMillis());
+                e.setProperty("departure", now.getMillis());                
+                e.setProperty("locationId", current.getProperty("locationId"));
+                
                 ProxStorGraph.instance.commit();
                 return true;
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {

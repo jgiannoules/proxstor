@@ -36,6 +36,7 @@ public enum KnowsDao {
      * @param strengthVal
      * @param direction
      * @param limit
+     * @return 
      * 
      * @returns Collection of User objects matching criteria, or null if no matches found
      * 
