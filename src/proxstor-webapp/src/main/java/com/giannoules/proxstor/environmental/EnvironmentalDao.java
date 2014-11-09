@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.environmental;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.api.EnvironmentalType;
 import com.giannoules.proxstor.ProxStorGraph;
@@ -45,7 +46,9 @@ public enum EnvironmentalDao {
      * @throws EnvironmentalNotContainedWithinLocation if the environmental isn't within the
      * location
      */
-    public Environmental getLocationEnvironmental(String locId, String environmentalId) throws EnvironmentalNotContainedWithinLocation, InvalidEnvironmentalId, InvalidLocationId {
+    public Environmental getLocationEnvironmental(String locId, String environmentalId) 
+            throws EnvironmentalNotContainedWithinLocation, InvalidEnvironmentalId, InvalidLocationId {
+        ProxStorDebug.println("getLocationEnvironmental(" + locId + ", " + environmentalId + ")");
         LocationDao.instance.validOrException(locId);
         validOrException(environmentalId);
         if (isLocationEnvironmental(locId, environmentalId)) {
