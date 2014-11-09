@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.environmental;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidEnvironmentalId;
@@ -68,6 +69,7 @@ public class EnvironmentalResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLocationEnvironmental() {
+        ProxStorDebug.println("getLocationEnvironmental(" + locId + ", " + environmentalId + ")");
         Environmental s;
         try {
             s = EnvironmentalDao.instance.getLocationEnvironmental(locId, environmentalId);
