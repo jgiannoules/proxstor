@@ -49,7 +49,7 @@ public class NearbyResource {
         return Response.ok((Location[]) locations.toArray(new Location[locations.size()])).build();
     }
 
-    @Path("location/{otherloc: [0-9]+}")
+    @Path("location/{otherloc}")
     public NearbyLocationResource returnNearbyLocationResource(@PathParam("otherloc") String otherLoc) {
         return new NearbyLocationResource(locIdA, otherLoc, distanceVal);
     }
