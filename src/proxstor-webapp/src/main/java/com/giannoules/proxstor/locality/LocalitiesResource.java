@@ -107,7 +107,7 @@ public class LocalitiesResource {
      *
      * e.g. /api/locality/123[/anything]
      */
-    @Path("{localityid: [0-9]+}")
+    @Path("{localityid}")
     public LocalityResource getLocalityResource(@PathParam("localityid") String localityId) {
         return new LocalityResource(localityId);
     }

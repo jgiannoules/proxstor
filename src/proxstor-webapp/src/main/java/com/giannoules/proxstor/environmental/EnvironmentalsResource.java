@@ -104,7 +104,7 @@ public class EnvironmentalsResource {
     /*
      * return EnvironmentalResource handler for specified environmentalId
      */
-    @Path("{environmentalid: [0-9]+}")
+    @Path("{environmentalid}")
     public EnvironmentalResource getEnvironmentalResource(@PathParam("environmentalid") String environmentalId) {
         ProxStorDebug.println("getEnvironmentalResource(" + environmentalId + ")");
         return new EnvironmentalResource(locId, environmentalId);

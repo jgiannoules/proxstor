@@ -49,7 +49,7 @@ public class LocationsResource {
     /*
      * returns instance of LocationResource to handle locId specific request 
      */
-    @Path("{locid: [0-9]+}")
+    @Path("{locid}")
     public LocationResource getLocationResource(@PathParam("locid") String locId) {
         return new LocationResource(locId);
     }

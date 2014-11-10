@@ -4,7 +4,6 @@ import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseAlreadyRunning;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -117,8 +116,9 @@ public class GraphResource {
     @Path("orientdb")
     @GET
     public Response getOrientDB() {
-        OrientGraphFactory factory = new OrientGraphFactory("memory:temp").setupPool(1,10);
-        OrientGraph graph = factory.getTx();
+        OrientGraphFactory factory = new OrientGraphFactory("remote:localhost/proxstor-test00", "root", 
+                "F12A52A06F4C38E68579A5159C5567A1F77420E9BB81B0E86EEACCC7155689B5").setupPool(1,10);
+        //ProxStorGraph.instance.graph = factory.getTx();
         return Response.ok().build();
     }
     

@@ -94,7 +94,7 @@ public class DevicesResource {
     /*
      * return DeviceResource handler for specified devid
      */
-    @Path("{devid: [0-9]+}")
+    @Path("{devid}")
     public DeviceResource getDeviceResource(@PathParam("devid") String devId) {
         return new DeviceResource(userId, devId);
     }

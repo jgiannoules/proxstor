@@ -81,7 +81,7 @@ public class KnowsResource {
         return Response.ok((User[]) users.toArray(new User[users.size()])).build();
     }
 
-    @Path("user/{otheruser: [0-9]+}")
+    @Path("user/{otheruser}")
     public KnowsUserResource returnKnowsUserResource(@PathParam("otheruser") String otherUser) {
         return new KnowsUserResource(userIdA, otherUser, strengthVal);
     }

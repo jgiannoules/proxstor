@@ -53,7 +53,7 @@ public class WithinResource {
         }
     }
 
-    @Path("location/{locid2: [0-9]+}")
+    @Path("location/{locid2}")
     public WithinLocationResource getWithinLocationResource(@PathParam("locid2") String locId2) {
         return new WithinLocationResource(locId, locId2);
     }

@@ -54,7 +54,7 @@ public class UsersResource {
      *
      * if the userId is not valid throw exception (performance optimization)
      */
-    @Path("{userid: [0-9]+}")
+    @Path("{userid}")
     public UserResource getUserResource(@PathParam("userid") String userId) {
         if (UserDao.instance.valid(userId)) {
             return new UserResource(userId);
