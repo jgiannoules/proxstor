@@ -30,7 +30,7 @@ public class LocationNearbyConnectorTester {
     
     @BeforeClass
     public static void setUpClass() {
-        conn = new ProxStorConnector("http://localhost:8080/api");
+        conn = new ProxStorConnector(ConnectionSettings.ConnectionString);
     }
     
     @AfterClass
