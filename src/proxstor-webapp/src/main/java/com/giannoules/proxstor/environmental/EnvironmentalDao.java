@@ -162,9 +162,9 @@ public enum EnvironmentalDao {
             in.setProperty("type", e.getType().toString());
             in.setProperty("typeIdentifier", e.getIdentifier());
             setType(in);
-            e.setEnvironmentalId(in.getId().toString());
             ProxStorGraph.instance.addEdge(out, in, "contains");
             ProxStorGraph.instance.commit();
+            e.setEnvironmentalId(in.getId().toString());
             return e;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(EnvironmentalDao.class.getName()).log(Level.SEVERE, null, ex);
@@ -467,22 +467,13 @@ public enum EnvironmentalDao {
      *   4 locId is not vertex of type Location
      *   5 Location is not container of Environmental     
      */
-    private boolean isLocationEnvironmental(String locId, String environmentalId) {
-       
+    private boolean isLocationEnvironmental(String locId, String environmentalId) {       
        /*
         * this code protected by callers who already check validity
         */
-        
-//        try {
-//            EnvironmentalDao.instance.validOrException(environmentalId);
-//            LocationDao.instance.validOrException(locId);
-//        } catch (InvalidParameter ex) {
-//            Logger.getLogger(EnvironmentalDao.class.getName()).log(Level.SEVERE, null, ex);
-//            return false;
-//        }        
         try {
             for (Edge e : ProxStorGraph.instance.getVertex(environmentalId).getEdges(IN, "contains")) {
-                if (e.getVertex(OUT).getId().equals(Long.parseLong(locId))) {
+                if (e.getVertex(OUT).getId().toString().equals(locId)) {
                     return true;
                 }
             }

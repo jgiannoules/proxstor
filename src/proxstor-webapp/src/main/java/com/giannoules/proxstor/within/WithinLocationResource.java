@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.within;
 
+import com.giannoules.proxstor.ProxStorUtil;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.LocationAlreadyWithinLocation;
 import java.net.URI;
@@ -40,7 +41,7 @@ import javax.ws.rs.core.Response;
              }
              URI createdUri;
              try {
-                 createdUri = new URI("/locations/" + locId + "/within/" + locId2);
+                 createdUri = new URI("/locations/" + ProxStorUtil.cleanPath(locId) + "/within/" + ProxStorUtil.cleanPath(locId2));
                  return Response.created(createdUri).build();
              } catch (URISyntaxException ex) {
                  Logger.getLogger(WithinLocationResource.class.getName()).log(Level.SEVERE, null, ex);

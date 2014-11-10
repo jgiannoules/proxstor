@@ -58,7 +58,6 @@ public class LocalitiesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response postUser(Locality in) {
-        System.out.println(in);
         Locality l;
         try {
             l = LocalityDao.instance.add(in);

@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.device;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.DeviceNotOwnedByUser;
@@ -162,9 +163,9 @@ public enum DeviceDao {
             in.setProperty("model", d.getModel());
             in.setProperty("os", d.getOs());
             setType(in);
-            d.setDevId(in.getId().toString());
             ProxStorGraph.instance.addEdge(out, in, "uses");
             ProxStorGraph.instance.commit();
+            d.setDevId(in.getId().toString());
             return d;
         } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
             Logger.getLogger(DeviceDao.class.getName()).log(Level.SEVERE, null, ex);
@@ -464,7 +465,7 @@ public enum DeviceDao {
         }        
         try {            
             for (Edge e : ProxStorGraph.instance.getVertex(devId).getEdges(IN, "uses")) {
-                if (e.getVertex(OUT).getId().equals(Long.parseLong(userId))) {
+                if (e.getVertex(OUT).getId().toString().equals(userId)) {
                     return true;
                 }
             }

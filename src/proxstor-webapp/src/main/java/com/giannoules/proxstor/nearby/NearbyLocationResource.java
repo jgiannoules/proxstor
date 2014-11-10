@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.knows;
 
+import com.giannoules.proxstor.ProxStorUtil;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidModel;
 import com.giannoules.proxstor.exception.LocationAlreadyNearbyLocation;
@@ -71,7 +72,7 @@ public class NearbyLocationResource {
         }
         URI createdUri;
         try {
-            createdUri = new URI("/locations/" + locIdA + "/nearby/" + distanceVal.toString() + "/" + locIdB);
+            createdUri = new URI("/locations/" + ProxStorUtil.cleanPath(locIdA) + "/nearby/" + distanceVal.toString() + "/" + ProxStorUtil.cleanPath(locIdB));
             return Response.created(createdUri).build();
         } catch (URISyntaxException ex) {
             Logger.getLogger(NearbyLocationResource.class.getName()).log(Level.SEVERE, null, ex);

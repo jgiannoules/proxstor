@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.device;
 
+import com.giannoules.proxstor.ProxStorUtil;
 import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.exception.InvalidUserId;
 import java.net.URI;
@@ -75,7 +76,7 @@ public class DevicesResource {
                 return Response.status(400).build();
             } else {
                 try {
-                    URI createdUri = new URI("users/" + userId + "/devices/" + d.getDevId());
+                    URI createdUri = new URI("users/" + ProxStorUtil.cleanPath(userId) + "/devices/" + d.getDevId());
                     return Response.created(createdUri).entity(d).build();
                 } catch (URISyntaxException ex) {
                     Logger.getLogger(DevicesResource.class.getName()).log(Level.SEVERE, null, ex);

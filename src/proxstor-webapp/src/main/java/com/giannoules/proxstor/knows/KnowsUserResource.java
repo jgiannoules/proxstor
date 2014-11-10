@@ -1,6 +1,7 @@
 package com.giannoules.proxstor.knows;
 
 import com.giannoules.proxstor.ProxStorDebug;
+import com.giannoules.proxstor.ProxStorUtil;
 import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.UserAlreadyKnowsUser;
 import java.net.URI;
@@ -49,7 +50,7 @@ public class KnowsUserResource {
         }
         URI createdUri;
         try {
-            createdUri = new URI("/users/" + userIdA + "/knows/" + strengthVal.toString() + "/" + userIdB);
+            createdUri = new URI("/users/" + ProxStorUtil.cleanPath(userIdA) + "/knows/" + strengthVal.toString() + "/" + ProxStorUtil.cleanPath(userIdB));
             return Response.created(createdUri).build();
         } catch (URISyntaxException ex) {
             Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);

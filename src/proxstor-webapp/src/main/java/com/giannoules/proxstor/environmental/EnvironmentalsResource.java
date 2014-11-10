@@ -1,6 +1,7 @@
 package com.giannoules.proxstor.environmental;
 
 import com.giannoules.proxstor.ProxStorDebug;
+import com.giannoules.proxstor.ProxStorUtil;
 import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidParameter;
@@ -83,7 +84,7 @@ public class EnvironmentalsResource {
                 return Response.status(400).build();
             } else {
                 try {
-                    URI createdUri = new URI("locations/" + locId + "/environmentals/" + e.getEnvironmentalId());
+                    URI createdUri = new URI("locations/" + ProxStorUtil.cleanPath(locId) + "/environmentals/" + e.getEnvironmentalId());
                     return Response.created(createdUri).entity(e).build();
                 } catch (URISyntaxException ex) {
                     Logger.getLogger(EnvironmentalsResource.class.getName()).log(Level.SEVERE, null, ex);
