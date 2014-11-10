@@ -18,7 +18,7 @@ import org.junit.Test;
 public class UserConnectorTester  {
 
     private static ProxStorConnector conn;
-    private static Integer invalidId;
+    private static String invalidId;
     private User goodUser;
     
     public UserConnectorTester() {        
@@ -41,7 +41,7 @@ public class UserConnectorTester  {
     public void setUp() {
         goodUser = conn.addUser(new User("John", "Smith", "jsmith@email.com"));
         assertNotNull(goodUser);
-        invalidId = Integer.parseInt(goodUser.getUserId()) + 1;
+        invalidId = goodUser.getUserId() + 1;
     }
     
     @After
@@ -54,7 +54,7 @@ public class UserConnectorTester  {
      */
     @Test
     public void getUser() {
-        User u = conn.getUser(Integer.parseInt(goodUser.getUserId()));
+        User u = conn.getUser(goodUser.getUserId());
         assertEquals(u, goodUser);
     }
     
@@ -73,7 +73,7 @@ public class UserConnectorTester  {
      */
     @Test
     public void deleteUser() {
-        assertTrue(conn.deleteUser(Integer.parseInt(goodUser.getUserId())));
+        assertTrue(conn.deleteUser(goodUser.getUserId()));
     }
     
     /*

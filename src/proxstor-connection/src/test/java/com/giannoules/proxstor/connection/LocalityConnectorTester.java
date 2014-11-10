@@ -27,7 +27,7 @@ import org.junit.Test;
 public class LocalityConnectorTester  {
 
     private static ProxStorConnector conn;
-    private static Integer invalidId;
+    private static String invalidId;
     private Locality goodLocality;
     private Location goodLocation;
     private Environmental goodEnvironmental;
@@ -65,7 +65,7 @@ public class LocalityConnectorTester  {
         s.setDescription("WiFi in Shopping Mall");
         s.setType(EnvironmentalType.WIFI_BSSID);
         s.setIdentifier(UUID.randomUUID().toString());        
-        goodEnvironmental = conn.addEnvironmental(Integer.parseInt(goodLocation.getLocId()), s);        
+        goodEnvironmental = conn.addEnvironmental(goodLocation.getLocId(), s);        
         assertNotNull(goodEnvironmental.getEnvironmentalId());
         assertEquals(s, goodEnvironmental);
         goodUser = conn.addUser(new User("first", "last", "f_last@msn.com"));
@@ -76,7 +76,7 @@ public class LocalityConnectorTester  {
         goodDevice.setModel("X1000");
         goodDevice.setOs("RandomOS");
         goodDevice.setSerialNum(UUID.randomUUID().toString());
-        goodDevice = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);                
+        goodDevice = conn.addDevice(goodUser.getUserId(), goodDevice);                
         assertNotNull(goodDevice);
         Locality loc = new Locality();
         loc.setActive(true);
@@ -89,7 +89,7 @@ public class LocalityConnectorTester  {
         loc.setLocalityId(goodLocality.getLocalityId());
         loc.setLocationId(goodLocality.getLocationId());
         assertEquals(goodLocality, loc);
-        invalidId = Integer.parseInt(goodLocality.getLocalityId()) + 1;
+        invalidId = goodLocality.getLocalityId() + 1;
     }
     
     @After
@@ -102,7 +102,7 @@ public class LocalityConnectorTester  {
      */
     @Test
     public void getLocality() {
-        Locality l = conn.getLocality(Integer.parseInt(goodLocality.getLocalityId()));
+        Locality l = conn.getLocality(goodLocality.getLocalityId());
         assertEquals(l, goodLocality);
     }
     
@@ -121,7 +121,7 @@ public class LocalityConnectorTester  {
      */
     @Test
     public void deleteLocality() {
-        assertTrue(conn.deleteLocality(Integer.parseInt(goodLocality.getLocalityId())));
+        assertTrue(conn.deleteLocality(goodLocality.getLocalityId()));
     }
     
     /*

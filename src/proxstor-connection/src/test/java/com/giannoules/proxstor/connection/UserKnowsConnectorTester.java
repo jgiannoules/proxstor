@@ -20,7 +20,7 @@ public class UserKnowsConnectorTester {
     private static User b;
     private static User c;
     private static User d;
-    private static Integer invalidUserId;
+    private static String invalidUserId;
     
     public UserKnowsConnectorTester() {
     }
@@ -53,7 +53,7 @@ public class UserKnowsConnectorTester {
         assertNotNull(b);
         assertNotNull(c);
         assertNotNull(d);
-        invalidUserId = Integer.parseInt(d.getUserId()) + 1;
+        invalidUserId = d.getUserId() + 1;
         assertTrue(conn.addUserKnows(a, b, 90));
         assertTrue(conn.addUserKnows(a, c, 80));
         assertTrue(conn.addUserKnows(a, d, 70));
@@ -76,8 +76,8 @@ public class UserKnowsConnectorTester {
      */
     @Test
     public void getKnows() {
-        assertEquals(conn.getKnows(Integer.parseInt(a.getUserId()), 91), Collections.EMPTY_LIST);
-        Collection<User> users = conn.getKnows(Integer.parseInt(a.getUserId()), 60);
+        assertEquals(conn.getKnows(a.getUserId(), 91), Collections.EMPTY_LIST);
+        Collection<User> users = conn.getKnows(a.getUserId(), 60);
         assertEquals(users.size(), 3);
         if (users.contains(b)) {
             users.remove(b);
@@ -97,7 +97,7 @@ public class UserKnowsConnectorTester {
      */
     @Test
     public void getKnowsInvalidStrength() {
-        assertEquals(conn.getKnows(Integer.parseInt(a.getUserId()), 99), Collections.EMPTY_LIST);
+        assertEquals(conn.getKnows(a.getUserId(), 99), Collections.EMPTY_LIST);
     }
     
     /*
@@ -178,8 +178,8 @@ public class UserKnowsConnectorTester {
      */
     @Test
     public void getKnowsReverse() {
-        assertEquals(conn.getKnowsReverse(Integer.parseInt(a.getUserId()), 100), Collections.EMPTY_LIST);
-        Collection<User> users = conn.getKnowsReverse(Integer.parseInt(a.getUserId()), 60);
+        assertEquals(conn.getKnowsReverse(a.getUserId(), 100), Collections.EMPTY_LIST);
+        Collection<User> users = conn.getKnowsReverse(a.getUserId(), 60);
         assertEquals(users.size(), 3);
         if (users.contains(b)) {
             users.remove(b);
@@ -199,7 +199,7 @@ public class UserKnowsConnectorTester {
      */
     @Test
     public void getKnowsReverseInvalidStrength() {
-        assertNull(conn.getKnowsReverse(Integer.parseInt(a.getUserId()), 101));
+        assertNull(conn.getKnowsReverse(a.getUserId(), 101));
     }
     
     /*

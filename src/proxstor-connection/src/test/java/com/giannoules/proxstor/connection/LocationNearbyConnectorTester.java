@@ -23,7 +23,7 @@ public class LocationNearbyConnectorTester {
     private static Location c;
     private static Location d;
     
-    private static Integer invalidLocId;
+    private static String invalidLocId;
     
     public LocationNearbyConnectorTester() {
     }
@@ -78,11 +78,11 @@ public class LocationNearbyConnectorTester {
         l.setType(LocationType.BUSINESS);
         d = conn.addLocation(l);
         
-        assertTrue(conn.addLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId()), 10));
-        assertTrue(conn.addLocationNearby(Integer.parseInt(b.getLocId()), Integer.parseInt(c.getLocId()), 100));
-        assertTrue(conn.addLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId()), 1000));
+        assertTrue(conn.addLocationNearby(a.getLocId(), b.getLocId(), 10));
+        assertTrue(conn.addLocationNearby(b.getLocId(), c.getLocId(), 100));
+        assertTrue(conn.addLocationNearby(c.getLocId(), d.getLocId(), 1000));
         
-        invalidLocId = Integer.parseInt(d.getLocId()) + 1;
+        invalidLocId = d.getLocId() + 1;
     }
     
     @After
@@ -95,7 +95,7 @@ public class LocationNearbyConnectorTester {
      */
     @Test
     public void addNearby() {
-        assertTrue(conn.addLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(d.getLocId()), 10000));
+        assertTrue(conn.addLocationNearby(a.getLocId(), d.getLocId(), 10000));
     }
     
     /*
@@ -107,9 +107,9 @@ public class LocationNearbyConnectorTester {
      */
     @Test
     public void addNearbyInvalid() {
-        assertFalse(conn.addLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId()), 1000));
-        assertFalse(conn.addLocationNearby(invalidLocId, Integer.parseInt(b.getLocId()), 1000));
-        assertFalse(conn.addLocationNearby(Integer.parseInt(a.getLocId()), invalidLocId, 1000));
+        assertFalse(conn.addLocationNearby(a.getLocId(), b.getLocId(), 1000));
+        assertFalse(conn.addLocationNearby(invalidLocId, b.getLocId(), 1000));
+        assertFalse(conn.addLocationNearby(a.getLocId(), invalidLocId, 1000));
         assertFalse(conn.addLocationNearby(invalidLocId, invalidLocId, 1000));
     }
     
@@ -121,8 +121,8 @@ public class LocationNearbyConnectorTester {
      */
     @Test
     public void getNearby() {
-        assertEquals(conn.getLocationsNearby(Integer.parseInt(a.getLocId()), 9), Collections.EMPTY_LIST);
-        Collection<Location> locations = conn.getLocationsNearby(Integer.parseInt(a.getLocId()), 10);
+        assertEquals(conn.getLocationsNearby(a.getLocId(), 9), Collections.EMPTY_LIST);
+        Collection<Location> locations = conn.getLocationsNearby(a.getLocId(), 10);
         assertEquals(locations.size(), 1);
         assertTrue(locations.contains(b));
     }
@@ -146,10 +146,10 @@ public class LocationNearbyConnectorTester {
      */
     @Test
     public void testNearby() {
-        assertTrue(conn.isLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId()), 1000));
-        assertTrue(conn.isLocationNearby(Integer.parseInt(b.getLocId()), Integer.parseInt(c.getLocId()), 100000));
-        assertFalse(conn.isLocationNearby(Integer.parseInt(b.getLocId()), Integer.parseInt(c.getLocId()), 50));
-        assertFalse(conn.isLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId()), 9));
+        assertTrue(conn.isLocationNearby(c.getLocId(), d.getLocId(), 1000));
+        assertTrue(conn.isLocationNearby(b.getLocId(), c.getLocId(), 100000));
+        assertFalse(conn.isLocationNearby(b.getLocId(), c.getLocId(), 50));
+        assertFalse(conn.isLocationNearby(a.getLocId(), b.getLocId(), 9));
     }
     
     /*
@@ -158,9 +158,9 @@ public class LocationNearbyConnectorTester {
      */
     @Test
     public void updateNearby() {
-        assertTrue(conn.updateLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId()), 10));
-        assertTrue(conn.updateLocationNearby(Integer.parseInt(b.getLocId()), Integer.parseInt(c.getLocId()), 1000));
-        assertTrue(conn.updateLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId()), 1));        
+        assertTrue(conn.updateLocationNearby(a.getLocId(), b.getLocId(), 10));
+        assertTrue(conn.updateLocationNearby(b.getLocId(), c.getLocId(), 1000));
+        assertTrue(conn.updateLocationNearby(c.getLocId(), d.getLocId(), 1));        
     }
     
     /*
@@ -169,9 +169,9 @@ public class LocationNearbyConnectorTester {
      */
     @Test
     public void updateNearbyInvalid() {
-        assertFalse(conn.updateLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(c.getLocId()), 10));
-        assertFalse(conn.updateLocationNearby(invalidLocId, Integer.parseInt(c.getLocId()), 1000));
-        assertFalse(conn.updateLocationNearby(Integer.parseInt(c.getLocId()), invalidLocId, 1));
+        assertFalse(conn.updateLocationNearby(a.getLocId(), c.getLocId(), 10));
+        assertFalse(conn.updateLocationNearby(invalidLocId, c.getLocId(), 1000));
+        assertFalse(conn.updateLocationNearby(c.getLocId(), invalidLocId, 1));
         assertFalse(conn.updateLocationNearby(invalidLocId, invalidLocId, 900));
     }
     
@@ -182,13 +182,13 @@ public class LocationNearbyConnectorTester {
      */
     @Test
     public void deleteNearby() {
-        assertFalse(conn.deleteLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(a.getLocId())));
-        assertTrue(conn.deleteLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId())));        
-        assertFalse(conn.deleteLocationNearby(Integer.parseInt(a.getLocId()), Integer.parseInt(b.getLocId())));
-        assertTrue(conn.deleteLocationNearby(Integer.parseInt(b.getLocId()), Integer.parseInt(c.getLocId())));
-        assertFalse(conn.deleteLocationNearby(Integer.parseInt(b.getLocId()), Integer.parseInt(c.getLocId())));
-        assertTrue(conn.deleteLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId())));
-        assertFalse(conn.deleteLocationNearby(Integer.parseInt(c.getLocId()), Integer.parseInt(d.getLocId())));
+        assertFalse(conn.deleteLocationNearby(c.getLocId(), a.getLocId()));
+        assertTrue(conn.deleteLocationNearby(a.getLocId(), b.getLocId()));        
+        assertFalse(conn.deleteLocationNearby(a.getLocId(), b.getLocId()));
+        assertTrue(conn.deleteLocationNearby(b.getLocId(), c.getLocId()));
+        assertFalse(conn.deleteLocationNearby(b.getLocId(), c.getLocId()));
+        assertTrue(conn.deleteLocationNearby(c.getLocId(), d.getLocId()));
+        assertFalse(conn.deleteLocationNearby(c.getLocId(), d.getLocId()));
     }
     
     /*
@@ -197,8 +197,8 @@ public class LocationNearbyConnectorTester {
      */
     @Test
     public void deleteNearbyInvalid() {
-        assertFalse(conn.deleteLocationNearby(Integer.parseInt(a.getLocId()), invalidLocId));
-        assertFalse(conn.deleteLocationNearby(invalidLocId, Integer.parseInt(b.getLocId())));        
+        assertFalse(conn.deleteLocationNearby(a.getLocId(), invalidLocId));
+        assertFalse(conn.deleteLocationNearby(invalidLocId, b.getLocId()));        
         assertFalse(conn.deleteLocationNearby(invalidLocId, invalidLocId));
     }
 }

@@ -20,7 +20,7 @@ import org.junit.Test;
 public class EnvironmentalConnectorTester {
     
     private static ProxStorConnector conn;
-    private static Integer invalidId;
+    private static String invalidId;
     private Location goodLocation;
     private Environmental goodEnvironmental;
     private Environmental goodEnvironmental2;
@@ -57,7 +57,7 @@ public class EnvironmentalConnectorTester {
         s.setType(EnvironmentalType.WIFI_BSSID);
         s.setIdentifier(UUID.randomUUID().toString());
         
-        goodEnvironmental = conn.addEnvironmental(Integer.parseInt(goodLocation.getLocId()), s);
+        goodEnvironmental = conn.addEnvironmental(goodLocation.getLocId(), s);
         
         assertNotNull(goodEnvironmental.getEnvironmentalId());
         assertEquals(s, goodEnvironmental);
@@ -67,7 +67,7 @@ public class EnvironmentalConnectorTester {
         s.setType(EnvironmentalType.BLE_UUID);
         s.setIdentifier(UUID.randomUUID().toString());
         
-        goodEnvironmental2 = conn.addEnvironmental(Integer.parseInt(goodLocation.getLocId()), s);
+        goodEnvironmental2 = conn.addEnvironmental(goodLocation.getLocId(), s);
         
         assertNotNull(goodEnvironmental2.getEnvironmentalId());
         assertEquals(s, goodEnvironmental2);        
@@ -87,7 +87,7 @@ public class EnvironmentalConnectorTester {
         s.setDescription("WiFi in Coffee Shop");
         s.setType(EnvironmentalType.WIFI_BSSID);
         s.setIdentifier(UUID.randomUUID().toString());
-        Environmental s2 = conn.addEnvironmental(Integer.parseInt(goodLocation.getLocId()), s);
+        Environmental s2 = conn.addEnvironmental(goodLocation.getLocId(), s);
         assertNotNull(s2.getEnvironmentalId());
         assertEquals(s, s2);
     }
@@ -99,7 +99,7 @@ public class EnvironmentalConnectorTester {
     @Test
     public void addEnvironmentalInvalid() {
         Environmental s = new Environmental();
-        assertNull(conn.addEnvironmental(Integer.parseInt(goodLocation.getLocId()), s));
+        assertNull(conn.addEnvironmental(goodLocation.getLocId(), s));
         assertNull(conn.addEnvironmental(invalidId, goodEnvironmental));
     }
     
@@ -110,7 +110,7 @@ public class EnvironmentalConnectorTester {
     @Test
     public void updateEnvironmental() {
         goodEnvironmental.setDescription("updated description");
-        assertTrue(conn.updateEnvironmental(Integer.parseInt(goodLocation.getLocId()), goodEnvironmental));
+        assertTrue(conn.updateEnvironmental(goodLocation.getLocId(), goodEnvironmental));
     }
     
     /*
@@ -122,7 +122,7 @@ public class EnvironmentalConnectorTester {
     @Test
     public void updateEnvironmentalInvalid() {
         assertFalse(conn.updateEnvironmental(invalidId, goodEnvironmental));
-        assertFalse(conn.updateEnvironmental(Integer.parseInt(goodLocation.getLocId()), new Environmental()));
+        assertFalse(conn.updateEnvironmental(goodLocation.getLocId(), new Environmental()));
         assertFalse(conn.updateEnvironmental(invalidId, new Environmental()));        
     }
     
@@ -135,7 +135,7 @@ public class EnvironmentalConnectorTester {
     @Test
     public void getEnvironmentals() {
         Collection<Environmental> environmentals;
-        environmentals = conn.getEnvironmentals(Integer.parseInt(goodLocation.getLocId()));
+        environmentals = conn.getEnvironmentals(goodLocation.getLocId());
         assertNotNull(environmentals);
         assertEquals(environmentals.size(), 2);
         assertTrue(environmentals.contains(goodEnvironmental));
@@ -149,7 +149,7 @@ public class EnvironmentalConnectorTester {
         l.setType(LocationType.BUSINESS);
         l = conn.addLocation(l);
         assertNotNull(l.getLocId());
-        environmentals = conn.getEnvironmentals(Integer.parseInt(l.getLocId()));
+        environmentals = conn.getEnvironmentals(l.getLocId());
         assertEquals(environmentals, Collections.EMPTY_LIST);
     }    
     
@@ -170,10 +170,10 @@ public class EnvironmentalConnectorTester {
      */
     @Test
     public void deleteEnvironmental() {
-        assertTrue(conn.deleteEnvironmental(Integer.parseInt(goodLocation.getLocId()), Integer.parseInt(goodEnvironmental.getEnvironmentalId())));
-        assertTrue(conn.deleteEnvironmental(Integer.parseInt(goodLocation.getLocId()), Integer.parseInt(goodEnvironmental2.getEnvironmentalId())));
-        assertFalse(conn.deleteEnvironmental(Integer.parseInt(goodLocation.getLocId()), Integer.parseInt(goodEnvironmental.getEnvironmentalId())));
-        assertFalse(conn.deleteEnvironmental(Integer.parseInt(goodLocation.getLocId()), Integer.parseInt(goodEnvironmental2.getEnvironmentalId())));
+        assertTrue(conn.deleteEnvironmental(goodLocation.getLocId(), goodEnvironmental.getEnvironmentalId()));
+        assertTrue(conn.deleteEnvironmental(goodLocation.getLocId(), goodEnvironmental2.getEnvironmentalId()));
+        assertFalse(conn.deleteEnvironmental(goodLocation.getLocId(), goodEnvironmental.getEnvironmentalId()));
+        assertFalse(conn.deleteEnvironmental(goodLocation.getLocId(), goodEnvironmental2.getEnvironmentalId()));
     }
     
     /*
@@ -184,9 +184,9 @@ public class EnvironmentalConnectorTester {
      */
     @Test
     public void deleteEnvironmentalInvalid() {
-        assertFalse(conn.deleteEnvironmental(invalidId, Integer.parseInt(goodEnvironmental.getEnvironmentalId())));
-        assertFalse(conn.deleteEnvironmental(invalidId, Integer.parseInt(goodEnvironmental2.getEnvironmentalId())));
-        assertFalse(conn.deleteEnvironmental(Integer.parseInt(goodLocation.getLocId()), invalidId));
+        assertFalse(conn.deleteEnvironmental(invalidId, goodEnvironmental.getEnvironmentalId()));
+        assertFalse(conn.deleteEnvironmental(invalidId, goodEnvironmental2.getEnvironmentalId()));
+        assertFalse(conn.deleteEnvironmental(goodLocation.getLocId(), invalidId));
     }
     
 }

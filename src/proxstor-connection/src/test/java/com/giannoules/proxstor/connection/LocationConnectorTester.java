@@ -16,11 +16,11 @@ import org.junit.Test;
 public class LocationConnectorTester {
     
     private static ProxStorConnector conn;
-    private static Integer invalidLocId;
+    private static String invalidLocId;
     private Location goodLocation;
     
     public LocationConnectorTester() {
-        invalidLocId = 99999;
+        invalidLocId = "99999";
     }
     
     @BeforeClass
@@ -57,7 +57,7 @@ public class LocationConnectorTester {
      */
     @Test
     public void getLocation() {
-        Location l = conn.getLocation(Integer.parseInt(goodLocation.getLocId()));
+        Location l = conn.getLocation(goodLocation.getLocId());
         assertEquals(l, goodLocation);
     }
   
@@ -76,7 +76,7 @@ public class LocationConnectorTester {
      */
     @Test
     public void deleteLocation() {
-        assertTrue(conn.deleteLocation(Integer.parseInt(goodLocation.getLocId())));
+        assertTrue(conn.deleteLocation(goodLocation.getLocId()));
     }
     
     /*

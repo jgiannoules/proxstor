@@ -23,8 +23,8 @@ import org.junit.Test;
 public class DeviceConnectorTester {
     
     private static ProxStorConnector conn;
-    private static Integer invalidUserId;
-    private static Integer invalidDeviceId;
+    private static String invalidUserId;
+    private static String invalidDeviceId;
     private Device goodDevice;
     private static User goodUser;
     
@@ -56,10 +56,10 @@ public class DeviceConnectorTester {
         goodDevice.setModel("X1000");
         goodDevice.setOs("RandomOS");
         goodDevice.setSerialNum(UUID.randomUUID().toString());
-        goodDevice = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);                
+        goodDevice = conn.addDevice(goodUser.getUserId(), goodDevice);                
         assertNotNull(goodDevice);
-        invalidUserId = Integer.parseInt(goodUser.getUserId()) + 1;
-        invalidDeviceId = Integer.parseInt(goodDevice.getDevId()) + 1;
+        invalidUserId = goodUser.getUserId() + 1;
+        invalidDeviceId = goodDevice.getDevId() + 1;
     }
     
     @After
@@ -79,7 +79,7 @@ public class DeviceConnectorTester {
         d.setModel("X1000");
         d.setOs("RandomOS");
         d.setSerialNum(UUID.randomUUID().toString());
-        Device d2 = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);   
+        Device d2 = conn.addDevice(goodUser.getUserId(), goodDevice);   
         assertNotNull(d2.getDevId());
         d.setDevId(d2.getDevId());
         assertEquals(d, d2);
@@ -91,7 +91,7 @@ public class DeviceConnectorTester {
      */
     @Test
     public void addInvalidDevice() {
-        Device d = conn.addDevice(Integer.parseInt(goodUser.getUserId()), new Device());
+        Device d = conn.addDevice(goodUser.getUserId(), new Device());
         assertNull(d);        
     }
     
@@ -101,8 +101,8 @@ public class DeviceConnectorTester {
      */
     @Test
     public void getDevice() {
-        Device d = conn.getDevice(Integer.parseInt(goodUser.getUserId()), 
-                Integer.parseInt(goodDevice.getDevId()));
+        Device d = conn.getDevice(goodUser.getUserId(), 
+                goodDevice.getDevId());
         assertEquals(goodDevice, d);
     }
     
@@ -114,11 +114,11 @@ public class DeviceConnectorTester {
      */
     @Test
     public void getUserDevices() {
-        Device d = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);   
+        Device d = conn.addDevice(goodUser.getUserId(), goodDevice);   
         assertNotNull(d.getDevId());
-        Device d2 = conn.addDevice(Integer.parseInt(goodUser.getUserId()), goodDevice);   
+        Device d2 = conn.addDevice(goodUser.getUserId(), goodDevice);   
         assertNotNull(d.getDevId());
-        Collection<Device> devices = conn.getDevices(Integer.parseInt(goodUser.getUserId()));
+        Collection<Device> devices = conn.getDevices(goodUser.getUserId());
         assertNotNull(devices);
         assertEquals(devices.size(), 3);
         assertTrue(devices.contains(goodDevice));
@@ -134,7 +134,7 @@ public class DeviceConnectorTester {
     @Test
     public void getInvalidDevice() {
         assertNull(conn.getDevice(invalidUserId, invalidDeviceId));
-        assertNull(conn.getDevice(Integer.parseInt(goodUser.getUserId()), invalidDeviceId));
+        assertNull(conn.getDevice(goodUser.getUserId(), invalidDeviceId));
     }
     
     /*
@@ -144,7 +144,7 @@ public class DeviceConnectorTester {
     @Test
     public void updateDevice() {
         goodDevice.setDescription("Something else");
-        assertTrue(conn.updateDevice(Integer.parseInt(goodUser.getUserId()), goodDevice));
+        assertTrue(conn.updateDevice(goodUser.getUserId(), goodDevice));
     }
     
     /*
@@ -154,7 +154,7 @@ public class DeviceConnectorTester {
     @Test
     public void updateInvalidDevice() {
         Device d = new Device();
-        assertFalse(conn.updateDevice(Integer.parseInt(goodUser.getUserId()), d));
+        assertFalse(conn.updateDevice(goodUser.getUserId(), d));
     }
    
     /*
@@ -163,7 +163,7 @@ public class DeviceConnectorTester {
      */
     @Test
     public void deleteDevice() {
-        assertTrue(conn.deleteDevice(Integer.parseInt(goodUser.getUserId()), Integer.parseInt(goodDevice.getDevId())));
+        assertTrue(conn.deleteDevice(goodUser.getUserId(), goodDevice.getDevId()));
     }
     
     /*
@@ -174,8 +174,8 @@ public class DeviceConnectorTester {
      */
     @Test
     public void deleteInvalidDevice() {
-        assertFalse(conn.deleteDevice(Integer.parseInt(goodUser.getUserId()), invalidDeviceId));
-        assertFalse(conn.deleteDevice(invalidUserId, Integer.parseInt(goodDevice.getDevId())));
-        assertFalse(conn.deleteDevice(Integer.parseInt(goodDevice.getDevId()), Integer.parseInt(goodUser.getUserId())));
+        assertFalse(conn.deleteDevice(goodUser.getUserId(), invalidDeviceId));
+        assertFalse(conn.deleteDevice(invalidUserId, goodDevice.getDevId()));
+        assertFalse(conn.deleteDevice(goodDevice.getDevId(),goodUser.getUserId()));
     }
 }
