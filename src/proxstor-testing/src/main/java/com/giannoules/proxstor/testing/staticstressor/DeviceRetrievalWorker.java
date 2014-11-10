@@ -30,7 +30,7 @@ public class DeviceRetrievalWorker implements Runnable {
         Collection<Device> devices;
         do {
             userId = userIds.get(random.nextInt(userIds.size()));
-            devices = conn.getDevices(Integer.parseInt(userId));
+            devices = conn.getDevices(userId);
             counter.getAndIncrement();
         } while (running);
     }

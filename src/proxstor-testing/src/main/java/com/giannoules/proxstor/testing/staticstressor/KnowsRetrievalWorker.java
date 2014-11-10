@@ -32,7 +32,7 @@ public class KnowsRetrievalWorker implements Runnable {
         do {
             userId = userIds.get(random.nextInt(userIds.size()));
             strength = random.nextInt(101);
-            users = conn.getKnows(Integer.parseInt(userId), strength);
+            users = conn.getKnows(userId, strength);
             counter.getAndIncrement();
         } while (running);
     }

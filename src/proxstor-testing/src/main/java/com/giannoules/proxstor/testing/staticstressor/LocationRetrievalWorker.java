@@ -31,7 +31,7 @@ public class LocationRetrievalWorker implements Runnable {
         do {
             locId = locationIds.get(random.nextInt(locationIds.size()));
             distance = random.nextInt(1000 + 1);
-            l = conn.getLocation(Integer.parseInt(locId));
+            l = conn.getLocation(locId);
             counter.getAndIncrement();         
         } while (running);
     }

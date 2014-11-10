@@ -29,7 +29,7 @@ public class DeviceAddWorker implements Runnable {
     @Override
     public void run() {
         try {
-            d.setDevId(conn.addDevice(Integer.parseInt(u.getUserId()), d).getDevId());
+            d.setDevId(conn.addDevice(u.getUserId(), d).getDevId());
             operations.getAndIncrement();
         } catch (Exception ex) {
             Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);

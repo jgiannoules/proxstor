@@ -30,7 +30,7 @@ public class EnvironmentalRetrievalWorker implements Runnable {
         Collection<Environmental> environmentals;
         do {
             locId = locationIds.get(random.nextInt(locationIds.size()));
-            environmentals = conn.getEnvironmentals(Integer.parseInt(locId));
+            environmentals = conn.getEnvironmentals(locId);
             counter.addAndGet(environmentals.size());                      
         } while (running);
     }

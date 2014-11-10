@@ -29,7 +29,7 @@ public class UserRetrievalWorker implements Runnable {
         User u;
         do {
             userId = userIds.get(random.nextInt(userIds.size()));
-            u = conn.getUser(Integer.parseInt(userId));
+            u = conn.getUser(userId);
             counter.getAndIncrement();
         } while (running);
     }

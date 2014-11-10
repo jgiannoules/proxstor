@@ -32,8 +32,8 @@ public class DeviceDetectsEnvironmentalIdWorker implements Runnable {
         Locality l;
         do {
             environmentalId = environmentalIds.get(random.nextInt(environmentalIds.size()));
-            l = conn.deviceDetectsEnvironmentalId(Integer.parseInt(devId), Integer.parseInt(environmentalId));
-            conn.deviceUndetectsEnvironmentalId(Integer.parseInt(devId), Integer.parseInt(environmentalId));
+            l = conn.deviceDetectsEnvironmentalId(devId, environmentalId);
+            conn.deviceUndetectsEnvironmentalId(devId, environmentalId);
             counter.getAndIncrement();
         } while (running);
     }

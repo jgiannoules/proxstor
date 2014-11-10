@@ -24,7 +24,7 @@ public class EnvironmentalAddWorker implements Runnable {
     @Override
     public void run() {
         try {
-            s.setEnvironmentalId(conn.addEnvironmental(Integer.parseInt(l.getLocId()), s).getEnvironmentalId());
+            s.setEnvironmentalId(conn.addEnvironmental(l.getLocId(), s).getEnvironmentalId());
             operations.getAndIncrement();
         } catch (NumberFormatException ex) {
             Logger.getLogger(Loader.class.getName()).log(Level.SEVERE, null, ex);

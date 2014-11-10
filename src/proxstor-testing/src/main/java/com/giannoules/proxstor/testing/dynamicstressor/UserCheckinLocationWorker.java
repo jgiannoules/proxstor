@@ -32,8 +32,8 @@ public class UserCheckinLocationWorker implements Runnable {
         Locality l;
         do {
             locId = locIds.get(random.nextInt(locIds.size()));
-            l = conn.userCheckinLocation(Integer.parseInt(userId), Integer.parseInt(locId));
-            conn.userCheckoutLocation(Integer.parseInt(userId), Integer.parseInt(locId));
+            l = conn.userCheckinLocation(userId, locId);
+            conn.userCheckoutLocation(userId, locId);
             counter.getAndIncrement();
         } while (running);
     }
