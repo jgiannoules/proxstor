@@ -53,7 +53,7 @@ public class UserKnowsConnectorTester {
         assertNotNull(b);
         assertNotNull(c);
         assertNotNull(d);
-        invalidUserId = d.getUserId() + 1;
+        invalidUserId = d.getUserId() + 1;        
         assertTrue(conn.addUserKnows(a, b, 90));
         assertTrue(conn.addUserKnows(a, c, 80));
         assertTrue(conn.addUserKnows(a, d, 70));

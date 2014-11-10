@@ -9,9 +9,14 @@ import com.giannoules.proxstor.api.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -103,7 +108,7 @@ public class ProxStorConnector {
      * is a valid User Object ID. If the userId is not valid null is returned.
      */
     public User getUser(String userId) {
-        String path = "user/" + userId;
+        String path = cleanPath("user/" + userId);
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -120,7 +125,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean updateUser(User u) {
-        String path = "user/" + u.getUserId();
+        String path = cleanPath("user/" + u.getUserId());
         Response response = target.path(path)
                 .request()
                 .put(Entity.entity(u, MediaType.APPLICATION_JSON_TYPE));
@@ -134,7 +139,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean deleteUser(String userId) {
-        String path = "user/" + userId;
+        String path = cleanPath("user/" + userId);
         Response response = target.path(path)
                 .request()
                 .delete();
@@ -166,7 +171,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Collection<User> getKnows(String userId, Integer strength) {
-        String path = "user/" + userId + "/knows/strength/" + strength;
+        String path = cleanPath("user/" + userId + "/knows/strength/" + strength);
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON).get();
         if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
@@ -189,8 +194,8 @@ public class ProxStorConnector {
      * @return 
      */
     public Collection<User> getKnowsReverse(String userId, Integer strength) {
-        String path = "user/" + userId + "/knows/strength/" 
-                + strength + "/reverse";
+        String path = cleanPath("user/" + userId + "/knows/strength/" 
+                + strength + "/reverse");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON)
                 .get();
@@ -214,8 +219,8 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean addUserKnows(User u, User v, int strength) {        
-        String path = "user/" + u.getUserId() + "/knows/strength/" + strength 
-                + "/user/" + v.getUserId();
+        String path = cleanPath("user/" + u.getUserId() + "/knows/strength/" + strength
+                + "/user/" + v.getUserId()); 
         Response response = target.path(path)
                 .request(MediaType.TEXT_PLAIN)
                 .post(null);
@@ -230,8 +235,8 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean updateUserKnows(User u, User v, int strength) {
-        String path = "user/" + u.getUserId() + "/knows/strength/" + strength 
-                + "/user/" + v.getUserId();
+        String path = cleanPath("user/" + u.getUserId() + "/knows/strength/" + strength 
+                + "/user/" + v.getUserId());
         Response response = target.path(path)
                 .request()
                 .put((Entity.entity("", MediaType.TEXT_PLAIN_TYPE)));        
@@ -245,8 +250,8 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean deleteKnows(User u, User v) {
-        String path = "user/" + u.getUserId() + "/knows/strength/0/user/" 
-                + v.getUserId();
+        String path = cleanPath("user/" + u.getUserId() + "/knows/strength/0/user/" 
+                + v.getUserId());
         Response response = target.path(path)
                 .request(MediaType.TEXT_PLAIN)
                 .delete();
@@ -277,7 +282,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Location getLocation(String locId) {
-        String path = "location/" + locId;
+        String path = cleanPath("location/" + locId);
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -293,7 +298,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean updateLocation(Location l) {
-        String path = "location/" + l.getLocId();
+        String path = cleanPath("location/" + l.getLocId());
         Response response = target.path(path)
                 .request()
                 .put(Entity.entity(l, MediaType.APPLICATION_JSON_TYPE));
@@ -306,7 +311,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean deleteLocation(String locId) {
-        String path = "location/" + locId;
+        String path = cleanPath("location/" + locId);
         Response response = target.path(path)
                 .request()
                 .delete();
@@ -320,7 +325,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Device getDevice(String userId, String devId) {
-        String path = "/user/" + userId + "/device/" + devId;
+        String path = cleanPath("/user/" + userId + "/device/" + devId);
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -336,7 +341,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Collection<Device> getDevices(String userId) {
-        String path = "/user/" + userId + "/device";
+        String path = cleanPath("/user/" + userId + "/device");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -358,7 +363,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Device addDevice(String userId, Device dev) {
-        String path = "/user/" + userId + "/device/";
+        String path = cleanPath("/user/" + userId + "/device/");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(dev, MediaType.APPLICATION_JSON_TYPE));
@@ -375,7 +380,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean updateDevice(String userId, Device d) {
-        String path = "user/" + userId + "/device/" + d.getDevId();
+        String path = cleanPath("/user/" + userId + "/device/" + d.getDevId());
         Response response = target.path(path)
                 .request()
                 .put(Entity.entity(d, MediaType.APPLICATION_JSON_TYPE));
@@ -389,7 +394,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean deleteDevice(String userId, String devId) {
-        String path = "user/" + userId + "/device/" + devId;
+        String path = cleanPath("/user/" + userId + "/device/" + devId);
         Response response = target.path(path)
                 .request()
                 .delete();
@@ -405,7 +410,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Environmental addEnvironmental(String locId, Environmental s) {
-        String path = "/location/" + locId + "/environmental/";
+        String path = cleanPath("/location/" + locId + "/environmental/");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
@@ -421,7 +426,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Collection<Environmental> getEnvironmentals(String locId) {
-        String path = "/location/" + locId + "/environmental";
+        String path = cleanPath("/location/" + locId + "/environmental");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -442,7 +447,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean updateEnvironmental(String locId, Environmental e) {
-        String path = "/location/" + locId + "/environmental/" + e.getEnvironmentalId();
+        String path = cleanPath("/location/" + locId + "/environmental/" + e.getEnvironmentalId());
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .put(Entity.entity(e, MediaType.APPLICATION_JSON_TYPE));
@@ -452,11 +457,12 @@ public class ProxStorConnector {
     /**
      * 
      * @param locId
+     * @param environmentalId
      * @param envivornmentalId
      * @return 
      */
     public boolean deleteEnvironmental(String locId, String environmentalId) {
-        String path = "/location/" + locId + "/environmental/" + environmentalId;
+        String path = cleanPath("/location/" + locId + "/environmental/" + environmentalId);
         Response response = target.path(path)
                 .request(MediaType.TEXT_PLAIN)
                 .delete();
@@ -469,7 +475,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Collection<Location> getLocationsWithin(String locId) {
-        String path = "/location/" + locId + "/within";
+        String path = cleanPath("/location/" + locId + "/within");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -489,7 +495,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Collection<Location> getLocationsWithinReverse(String locId) {
-        String path = "/location/" + locId + "/within/reverse";
+        String path = cleanPath("/location/" + locId + "/within/reverse");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -510,7 +516,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean addLocationWithin(String locIdA, String locIdB) {
-        String path = "location/" + locIdA + "/within/location/" + locIdB;
+        String path = cleanPath("location/" + locIdA + "/within/location/" + locIdB);
         Response response = target.path(path)
                 .request(MediaType.TEXT_PLAIN)
                 .post(null);
@@ -524,7 +530,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean isLocationWithin(String locIdA, String locIdB) {
-        String path = "/location/" + locIdA + "/within/location/" + locIdB;
+        String path = cleanPath("/location/" + locIdA + "/within/location/" + locIdB);
         Response response = target.path(path).request().get();
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
@@ -536,7 +542,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean deleteLocationWithin(String locIdA, String locIdB) {
-       String path = "/location/" + locIdA + "/within/location/" + locIdB;
+       String path = cleanPath("/location/" + locIdA + "/within/location/" + locIdB);
        Response response = target.path(path).request().delete();
        return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
@@ -549,8 +555,8 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean addLocationNearby(String locIdA, String locIdB, int d) {
-        String path = "location/" + locIdA + "/nearby/distance/" + d 
-                + "/location/" + locIdB;
+        String path = cleanPath("location/" + locIdA + "/nearby/distance/" + d 
+                + "/location/" + locIdB);
         Response response = target.path(path)
                 .request(MediaType.TEXT_PLAIN)
                 .post(null);
@@ -565,8 +571,8 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean isLocationNearby(String locId, String locId2, Integer distance) {
-        String path = "/location/" + locId + "/nearby/distance/" + distance 
-                + "/location/" + locId2;
+        String path = cleanPath("/location/" + locId + "/nearby/distance/" + distance 
+                + "/location/" + locId2);
         Response response = target.path(path).request().get();
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
@@ -578,7 +584,7 @@ public class ProxStorConnector {
      * @return 
      */
     public Collection<Location> getLocationsNearby(String locId, long distance) {
-        String path = "/location/" + locId + "/nearby/distance/" + distance;
+        String path = cleanPath("/location/" + locId + "/nearby/distance/" + distance);
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -600,8 +606,8 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean updateLocationNearby(String locId, String locId2, long distance) {
-        String path = "/location/" + locId + "/nearby/distance/" + distance 
-                + "/location/" + locId2;
+        String path = cleanPath("/location/" + locId + "/nearby/distance/" + distance 
+                + "/location/" + locId2);
         Response response = target.path(path).request().put((Entity.entity("", MediaType.TEXT_PLAIN_TYPE)));
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
@@ -613,8 +619,8 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean deleteLocationNearby(String locId, String locId2) {
-        String path = "/location/" + locId 
-                + "/nearby/distance/0/location/" + locId2;
+        String path = cleanPath("/location/" + locId 
+                + "/nearby/distance/0/location/" + locId2);
         Response response = target.path(path).request().delete();
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
@@ -667,7 +673,7 @@ public class ProxStorConnector {
      * is a valid User Object ID. If the localityId is not valid null is returned.
      */
     public Locality getLocality(String localityId) {
-        String path = "locality/" + localityId;
+        String path = cleanPath("locality/" + localityId);
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .get();
@@ -684,7 +690,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean updateLocality(Locality l) {
-        String path = "locality/" + l.getLocalityId();
+        String path = cleanPath("locality/" + l.getLocalityId());
         Response response = target.path(path)
                 .request()
                 .put(Entity.entity(l, MediaType.APPLICATION_JSON_TYPE));
@@ -698,7 +704,7 @@ public class ProxStorConnector {
      * @return 
      */
     public boolean deleteLocality(String localityId) {
-        String path = "locality/" + localityId;
+        String path = cleanPath("locality/" + localityId);
         Response response = target.path(path)
                 .request()
                 .delete();
@@ -706,7 +712,7 @@ public class ProxStorConnector {
     }
     
     public Locality userCheckinLocation(String userId, String locId) {
-        String path = "/checkin/user/" + userId + "/location/" + locId;
+        String path = cleanPath("/checkin/user/" + userId + "/location/" + locId);
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(null);
@@ -717,7 +723,7 @@ public class ProxStorConnector {
     }
     
     public boolean userCheckoutLocation(String userId, String locId) {
-        String path = "/checkin/user/" + userId + "/location/" + locId;
+        String path = cleanPath("/checkin/user/" + userId + "/location/" + locId);
         Response response = target.path(path)
                 .request()
                 .delete();
@@ -725,7 +731,7 @@ public class ProxStorConnector {
     }     
      
     public Locality deviceDetectsEnvironmentalId(String devId, String environmentalId) {
-        String path = "/checkin/device/" + devId + "/environmental/" + environmentalId;
+        String path = cleanPath("/checkin/device/" + devId + "/environmental/" + environmentalId);
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(null);
@@ -736,7 +742,7 @@ public class ProxStorConnector {
     }
     
     public boolean deviceUndetectsEnvironmentalId(String devId, String environmentalId) {
-        String path = "/checkin/device/" + devId + "/environmental/" + environmentalId;
+        String path = cleanPath("/checkin/device/" + devId + "/environmental/" + environmentalId);
         Response response = target.path(path)
                 .request()
                 .delete();
@@ -744,7 +750,7 @@ public class ProxStorConnector {
     }
     
     public Locality deviceDetectsEnvironmental(String devId, Environmental s) {
-        String path = "/checkin/device/" + devId + "/environmental/";
+        String path = cleanPath("/checkin/device/" + devId + "/environmental/");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
@@ -755,7 +761,7 @@ public class ProxStorConnector {
     }
     
     public boolean deviceUndetectsEnvironmental(String devId, Environmental s) {
-        String path = "/checkin/device/" + devId + "/environmental/";
+        String path = cleanPath("/checkin/device/" + devId + "/environmental/");
         Response response = target.path(path)
                 .request()
                 .method("DELETE", Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
@@ -780,6 +786,13 @@ public class ProxStorConnector {
     // @TODO
     public Collection<Locality> queryComplex() {
         return null;
+    }
+    
+    private String cleanPath(String path) {
+        String s;
+        s = path.replaceAll("#", "%23");
+        s = s.replaceAll(":", "%3A");
+        return s;   
     }
 
 }
