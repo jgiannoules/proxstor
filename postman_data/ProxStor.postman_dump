@@ -131,6 +131,7 @@
 			"order": [
 				"721bf958-0228-2eae-f288-aa8b6f4ae097",
 				"352f4645-d1f9-b1f0-367b-f338bf68a238",
+				"14d10369-6f97-2a2a-bf07-5e68d2ab5a1d",
 				"375e2f5f-5b6f-7b44-aa42-f36006d8c3b4",
 				"14b0bff3-25d7-2cfc-fa09-48f34ecaf4e1"
 			],
@@ -152,6 +153,48 @@
 					"tests": "",
 					"time": 1409755122471,
 					"name": "Graph Shutdown",
+					"description": "",
+					"collectionId": "2fed117b-c9f8-53d7-9dc7-10c7b865e5f2",
+					"responses": []
+				},
+				{
+					"id": "14d10369-6f97-2a2a-bf07-5e68d2ab5a1d",
+					"headers": "Content-Type: multipart/form-data\n",
+					"url": "http://localhost:{{PORT}}/{{PATH}}/admin/graph",
+					"preRequestScript": "",
+					"pathVariables": {},
+					"method": "POST",
+					"data": [
+						{
+							"key": "blueprints.graph",
+							"value": "com.tinkerpop.blueprints.impls.orient.OrientGraph",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "blueprints.orientdb.url",
+							"value": "remote:localhost/proxstor-test00",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "blueprints.orientdb.username",
+							"value": "root",
+							"type": "text",
+							"enabled": true
+						},
+						{
+							"key": "blueprints.orientdb.password",
+							"value": "F12A52A06F4C38E68579A5159C5567A1F77420E9BB81B0E86EEACCC7155689B5",
+							"type": "text",
+							"enabled": true
+						}
+					],
+					"dataMode": "urlencoded",
+					"version": 2,
+					"tests": "",
+					"time": 1415642262510,
+					"name": "connect OrientDB",
 					"description": "",
 					"collectionId": "2fed117b-c9f8-53d7-9dc7-10c7b865e5f2",
 					"responses": []
