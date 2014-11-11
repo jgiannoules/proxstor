@@ -11,6 +11,7 @@ public class Query {
     public String userId;
     public String locationId;
     public Integer strength;
+    public Integer distance;    // in meters
     public Date dateStart;
     public Date dateEnd;    
 
@@ -28,6 +29,14 @@ public class Query {
 
     public void setLocationId(String locationId) {
         this.locationId = locationId;
+    }
+
+    public Integer getDistance() {
+        return distance;
+    }
+
+    public void setDistance(Integer distance) {
+        this.distance = distance;
     }
 
     public Integer getStrength() {
@@ -67,6 +76,9 @@ public class Query {
         if (strength != null) {
             sb.append("\tstrength: ").append(strength).append("\n");
         }
+        if (distance != null) {
+            sb.append("\tdistance: ").append(distance).append("\n");
+        }
         if (dateStart != null) {
             sb.append("\tdateStart: ").append(dateStart).append("\n");
         }
@@ -88,6 +100,9 @@ public class Query {
         }
         if (strength != null) {
             hash *= strength.hashCode();
+        }
+        if (distance != null) {
+            hash *= distance.hashCode();
         }
         if (dateStart != null) {
             hash *= dateStart.hashCode();
@@ -119,6 +134,11 @@ public class Query {
         }
         if (this.strength != null) {
             if ((other.getStrength()== null) || (!other.getStrength().equals(this.strength))) {
+                return false;
+            }
+        }
+        if (this.distance != null) {
+            if ((other.getDistance()== null) || (!other.getDistance().equals(this.distance))) {
                 return false;
             }
         }
