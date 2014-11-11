@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 
 public class Loader {
 
-    static int THREAD_COUNT = 128;
+    static int THREAD_COUNT = 256;
 
     static List<User> users;
     static List<Device> devices;
@@ -111,7 +111,7 @@ public class Loader {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
         AtomicInteger counter = startMonitoring();
         for (User u : users) {
-            for (String devId : u.devices) {
+            for (String devId : u.devices) {                
                 Device d = deviceMap.get(devId);
                 Runnable worker = new DeviceAddWorker(u, d, conn, counter);
                 executor.execute(worker);

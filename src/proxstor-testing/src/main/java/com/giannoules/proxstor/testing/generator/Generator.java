@@ -87,12 +87,17 @@ public class Generator {
 
         genUsers();
         genKnows();
-        genDevices();
-        assignDevices();        
-        genLocations();        
-        genAndAssignEnvironmentals();
-        assignWithinLocations();
-        assignNearbyLocations();
+        
+        if (uniqueDevices > 0) {
+            genDevices();        
+            assignDevices();        
+        }
+        if (locationCount > 0) {
+            genLocations();        
+            genAndAssignEnvironmentals();
+            assignWithinLocations();
+            assignNearbyLocations();
+        }
 
         String dir = createDir();
 
@@ -359,6 +364,9 @@ public class Generator {
         */
        while (unassigned.size() > (locations.size() * 0.15)) {
            int length = random.nextInt(9) + 1;
+           if (length >= unassigned.size()) {
+               length = unassigned.size() - 1;
+           }
            if (length > longest) {
                longest = length;
            }
@@ -403,18 +411,24 @@ public class Generator {
         * target ~99% of locations as being nearby one or more locations
         */
        while (unassigned.size() > (locations.size() * 0.01)) {
-           int count = random.nextInt(9) + 1;
+           int count = random.nextInt(9) + 1;         
+           
+           /* stat tracking */
            if (count > least) {
                least = count;
            }
            if (count < most) {
                most = count;
-           }
+           }           
            numPasses++;
            totNearby+=count;
+           
            int i = random.nextInt(unassigned.size());
            Location l = unassigned.get(i);
            unassigned.remove(i);
+           if (count >= unassigned.size()) {
+               count = unassigned.size();
+           }
            while (count > 0) {
                int j = random.nextInt(unassigned.size());
                Location m = unassigned.get(j);

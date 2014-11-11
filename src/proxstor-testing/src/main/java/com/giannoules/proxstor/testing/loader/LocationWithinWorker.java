@@ -21,7 +21,8 @@ public class LocationWithinWorker implements Runnable {
 
     @Override
     public void run() {
-        conn.addLocationWithin(l.getLocId(), v.getLocId());
+        do {
+        } while (!conn.addLocationWithin(l.getLocId(), v.getLocId()));
         operations.getAndIncrement();
     }
 }
