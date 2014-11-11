@@ -117,8 +117,8 @@ public class GraphResource {
     @GET
     public Response getOrientDB() {
         OrientGraphFactory factory = new OrientGraphFactory("remote:localhost/proxstor-test00", "root", 
-                "F12A52A06F4C38E68579A5159C5567A1F77420E9BB81B0E86EEACCC7155689B5").setupPool(1,10);
-        //ProxStorGraph.instance.graph = factory.getTx();
+                "F12A52A06F4C38E68579A5159C5567A1F77420E9BB81B0E86EEACCC7155689B5").setupPool(1,100);
+        ProxStorGraph.instance.graph = factory.getTx();
         return Response.ok().build();
     }
     

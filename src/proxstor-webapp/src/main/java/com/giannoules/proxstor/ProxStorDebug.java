@@ -11,7 +11,7 @@ public class ProxStorDebug {
     /**
      * Simple mechanism to control debugging behavior in a global manner
      */
-    private static boolean DEBUG_ON = true;
+    private static boolean DEBUG_ON = false;
     
     /**
      * Print debug string prepended with debug text
