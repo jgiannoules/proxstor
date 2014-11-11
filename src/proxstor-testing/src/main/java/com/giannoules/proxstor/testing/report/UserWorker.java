@@ -1,14 +1,11 @@
 package com.giannoules.proxstor.testing.report;
 
 import com.giannoules.proxstor.api.Device;
-import com.giannoules.proxstor.testing.loader.*;
 import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.connection.ProxStorConnector;
 import com.giannoules.proxstor.testing.generator.DeviceGenerator;
 import com.giannoules.proxstor.testing.generator.UserGenerator;
-import static com.giannoules.proxstor.testing.report.ReportStatic.conn;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;

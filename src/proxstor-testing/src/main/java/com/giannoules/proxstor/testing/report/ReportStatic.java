@@ -104,33 +104,38 @@ public class ReportStatic {
         generateAddUsers();
         generateAddLocations();
         
-        System.out.print("Sleeping 5000 ms...");
-        Thread.sleep(5000);
-        System.out.println("done");
-        
-        randomCheckin();
-        
-        System.out.print("Sleeping 5000 ms...");
-        Thread.sleep(5000);
-        System.out.println("done");
-        
-        getCurrentLocation();
-        
-        System.out.print("Sleeping 5000 ms...");
-        Thread.sleep(5000);
-        System.out.println("done");
-                
-        withinLocation();
-        
+        System.out.println("Press Enter to continue");  
+        try{System.in.read();}  
+        catch(Exception e){}  
         System.out.print("Sleeping 5000 ms...");
         Thread.sleep(5000);
         System.out.println("done");        
+        randomCheckin();
         
-        randomCheckout();
-        
+        System.out.println("Press Enter to continue");  
+        try{System.in.read();}  
+        catch(Exception e){}        
         System.out.print("Sleeping 5000 ms...");
         Thread.sleep(5000);
-        System.out.println("done");                      
+        System.out.println("done");        
+        getCurrentLocation();
+        
+        System.out.println("Press Enter to continue");  
+        try{System.in.read();}  
+        catch(Exception e){}  
+        System.out.print("Sleeping 5000 ms...");
+        Thread.sleep(5000);
+        System.out.println("done");                
+        withinLocation();
+        
+        System.out.println("Press Enter to continue");  
+        try{System.in.read();}  
+        catch(Exception e){}  
+        System.out.print("Sleeping 5000 ms...");
+        Thread.sleep(5000);
+        System.out.println("done");                
+        randomCheckout();  
+        
     }
     
     private static void getCurrentLocation() {
@@ -164,7 +169,7 @@ public class ReportStatic {
         System.out.println("\t" + LOOP_COUNT + " current location checks");
         System.out.println("\tmin: " + small + "ms");
         System.out.println("\tmax: " + big + "ms");
-        System.out.println("\tavg: " + d + "ms");
+        System.out.println("\tavg: " + d + "ms");        
     }
     
     private static void randomCheckout() {
@@ -194,7 +199,7 @@ public class ReportStatic {
         }
         System.out.println("done.");
         double d = total / count;
-        System.out.println("getCurrentLocation Results");
+        System.out.println("randomCheckout Results");
         System.out.println("\t" + count + " check-outs");
         System.out.println("\tmin: " + small + "ms");
         System.out.println("\tmax: " + big + "ms");
