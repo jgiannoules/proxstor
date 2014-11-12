@@ -440,7 +440,7 @@ public enum EnvironmentalDao {
      *   - vertex is not of type environmental
      *
      */
-    private Environmental get(String environmentalId) {
+    public Environmental get(String environmentalId) {
         if (environmentalId == null) {
             return null;
         }
