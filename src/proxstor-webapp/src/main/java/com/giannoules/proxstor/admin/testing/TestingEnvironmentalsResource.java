@@ -52,6 +52,7 @@ public class TestingEnvironmentalsResource {
             return null;
         }
         q.has("_type", "environmental");
+        q.limit(1000000);
         Iterator<Vertex> it = q.vertices().iterator();
         i = k;
         while ((i > 0) && (it.hasNext())) {

@@ -80,6 +80,7 @@ public class TestingUserResource {
             return null;
         }
         q.has("_type", "user");
+        q.limit(1000000);
         Iterator<Vertex> it = q.vertices().iterator();
         i = k;
         while ((i > 0) && (it.hasNext())) {

@@ -82,6 +82,7 @@ public class TestingLocationResource {
             return null;
         }
         q.has("_type", "location");
+        q.limit(1000000);
         Iterator<Vertex> it = q.vertices().iterator();
         i = k;
         while ((i > 0) && (it.hasNext())) {
