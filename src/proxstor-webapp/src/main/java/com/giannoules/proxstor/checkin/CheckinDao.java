@@ -16,6 +16,7 @@ import com.giannoules.proxstor.exception.UserAlreadyInLocation;
 import com.giannoules.proxstor.locality.LocalityDao;
 import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.environmental.EnvironmentalDao;
+import com.giannoules.proxstor.nearby.NearbyDao;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Compare.EQUAL;
 import static com.tinkerpop.blueprints.Compare.GREATER_THAN_EQUAL;
@@ -95,7 +96,7 @@ public enum CheckinDao {
     }
   
     public List<Locality> getPreviousLocalitiesDateRange(String userId, Date start, Date end, int max) throws InvalidUserId {
-        UserDao.instance.validOrException(userId);
+        UserDao.instance.validOrException(userId);        
         if ((start != null) && (end != null)) {
             List<Locality> localities = new ArrayList<>();
             try {
@@ -104,9 +105,9 @@ public enum CheckinDao {
                 vq.labels("previously_at");
                 vq.has("arrival", LESS_THAN_EQUAL, new DateTime(end).getMillis());
                 vq.has("departure", GREATER_THAN_EQUAL, new DateTime(start).getMillis());
-                vq.limit(max);
-                for (Vertex v : vq.vertices()) {
-                    localities.add(LocalityDao.instance.get(v));
+                vq.limit(max);                
+                for (Vertex v : vq.vertices()) {                    
+                    localities.add(LocalityDao.instance.get(v));                    
                 }
             } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID | InvalidLocalityId ex) {
                 Logger.getLogger(CheckinDao.class.getName()).log(Level.SEVERE, null, ex);
