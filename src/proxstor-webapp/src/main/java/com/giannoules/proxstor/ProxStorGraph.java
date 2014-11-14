@@ -8,8 +8,10 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.GraphFactory;
 import com.tinkerpop.blueprints.GraphQuery;
+import com.tinkerpop.blueprints.KeyIndexableGraph;
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +66,11 @@ public enum ProxStorGraph {
         if (graph instanceof Graph) {
             throw new ProxStorGraphDatabaseAlreadyRunning("cannot create graph because an instance is already running");
         }
-        graph = GraphFactory.open(conf);        
+        graph = GraphFactory.open(conf);
+        if (graph instanceof KeyIndexableGraph) {
+            ProxStorDebug.println("KeyIndexableGraph detected.");
+            ((KeyIndexableGraph) graph).createKeyIndex("_type", Vertex.class);
+        }
     }     
      
     /**
