@@ -2,13 +2,16 @@ package com.giannoules.proxstor.query;
 
 import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.api.Locality;
+import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.api.Query;
 import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.checkin.CheckinDao;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.knows.KnowsDao;
+import com.giannoules.proxstor.locality.LocalityDao;
 import com.giannoules.proxstor.location.LocationDao;
+import com.giannoules.proxstor.nearby.NearbyDao;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.OUT;
 import java.util.ArrayList;
@@ -28,9 +31,9 @@ public enum QueryDao {
         String userId;
         String locId = null;
         Integer strength = null;
+        Double distance = null;
         Date dateStart = null;
-        Date dateEnd = null;
-        Collection<Locality> localities = new ArrayList<>();
+        Date dateEnd = null;        
 
         /*
          * all ProxStor queries must include valid userId
@@ -52,6 +55,9 @@ public enum QueryDao {
                 return null;
             }
         }
+        if (q.getDistance() != null) {
+            distance = q.getDistance();
+        }
         if (q.getDateStart() != null) {
             dateStart = q.getDateStart();
         }
@@ -67,11 +73,11 @@ public enum QueryDao {
         }
 
         if ((locId == null) && (strength == null) && (dateStart != null)) {
-            return queryType1(userId, dateStart, dateEnd);
+            return queryType1(userId, dateStart, dateEnd, distance);
         }
 
         if ((strength != null) && (locId == null) && (dateStart == null) && (dateEnd == null)) {
-            return queryType2(userId, strength);
+            return queryType2(userId, strength, distance);
         }
 
         if ((strength != null) && (dateStart != null) && (locId == null)) {
@@ -79,7 +85,7 @@ public enum QueryDao {
         }
 
         if ((locId != null) && (strength != null) && (dateStart == null) && (dateEnd == null)) {
-            return queryType4(userId, strength, locId);
+            return queryType4(userId, strength, distance, locId);
         }
 
         if ((locId != null) && (strength != null) && (dateStart != null)) {
@@ -106,8 +112,9 @@ public enum QueryDao {
     /*
      * type 1 - userId and dateStart specified. dateEnd is optional. others null.
      * action - return userId's previous localities within date range (up to 1024)
+     *          with optional distance constraint
      */
-    private Collection<Locality> queryType1(String userId, Date dateStart, Date dateEnd) throws InvalidUserId {
+    private Collection<Locality> queryType1(String userId, Date dateStart, Date dateEnd, Double distance) throws InvalidUserId {
         ProxStorDebug.println("queryType1");
         if (dateEnd == null) {      // if no dateEnd then assume end is current date
             dateEnd = new Date();
@@ -118,19 +125,41 @@ public enum QueryDao {
     /*
      * type 2 - userId and strength specified. others null
      * action - return matching friends' current locality (up to 1024)
+     *          optionally specifying distance restricts results to 
+     *          distance from submitters current position
      */
-    private Collection<Locality> queryType2(String userId, Integer strength) throws InvalidUserId {
+    private Collection<Locality> queryType2(String userId, Integer strength, Double distance) throws InvalidUserId {
         ProxStorDebug.println("queryType2");
         Collection<Locality> localities = new ArrayList<>();
         Collection<User> users;
+        Location loc = null;
         Locality l;
+        try {
+            Locality userLocality = CheckinDao.instance.getCurrentLocality(userId);
+            if (userLocality != null) {
+                loc = LocationDao.instance.get(userLocality.getLocationId());
+            }
+        } catch (InvalidLocationId ex) {
+            loc = null;
+        }
         users = KnowsDao.instance.getUserKnows(userId, strength, OUT, 1024); // NOTE: max 1024 users returned
         for (User u : users) {
             ProxStorDebug.println(u.toString());
             l = CheckinDao.instance.getCurrentLocality(u.getUserId());
             if (l != null) {
-                localities.add(l);
+                if (loc == null) {
+                    localities.add(l);
+                } else {
+                    try {
+                        Location friendLoc = LocationDao.instance.get(l.getLocationId());
+                        if (NearbyDao.instance.distanceBetweenLocations(loc, friendLoc) <= distance) {
+                            localities.add(l);
+                        }
+                    } catch (InvalidLocationId ex) {
+                    }
+                }
             }
+
         }
         return localities;
     }
@@ -162,10 +191,12 @@ public enum QueryDao {
     /*
      * type 4 - userId, locId, and strength specified. others null
      * action - return matching friends currently in specified location
+     *          optionally specifying distance restricts results to 
+     *          distance from submitters chosen position
      */
-    private Collection<Locality> queryType4(String userId, Integer strength, String locId) throws InvalidUserId {
+    private Collection<Locality> queryType4(String userId, Integer strength, Double distance, String locId) throws InvalidUserId {
         ProxStorDebug.println("queryType4");
-        Collection<Locality> candidates = queryType2(userId, strength);
+        Collection<Locality> candidates = queryType2(userId, strength, distance);
         Collection<Locality> localities = new ArrayList<>();
         for (Locality l : candidates) {
             if (l.getLocationId().equals(locId)) {
