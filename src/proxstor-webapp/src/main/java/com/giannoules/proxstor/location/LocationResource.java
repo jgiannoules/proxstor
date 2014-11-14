@@ -105,8 +105,8 @@ public class LocationResource {
     /*
      * return WithinResource handle for this location
      */
-    @Path("nearby/distance/{distance: [0-9]+}")
-    public NearbyResource getNearbyResource(@PathParam("distance") Integer distance) {
+    @Path("nearby/distance/{distance}")
+    public NearbyResource getNearbyResource(@PathParam("distance") Double distance) {
         return new NearbyResource(locId, distance);
     }
 
