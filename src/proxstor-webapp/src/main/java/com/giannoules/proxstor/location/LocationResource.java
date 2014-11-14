@@ -105,6 +105,7 @@ public class LocationResource {
     /*
      * return WithinResource handle for this location
      */
+    // @TODO: regex this correctly for doubles (prev regex was flawed)
     @Path("nearby/distance/{distance}")
     public NearbyResource getNearbyResource(@PathParam("distance") Double distance) {
         return new NearbyResource(locId, distance);
