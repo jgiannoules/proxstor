@@ -10,7 +10,7 @@ import com.giannoules.proxstor.testing.generator.DeviceGenerator;
 import com.giannoules.proxstor.testing.generator.EnvironmentalGenerator;
 import com.giannoules.proxstor.testing.generator.LocationGenerator;
 import com.giannoules.proxstor.testing.generator.UserGenerator;
-import static com.giannoules.proxstor.testing.report.ReportStatic.conn;
+import static com.giannoules.proxstor.testing.report.ReportStaticGenerator.conn;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;

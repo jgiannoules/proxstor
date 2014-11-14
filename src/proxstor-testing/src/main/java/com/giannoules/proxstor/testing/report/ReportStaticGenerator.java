@@ -1,22 +1,13 @@
 package com.giannoules.proxstor.testing.report;
 
-import com.giannoules.proxstor.api.Device;
-import com.giannoules.proxstor.api.Environmental;
-import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.api.Query;
-import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.connection.ProxStorConnector;
 import com.giannoules.proxstor.testing.generator.DeviceGenerator;
 import com.giannoules.proxstor.testing.generator.EnvironmentalGenerator;
-import static com.giannoules.proxstor.testing.generator.Generator.genKnows;
-import static com.giannoules.proxstor.testing.generator.Generator.genUsers;
 import com.giannoules.proxstor.testing.generator.LocationGenerator;
 import com.giannoules.proxstor.testing.generator.UserGenerator;
-import com.giannoules.proxstor.testing.loader.DeviceAddWorker;
 import com.giannoules.proxstor.testing.loader.Loader;
 import com.giannoules.proxstor.testing.loader.MonitorWorker;
-import com.giannoules.proxstor.testing.loader.UserAddWorker;
-import static java.lang.Math.random;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ReportStatic {
+public class ReportStaticGenerator {
 
     final static Integer THREAD_COUNT = 32;
     
