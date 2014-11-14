@@ -21,7 +21,6 @@ public class Locality {
 //    public DateTime departure;     // departure time
     public Date arrival;       // arrival time
     public Date departure;     // departure time
-
     
     public Locality() {
     }
