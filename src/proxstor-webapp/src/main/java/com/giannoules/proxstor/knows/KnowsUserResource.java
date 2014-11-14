@@ -42,10 +42,10 @@ public class KnowsUserResource {
                 return Response.status(500).build();
             }
         } catch (InvalidUserId ex) {
-            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(KnowsStrengthResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         } catch (UserAlreadyKnowsUser ex) {
-            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(KnowsStrengthResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(400).build();
         }
         URI createdUri;
@@ -53,7 +53,7 @@ public class KnowsUserResource {
             createdUri = new URI("/users/" + ProxStorUtil.cleanPath(userIdA) + "/knows/" + strengthVal.toString() + "/" + ProxStorUtil.cleanPath(userIdB));
             return Response.created(createdUri).build();
         } catch (URISyntaxException ex) {
-            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(KnowsStrengthResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.serverError().build();
         }
     }
@@ -72,28 +72,8 @@ public class KnowsUserResource {
                 return Response.noContent().build();
             }
         } catch (InvalidUserId ex) {
-            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);            
+            Logger.getLogger(KnowsStrengthResource.class.getName()).log(Level.SEVERE, null, ex);            
         }
         return Response.status(404).build();
-    }
-
-    /*
-     * remove the relationship that userId knows otherUser
-     * note that strength value is ignored
-     *
-     * returns 204 (No Content) when successful
-     * returns 404 (Not Found) if relationship was not already established or
-     *                         the userIds are simply invalid
-     */    
-    @DELETE
-    public Response removeUserKnows() {
-        try {
-            if (KnowsDao.instance.removeKnows(userIdA, userIdB)) {
-                return Response.noContent().build();
-            }
-        } catch (InvalidUserId ex) {
-            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return Response.status(404).build();        
-    }
+    }   
 }
