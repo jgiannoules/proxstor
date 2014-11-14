@@ -70,6 +70,8 @@ public enum ProxStorGraph {
         if (graph instanceof KeyIndexableGraph) {
             ProxStorDebug.println("KeyIndexableGraph detected.");
             ((KeyIndexableGraph) graph).createKeyIndex("_type", Vertex.class);
+            ((KeyIndexableGraph) graph).createKeyIndex("latitude", Vertex.class);
+            ((KeyIndexableGraph) graph).createKeyIndex("longitude", Vertex.class);
         }
     }     
      
