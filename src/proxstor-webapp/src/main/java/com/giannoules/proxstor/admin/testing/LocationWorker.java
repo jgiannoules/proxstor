@@ -69,10 +69,8 @@ public class LocationWorker implements Runnable {
                 for (Location x : tmpLocations) {
                     try {
                         do {
-                        } while (NearbyDao.instance.addNearby(l.getLocId(), x.getLocId(), r.nextInt(10000)));
-                    } catch (InvalidLocationId ex) {
-                        Logger.getLogger(LocationWorker.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (LocationAlreadyNearbyLocation ex) {
+                        } while (NearbyDao.instance.addNearby(l.getLocId(), x.getLocId(), r.nextDouble() * 10000));
+                    } catch (InvalidLocationId | LocationAlreadyNearbyLocation ex) {
                         Logger.getLogger(LocationWorker.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
