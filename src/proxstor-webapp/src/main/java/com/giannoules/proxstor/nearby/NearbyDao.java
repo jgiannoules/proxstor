@@ -43,21 +43,11 @@ public enum NearbyDao {
      *
      * @throws InvalidLocationId If the locID is invalid
      */
-    public Collection<Location> getLocationsNearby(String locId, Double distanceVal, int limit) throws InvalidLocationId {
-//        LocationDao.instance.validOrException(locId);
+    public Collection<Location> getLocationsNearby(String locId, Double distanceVal) throws InvalidLocationId {
         Location l = LocationDao.instance.get(locId);
         if (distanceVal != null) {
             List<Location> nearby = new ArrayList<>();
             try {
-//                VertexQuery vq = ProxStorGraph.instance.getVertex(locId).query();
-//                vq.direction(BOTH);
-//                vq.labels("nearby");
-//                vq.has("distance", LESS_THAN_EQUAL, distanceVal);
-                
-//                vq.limit(limit);
-//                for (Vertex v : vq.vertices()) {
-//                    nearby.add(LocationDao.instance.get(v));
-//                }
                 GraphQuery gq = ProxStorGraph.instance._query();
                 gq.has("_type", "location");
                 gq = queryDistanceBoundingBox(gq, l.getLatitude(), l.getLongitude(), distanceVal);

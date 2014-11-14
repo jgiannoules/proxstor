@@ -38,9 +38,9 @@ public class NearbyResource {
     public Response getNearbylocations() {
         Collection<Location> locations;
         try {
-            locations = NearbyDao.instance.getLocationsNearby(locIdA, distanceVal, 1024); // max 1024 locations returned
+            locations = NearbyDao.instance.getLocationsNearby(locIdA, distanceVal);
         } catch (InvalidLocationId ex) {
-            Logger.getLogger(KnowsResource.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NearbyResource.class.getName()).log(Level.SEVERE, null, ex);
             return Response.status(404).build();
         }
         if (locations == null) {
