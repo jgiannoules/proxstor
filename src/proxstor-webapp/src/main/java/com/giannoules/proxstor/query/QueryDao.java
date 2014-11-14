@@ -1,28 +1,20 @@
 package com.giannoules.proxstor.query;
 
 import com.giannoules.proxstor.ProxStorDebug;
-import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.api.Query;
 import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.checkin.CheckinDao;
-import com.giannoules.proxstor.exception.InvalidLocalityId;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidUserId;
-import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
-import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.knows.KnowsDao;
-import com.giannoules.proxstor.locality.LocalityDao;
 import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.user.UserDao;
 import static com.tinkerpop.blueprints.Direction.OUT;
-import com.tinkerpop.blueprints.Vertex;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public enum QueryDao {
 
