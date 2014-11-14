@@ -44,9 +44,9 @@ public class LocationGenerator {
              * Latitude/Longitude random for now. No bearing on whether it makes sense or if
              * a location can possibly actually be within another location.
              */
-            l.setLatitude(random.nextDouble());
-            l.setLongitude(random.nextDouble());
-            l.setDescription(l.getAddress() + " at " + l.getLatitude() + ", " + l.getLatitude());
+            l.setLatitude((random.nextDouble() * 180) - 90);
+            l.setLongitude((random.nextDouble() * 360) - 180);
+            l.setDescription(l.getAddress() + " at " + l.getLatitude() + ", " + l.getLongitude());
             /*
              * this a testing-specific misuse of the locId field needed to assist
              * in trackikng a specific Location. When the locations are actually 
