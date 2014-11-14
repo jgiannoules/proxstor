@@ -11,7 +11,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -99,15 +98,15 @@ public class UserResource {
     public DevicesResource getDevicesResource() {
         return new DevicesResource(userId);
     }
-
+    
     /*
      * return KnowResource handler for specified user with strength
      *
      * enforce rule that strength must be integers 0 to 100
      */
-    @Path("knows/strength/{strength: [0-9]{1,2}|100}")
-    public KnowsResource getKnowsResource(@PathParam("strength") Integer strength) {
-        return new KnowsResource(userId, strength);
+    @Path("knows")
+    public KnowsResource getKnowsResource() {
+        return new KnowsResource(userId);
     }
     
 }
