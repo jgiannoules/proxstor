@@ -272,30 +272,7 @@ public enum LocationDao {
             Logger.getLogger(LocationDao.class.getName()).log(Level.SEVERE, null, ex);
         }
         return false;
-    }
-    
-    
-    public double distanceBetweenLocations(Location locA, Location locB) {      
-      /*
-       * haversign
-       * from http://www.codecodex.com/wiki/Calculate_distance_between_two_points_on_a_globe#Java
-       */
-      double Radius = 6372797.560856;
-      double lat1 = locA.getLatitude();  
-      double lat2 = locB.getLatitude();  
-      double lon1 = locA.getLongitude();  
-      double lon2 = locB.getLongitude();  
-      double dLat = Math.toRadians(lat2-lat1);  
-      double dLon = Math.toRadians(lon2-lon1);  
-      double a = Math.sin(dLat/2) * Math.sin(dLat/2) +  
-         Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *  
-         Math.sin(dLon/2) * Math.sin(dLon/2);  
-      double c = 2 * Math.asin(Math.sqrt(a));
-      double distance = Radius * c;
-      ProxStorDebug.println("distanceBetweenLocations " + locA.getDescription() + " & " + locB.getDescription() + " = " + distance);
-      return distance;
-    }
-  
+    }  
     
     // ----> BEGIN private methods <----
     
