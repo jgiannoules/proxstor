@@ -1,9 +1,11 @@
 package com.giannoules.proxstor.knows;
 
 import com.giannoules.proxstor.ProxStorUtil;
+import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidModel;
 import com.giannoules.proxstor.exception.LocationAlreadyNearbyLocation;
+import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.nearby.NearbyDao;
 import com.tinkerpop.blueprints.Edge;
 import java.net.URI;
@@ -33,14 +35,14 @@ public class NearbyLocationResource {
     @GET
     public Response getLocationsWithinDistance() {
         try {
-            try {
-                Edge e = NearbyDao.instance.getNearby(locIdA, locIdB);
-                Integer distance = e.getProperty("distance");
-                if ((distance != null) && (distance <= distanceVal)) {
+            Location a = LocationDao.instance.get(locIdA);
+            Location b = LocationDao.instance.get(locIdB);
+            if ((a != null) && (b != null) && (a.getLatitude() != null)
+                    && (a.getLongitude() != null) && (b.getLatitude() != null) && (b.getLongitude() != null)) {
+                Double actualDistance = LocationDao.instance.distanceBetweenLocations(a, b);                
+                if (actualDistance <= distanceVal) {
                     return Response.noContent().build();
                 }
-            } catch (InvalidModel ex) {
-                Logger.getLogger(NearbyLocationResource.class.getName()).log(Level.SEVERE, null, ex);
             }
         } catch (InvalidLocationId ex) {
             Logger.getLogger(NearbyLocationResource.class.getName()).log(Level.SEVERE, null, ex);
