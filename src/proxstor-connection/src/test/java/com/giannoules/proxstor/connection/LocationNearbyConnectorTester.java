@@ -11,10 +11,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/* 
- * unit tests for proxstorconnector's Location Nearby-centric methods
+/**
+ * Unit tests for ProxStorConnector's Location Nearby-centric methods
+ * 
+ * @author James Giannoules
  */
-
 public class LocationNearbyConnectorTester {
     
     private static ProxStorConnector conn;

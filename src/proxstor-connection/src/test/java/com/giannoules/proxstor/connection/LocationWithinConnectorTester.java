@@ -11,10 +11,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/* 
- * unit tests for proxstorconnector's Location Within-centric methods
+/**
+ * unit tests for ProxStorConnector's Location Within-centric methods
+ * 
+ * @autor James Giannoules
  */
-
 public class LocationWithinConnectorTester {
 
     private static ProxStorConnector conn;

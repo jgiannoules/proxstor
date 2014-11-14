@@ -3,8 +3,10 @@ package com.giannoules.proxstor.connection;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-/*
- * roll-up into one JUnit Test Suite for convienence
+/**
+ * Roll-up into one JUnit Test Suite for convenience
+ * 
+ * @author James Giannoules
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

@@ -9,7 +9,6 @@ import com.giannoules.proxstor.api.EnvironmentalType;
 import com.giannoules.proxstor.api.User;
 import java.util.Date;
 import java.util.UUID;
-import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertEquals;
@@ -21,8 +20,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/* 
- * unit tests for proxstorconnector's Locality-centric methods
+/**
+ * Unit tests for ProxStorConnector's Locality-centric methods
+ * 
+ * @author James Giannoules
  */
 public class LocalityConnectorTester  {
 

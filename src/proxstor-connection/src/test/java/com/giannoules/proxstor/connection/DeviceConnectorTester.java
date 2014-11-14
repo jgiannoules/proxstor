@@ -3,7 +3,6 @@ package com.giannoules.proxstor.connection;
 import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.api.User;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.UUID;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -16,10 +15,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/* 
- * unit tests for proxstorconnector's Device-centric methods
+/**
+ * unit tests for ProxStorConnector's Device-centric methods
+ * 
+ * @author James Giannoules
  */
-
 public class DeviceConnectorTester {
     
     private static ProxStorConnector conn;
@@ -31,6 +31,9 @@ public class DeviceConnectorTester {
     public DeviceConnectorTester() {        
     }
     
+    /*
+     * create new connection to ProxStor
+     */
     @BeforeClass
     public static void setUpClass() {
         conn = new ProxStorConnector(ConnectionSettings.ConnectionString);        

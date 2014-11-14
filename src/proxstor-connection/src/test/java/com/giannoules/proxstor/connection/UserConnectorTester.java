@@ -12,8 +12,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/* 
- * unit tests for proxstorconnector's User-centric methods
+/**
+ * Unit tests for ProxStorConnector's User-centric methods
+ * 
+ * @author James Giannoules
  */
 public class UserConnectorTester  {
 
