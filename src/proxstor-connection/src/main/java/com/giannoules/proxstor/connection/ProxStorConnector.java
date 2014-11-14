@@ -9,14 +9,9 @@ import com.giannoules.proxstor.api.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -777,7 +772,7 @@ public class ProxStorConnector {
             String json = response.readEntity(String.class);
             Type collectionType = new TypeToken<Collection<Locality>>() {
             }.getType();
-            Collection<Locality> localities = gson.fromJson(json, collectionType);
+            Collection<Locality> localities = null;// gson.fromJson(json, collectionType);
             return localities;
         }
         return null;
@@ -794,5 +789,71 @@ public class ProxStorConnector {
         s = s.replaceAll(":", "%3A");
         return s;   
     }
+    
+    public Collection<Device> getTestingRandomDevices(Integer count) {
+        String path = cleanPath("/admin/testing/devices/retrieve/" + count);
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            String json = response.readEntity(String.class);
+            Type collectionType = new TypeToken<Collection<Device>>() {
+            }.getType();
+            Collection<Device> devices = gson.fromJson(json, collectionType);
+
+            return devices;
+        }
+        return null;
+    }
+    
+    public Collection<User> getTestingRandomUsers(Integer count) {
+        String path = cleanPath("/admin/testing/users/retrieve/" + count);
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            String json = response.readEntity(String.class);
+            Type collectionType = new TypeToken<Collection<User>>() {
+            }.getType();
+            Collection<User> users = gson.fromJson(json, collectionType);
+
+            return users;
+        }
+        return null;
+    }
+    
+    public Collection<Location> getTestingRandomLocations(Integer count) {
+        String path = cleanPath("/admin/testing/locations/retrieve/" + count);
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            String json = response.readEntity(String.class);
+            Type collectionType = new TypeToken<Collection<Location>>() {
+            }.getType();
+            Collection<Location> locations = gson.fromJson(json, collectionType);
+
+            return locations;
+        }
+        return null;
+    }
+    
+    public Collection<Environmental> getTestingRandomEnvironmentals(Integer count) {
+        String path = cleanPath("/admin/testing/environmentals/retrieve/" + count);
+        Response response = target.path(path)
+                .request(MediaType.APPLICATION_JSON_TYPE)
+                .get();
+        if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
+            String json = response.readEntity(String.class);
+            Type collectionType = new TypeToken<Collection<Environmental>>() {
+            }.getType();
+            Collection<Environmental> environmentals = gson.fromJson(json, collectionType);
+
+            return environmentals;
+        }
+        return null;
+    }
 
 }
+
+
