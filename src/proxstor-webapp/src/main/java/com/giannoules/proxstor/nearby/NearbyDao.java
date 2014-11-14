@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.nearby;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.exception.InvalidLocationId;
 import com.giannoules.proxstor.exception.InvalidModel;
@@ -8,9 +9,11 @@ import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningExceptio
 import com.giannoules.proxstor.exception.ProxStorGraphNonExistentObjectID;
 import com.giannoules.proxstor.api.Location;
 import com.giannoules.proxstor.location.LocationDao;
+import static com.tinkerpop.blueprints.Compare.GREATER_THAN_EQUAL;
 import static com.tinkerpop.blueprints.Compare.LESS_THAN_EQUAL;
 import static com.tinkerpop.blueprints.Direction.BOTH;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.VertexQuery;
 import java.util.ArrayList;
@@ -40,20 +43,28 @@ public enum NearbyDao {
      *
      * @throws InvalidLocationId If the locID is invalid
      */
-    public Collection<Location> getLocationsNearby(String locId, Integer distanceVal, int limit) throws InvalidLocationId {
-        LocationDao.instance.validOrException(locId);
+    public Collection<Location> getLocationsNearby(String locId, Double distanceVal, int limit) throws InvalidLocationId {
+//        LocationDao.instance.validOrException(locId);
+        Location l = LocationDao.instance.get(locId);
         if (distanceVal != null) {
             List<Location> nearby = new ArrayList<>();
             try {
-                VertexQuery vq = ProxStorGraph.instance.getVertex(locId).query();
-                vq.direction(BOTH);
-                vq.labels("nearby");
-                vq.has("distance", LESS_THAN_EQUAL, distanceVal);
-                vq.limit(limit);
-                for (Vertex v : vq.vertices()) {
+//                VertexQuery vq = ProxStorGraph.instance.getVertex(locId).query();
+//                vq.direction(BOTH);
+//                vq.labels("nearby");
+//                vq.has("distance", LESS_THAN_EQUAL, distanceVal);
+                
+//                vq.limit(limit);
+//                for (Vertex v : vq.vertices()) {
+//                    nearby.add(LocationDao.instance.get(v));
+//                }
+                GraphQuery gq = ProxStorGraph.instance._query();
+                gq.has("_type", "location");
+                gq = queryDistanceBoundingBox(gq, l.getLatitude(), l.getLongitude(), distanceVal);
+                for (Vertex v : gq.vertices()) {
                     nearby.add(LocationDao.instance.get(v));
                 }
-            } catch (ProxStorGraphDatabaseNotRunningException | ProxStorGraphNonExistentObjectID ex) {
+            } catch (ProxStorGraphDatabaseNotRunningException ex) {
                 Logger.getLogger(NearbyDao.class.getName()).log(Level.SEVERE, null, ex);
                 return null;
             }
@@ -76,7 +87,7 @@ public enum NearbyDao {
      * @throws LocationAlreadyNearbyLocation If a 'nearby' relationship already exists
      * between locations, or if the location ids are the same.
      */
-    public boolean addNearby(String locIdA, String locIdB, Integer distance) throws InvalidLocationId, LocationAlreadyNearbyLocation {
+    public boolean addNearby(String locIdA, String locIdB, Double distance) throws InvalidLocationId, LocationAlreadyNearbyLocation {
         LocationDao.instance.validOrException(locIdA, locIdB);        
         if (distance == null) {
             return false;
@@ -148,7 +159,7 @@ public enum NearbyDao {
      *
      * returns true if relationship is updated 
      */
-    public boolean updateNearby(String locIdA, String locIdB, Integer distance) throws InvalidLocationId {
+    public boolean updateNearby(String locIdA, String locIdB, Double distance) throws InvalidLocationId {
         LocationDao.instance.validOrException(locIdA, locIdB);
         Edge e;
         try {
@@ -190,6 +201,71 @@ public enum NearbyDao {
         }
         return false;
     }
+    
+     public double distanceBetweenLocations(Location locA, Location locB) {      
+      /*
+       * haversign
+       * from http://www.codecodex.com/wiki/Calculate_distance_between_two_points_on_a_globe#Java
+       */
+      double R = 6372797.560856;
+      double lat1 = locA.getLatitude();  
+      double lat2 = locB.getLatitude();  
+      double lon1 = locA.getLongitude();  
+      double lon2 = locB.getLongitude();  
+      double dLat = Math.toRadians(lat2-lat1);  
+      double dLon = Math.toRadians(lon2-lon1);  
+      double a = Math.sin(dLat/2) * Math.sin(dLat/2) +  
+         Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *  
+         Math.sin(dLon/2) * Math.sin(dLon/2);  
+      double c = 2 * Math.asin(Math.sqrt(a));
+      double distance = R * c;
+      ProxStorDebug.println("distanceBetweenLocations " + locA.getDescription() + " & " + locB.getDescription() + " = " + distance);
+      return distance;
+    }
 
+    /**      
+     * create a "bounding box" centered around the (lat, lon) point
+     *
+     * @param gq
+     * @param lat
+     * @param lon
+     * @param d
+     * @return 
+     */
+    private GraphQuery queryDistanceBoundingBox(GraphQuery gq, double lat, double lon, double d) {
+        double R = 6372797.560856;      
+        
+        d = Math.sqrt(2*(d*d));
+        
+        double bearing = Math.toRadians(315);
+        double lat1 = Math.toDegrees((d/R) * Math.cos(bearing)) + lat;
+        double lon1 = Math.toDegrees((d/(R * Math.sin(Math.toRadians(lat1)))) * Math.sin(bearing)) + lon;
+        
+        bearing = Math.toRadians(135);
+        double lat2 = Math.toDegrees((d/R) * Math.cos(bearing)) + lat;
+        double lon2 = Math.toDegrees((d/(R * Math.sin(Math.toRadians(lat2)))) * Math.sin(bearing)) + lon;
+
+        ProxStorDebug.println("lat1, lon1 : " + lat1 + ", " + lon1);        
+        ProxStorDebug.println("lat2, lon2 : " + lat2 + ", " + lon2);
+        
+        if (lat1 > lat2) {
+            gq.has("latitude", LESS_THAN_EQUAL, lat1);
+            gq.has("latitude", GREATER_THAN_EQUAL, lat2);
+        } else {
+            gq.has("latitude", GREATER_THAN_EQUAL, lat1);
+            gq.has("latitude", LESS_THAN_EQUAL, lat2);
+        }
+        
+        if (lon1 > lon2) {
+            gq.has("longitude", LESS_THAN_EQUAL, lon1);
+            gq.has("longitude", GREATER_THAN_EQUAL, lon2);
+        } else {
+            gq.has("longitude", GREATER_THAN_EQUAL, lon1);
+            gq.has("longitude", LESS_THAN_EQUAL, lon2);
+        }
+        
+        return gq;
+    }  
+     
 }
 
