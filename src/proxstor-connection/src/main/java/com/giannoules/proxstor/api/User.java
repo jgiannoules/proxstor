@@ -7,11 +7,17 @@ import java.util.Objects;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/*
- * JAXB representation of a ProxStor user
- *      @TODO move out to separate package/jar for client use as well
- */
 
+/**
+ * ProxStor representation of a user. A user is the component representing each
+ * unique human (user) of the system. ProxStor currently defines some basic 
+ * fields in here, but primary importance is the email address.
+ * 
+ * This class is augmented with annotations
+ * identifying it for Java Architecture for XML Binding.
+ * 
+ * @author James Giannoules
+ */
 @XmlRootElement
 public class User {
 

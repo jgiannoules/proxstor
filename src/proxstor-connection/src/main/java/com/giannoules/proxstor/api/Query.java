@@ -3,8 +3,15 @@ package com.giannoules.proxstor.api;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/*
- * JAXB representation of a ProxStor Query
+
+/**
+ * ProxStor representation of an query. A query is the component issued to 
+ * the service which requesting a query be performed in the database.
+ *
+ * This class is augmented with annotations
+ * identifying it for Java Architecture for XML Binding.
+ * 
+ * @author James Giannoules
  */
 @XmlRootElement
 public class Query {

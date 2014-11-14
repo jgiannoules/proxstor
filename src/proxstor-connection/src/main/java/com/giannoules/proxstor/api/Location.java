@@ -7,12 +7,17 @@ import java.util.Objects;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
-/*
- * JAXB representation of a ProxStor Location
- *      @TODO move out to separate package/jar for client use as well
- *
- */
 
+/**
+ * ProxStor representation of a location. An location is the component
+ * which represents a place a ProxStor user can potentially be located. ProxStor 
+ * defines some basic fields here, but primary importance is upon the type and identifier.
+ * 
+ * This class is augmented with annotations
+ * identifying it for Java Architecture for XML Binding.
+ * 
+ * @author James Giannoules
+ */
 @XmlRootElement
 public class Location {
     public String locId;
