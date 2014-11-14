@@ -11,7 +11,7 @@ public class Query {
     public String userId;
     public String locationId;
     public Integer strength;
-    public Integer distance;    // in meters
+    public Double distance;    // in meters
     public Date dateStart;
     public Date dateEnd;    
 
@@ -31,11 +31,11 @@ public class Query {
         this.locationId = locationId;
     }
 
-    public Integer getDistance() {
+    public Double getDistance() {
         return distance;
     }
 
-    public void setDistance(Integer distance) {
+    public void setDistance(Double distance) {
         this.distance = distance;
     }
 
