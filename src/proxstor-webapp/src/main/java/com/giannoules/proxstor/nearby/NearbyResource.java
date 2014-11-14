@@ -19,9 +19,9 @@ import javax.ws.rs.core.Response;
 public class NearbyResource {
 
     private final String locIdA;        // always within context of a location
-    private final Integer distanceVal;  // distance meaning varies by request
+    private final Double distanceVal;  // distance meaning varies by request
 
-    public NearbyResource(String locId, Integer distance) {
+    public NearbyResource(String locId, Double distance) {
         this.locIdA = locId;
         this.distanceVal = distance;
     }

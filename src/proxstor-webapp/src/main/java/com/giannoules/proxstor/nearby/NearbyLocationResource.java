@@ -21,9 +21,9 @@ import javax.ws.rs.core.Response;
 public class NearbyLocationResource {
     private final String locIdA;
     private final String locIdB;
-    private final Integer distanceVal;
+    private final Double distanceVal;
 
-    public NearbyLocationResource(String locIdA, String locIdB, Integer distanceVal) {
+    public NearbyLocationResource(String locIdA, String locIdB, Double distanceVal) {
         this.locIdA = locIdA;
         this.locIdB = locIdB;
         this.distanceVal = distanceVal;
@@ -39,7 +39,7 @@ public class NearbyLocationResource {
             Location b = LocationDao.instance.get(locIdB);
             if ((a != null) && (b != null) && (a.getLatitude() != null)
                     && (a.getLongitude() != null) && (b.getLatitude() != null) && (b.getLongitude() != null)) {
-                Double actualDistance = LocationDao.instance.distanceBetweenLocations(a, b);                
+                Double actualDistance = NearbyDao.instance.distanceBetweenLocations(a, b);                
                 if (actualDistance <= distanceVal) {
                     return Response.noContent().build();
                 }
