@@ -44,6 +44,7 @@ public enum NearbyDao {
      * @throws InvalidLocationId If the locID is invalid
      */
     public Collection<Location> getLocationsNearby(String locId, Double distanceVal) throws InvalidLocationId {
+        ProxStorDebug.println("getLocationsNearby(" + locId + ", " + distanceVal + ")");
         Location l = LocationDao.instance.get(locId);
         if (distanceVal != null) {
             List<Location> nearby = new ArrayList<>();
@@ -192,7 +193,7 @@ public enum NearbyDao {
         return false;
     }
     
-     public double distanceBetweenLocations(Location locA, Location locB) {      
+    public double distanceBetweenLocations(Location locA, Location locB) {          
       /*
        * haversign
        * from http://www.codecodex.com/wiki/Calculate_distance_between_two_points_on_a_globe#Java
@@ -223,8 +224,8 @@ public enum NearbyDao {
      * @return 
      */
     private GraphQuery queryDistanceBoundingBox(GraphQuery gq, double lat, double lon, double d) {
-        double R = 6372797.560856;      
-        
+        double R = 6372797.560856;
+         
         d = Math.sqrt(2*(d*d));
         
         double bearing = Math.toRadians(315);
