@@ -142,9 +142,9 @@ public enum CheckinDao {
         return null;        
      }
     
-    public List<Locality> getPreviousLocalities(String userId, int max) throws InvalidUserId {
+    public List<Locality> getPreviousLocalities(String userId) throws InvalidUserId {
         UserDao.instance.validOrException(userId);
-        List<Vertex> localityVertices = getPreviousLocalityVertices(userId, max);
+        List<Vertex> localityVertices = getPreviousLocalityVertices(userId);
         List<Locality> localities = new ArrayList<>();
         try {            
             for (Vertex v : localityVertices) {
@@ -157,14 +157,13 @@ public enum CheckinDao {
         return localities;        
     }
 
-    private List<Vertex> getPreviousLocalityVertices(String userId, int max) throws InvalidUserId {
+    private List<Vertex> getPreviousLocalityVertices(String userId) throws InvalidUserId {
         UserDao.instance.validOrException(userId);
         List<Vertex> localities = new ArrayList<>();
         try {
             VertexQuery vq = ProxStorGraph.instance.getVertex(userId).query();
             vq.direction(OUT);
-            vq.labels("previously_at");          
-            vq.limit(max);
+            vq.labels("previously_at");                      
             for (Vertex v : vq.vertices()) {
                 localities.add(v);
             }
