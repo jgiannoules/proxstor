@@ -84,7 +84,7 @@ public class LocalitiesResource {
     public Response getUserLocalities(@PathParam("userid") String userId) {
         Collection<Locality> localities;
         try {
-            localities = CheckinDao.instance.getPreviousLocalities(userId, 1024); // @TODO set depth?
+            localities = CheckinDao.instance.getPreviousLocalities(userId);
             if (localities.isEmpty()) {
                 return Response.noContent().build();
             }
