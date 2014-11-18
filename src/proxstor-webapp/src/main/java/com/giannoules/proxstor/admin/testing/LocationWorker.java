@@ -19,18 +19,22 @@ import java.util.logging.Logger;
 
 public class LocationWorker implements Runnable {
 
+    private static final int MAX_NEARBY_POOL = 1;
+    
     private Integer count;
     private final List<Location> locationPool;
     private final Random r;
     private final LocationGenerator lg;
     private final EnvironmentalGenerator eg;
+    private final boolean leanMode;
 
-    public LocationWorker(Integer count) {
+    public LocationWorker(Integer count, boolean leanMode) {
         this.r = new Random();
         this.lg = new LocationGenerator(this.r);
         this.eg = new EnvironmentalGenerator(this.r);
         this.locationPool = new ArrayList<>();
         this.count = count;
+        this.leanMode = leanMode;
     }
 
     @Override
@@ -55,51 +59,56 @@ public class LocationWorker implements Runnable {
                 }
             }
             l.setLocId(m.getLocId());
+            
+            if (!leanMode) {
+            
+                locationPool.add(l);
 
-            // going to be nearby another location?
-            if (r.nextBoolean() && locationPool.size() > 0) {
-                n = r.nextInt(2) + 1;
-                if (n > locationPool.size()) {
-                    n = locationPool.size();
+                // going to be nearby another location?
+                if (r.nextBoolean() && locationPool.size() > 0) {
+                    n = r.nextInt(MAX_NEARBY_POOL) + 1;
+                    if (n > locationPool.size()) {
+                        n = locationPool.size();
+                    }
+                    tmpLocations.clear();
+                    while (n-- > 0) {
+                        tmpLocations.add(locationPool.get(r.nextInt(locationPool.size())));
+                    }
+                    for (Location x : tmpLocations) {
+                        try {
+                            do {
+                            } while (NearbyDao.instance.addNearby(l.getLocId(), x.getLocId(), r.nextDouble() * 10000));
+                        } catch (InvalidLocationId | LocationAlreadyNearbyLocation ex) {
+                            //Logger.getLogger(LocationWorker.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
                 }
-                tmpLocations.clear();
-                while (n > 0) {
-                    tmpLocations.add(locationPool.get(r.nextInt(locationPool.size())));
+
+                // randomly pop out a location
+                if (locationPool.size() > MAX_NEARBY_POOL) {
+                    locationPool.remove(r.nextInt(locationPool.size()));
                 }
-                for (Location x : tmpLocations) {
+
+                e = eg.genEnvironmentals();
+
+                f = null;
+                while (f == null) {
                     try {
-                        do {
-                        } while (NearbyDao.instance.addNearby(l.getLocId(), x.getLocId(), r.nextDouble() * 10000));
-                    } catch (InvalidLocationId | LocationAlreadyNearbyLocation ex) {
+                        f = EnvironmentalDao.instance.add(l.getLocId(), e);
+                        if (f == null) {
+                            try {
+                                Thread.sleep(10);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(com.giannoules.proxstor.testing.report.LocationWorker.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                    } catch (InvalidParameter ex) {
                         Logger.getLogger(LocationWorker.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
+                e.setEnvironmentalId(f.getEnvironmentalId());
             }
-
-            // randomly pop out a location
-            if (!locationPool.isEmpty()) {
-                locationPool.remove(r.nextInt(locationPool.size()));
-            }
-
-            e = eg.genEnvironmentals();
-
-            f = null;
-            while (f == null) {
-                try {
-                    f = EnvironmentalDao.instance.add(l.getLocId(), e);
-                    if (f == null) {
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException ex) {
-                            Logger.getLogger(com.giannoules.proxstor.testing.report.LocationWorker.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                } catch (InvalidParameter ex) {
-                    Logger.getLogger(LocationWorker.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            e.setEnvironmentalId(f.getEnvironmentalId());
-
+            
             count--;
         }
     }

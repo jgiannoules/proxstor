@@ -10,6 +10,7 @@ import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.user.UserDao;
 import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -41,9 +42,13 @@ public class TestingLocationResource {
     @Path("/generate/{count}")
     @POST
     public Response generatLocations(@PathParam("count") Integer count) {
-        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
-        for (int i = 0; i < NUM_THREADS; i++) {
-            Runnable worker = new LocationWorker(count / NUM_THREADS);
+        int threadCount = NUM_THREADS;
+        if (ProxStorGraph.instance.graph instanceof TinkerGraph) {
+               threadCount = 1;
+        } 
+        ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+        for (int i = 0; i < threadCount; i++) {
+            Runnable worker = new LocationWorker(count / threadCount, false);
             executor.execute(worker);
         }
         executor.shutdown();
