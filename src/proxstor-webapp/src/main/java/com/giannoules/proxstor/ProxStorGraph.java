@@ -47,7 +47,7 @@ public enum ProxStorGraph {
     // stats & statsPrev used to track the method call count emitted in toString()
     private final Map<String, AtomicInteger> stats = new ConcurrentHashMap<>();
     private final Map<String, Integer> statsPrev = new ConcurrentHashMap<>();
-    
+        
     /**
      * Do nothing constructor. use createGraph()
      */
@@ -69,9 +69,20 @@ public enum ProxStorGraph {
         graph = GraphFactory.open(conf);
         if (graph instanceof KeyIndexableGraph) {
             ProxStorDebug.println("KeyIndexableGraph detected.");
-            ((KeyIndexableGraph) graph).createKeyIndex("_type", Vertex.class);
-            ((KeyIndexableGraph) graph).createKeyIndex("latitude", Vertex.class);
-            ((KeyIndexableGraph) graph).createKeyIndex("longitude", Vertex.class);
+            try {
+                ((KeyIndexableGraph) graph).createKeyIndex("_type", Vertex.class);
+                ((KeyIndexableGraph) graph).createKeyIndex("latitude", Vertex.class);
+                ((KeyIndexableGraph) graph).createKeyIndex("longitude", Vertex.class);
+            } catch (Exception ex) { }
+        }
+        if (graph instanceof OrientGraph) {
+                ((OrientGraph) graph).createEdgeType("knows");
+                ((OrientGraph) graph).createEdgeType("previously_at");
+                ((OrientGraph) graph).createEdgeType("currently_at");
+                ((OrientGraph) graph).createEdgeType("uses");
+                ((OrientGraph) graph).createEdgeType("contains");
+                ((OrientGraph) graph).createEdgeType("nearby");
+                ((OrientGraph) graph).createEdgeType("within");
         }
     }     
      
