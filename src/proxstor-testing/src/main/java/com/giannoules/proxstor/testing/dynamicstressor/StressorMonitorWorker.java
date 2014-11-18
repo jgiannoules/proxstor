@@ -36,7 +36,8 @@ public class StressorMonitorWorker implements Runnable {
     
         DecimalFormat df = new DecimalFormat("#.##");
         long pass = 0;
-        double rate;
+        double rate, avg;
+        Integer grand_total = 0;
         
         do {
             long before = System.currentTimeMillis();
@@ -53,12 +54,17 @@ public class StressorMonitorWorker implements Runnable {
              for (int i = 0; i < counters.size(); i++) {
                 Integer count = counters.get(i).getAndSet(0);
                 rate =  count * 1000 / d;
-                total += count;
+                total += count;                
                 System.out.println(descriptions.get(i) + "\t" + df.format(rate) + "\tops/sec");
-             }
-            
+             }      
+             
             System.out.println();
             System.out.println("Total:\t\t\t\t" + total);
+            if (pass > 25) {
+                    grand_total += total;
+                    avg = (double) grand_total / (double) (pass - 25);
+                    System.out.println("Avg:\t\t\t\t" + avg);
+            }
             System.out.println("\n");
             pass++;
         } while (this.go);
