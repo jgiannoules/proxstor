@@ -122,4 +122,10 @@ public class GraphResource {
         return Response.ok().build();
     }
     
+    @Path("perf")
+    @GET
+    public Response getPerf() {
+        return Response.ok().entity(ProxStorDebug.getPerf()).build();
+    }
+    
 }
