@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.query;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.api.Query;
 import com.giannoules.proxstor.api.User;
@@ -26,19 +27,23 @@ public class QueryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMatchingLocalities(Query q) {
+        long start = ProxStorDebug.startTimer();
         Collection<Locality> localities;  
         try {
             localities = QueryDao.instance.getMatching(q);
         } catch (InvalidUserId | InvalidLocationId ex) {
             Logger.getLogger(QueryResource.class.getName()).log(Level.SEVERE, null, ex);
+            ProxStorDebug.endTimer("getMatchingLocalities404", start);
             return Response.status(404).build();
         }
         if (localities == null || localities.isEmpty()) {
+            ProxStorDebug.endTimer("getMatchingLocalities204", start);
             return Response.noContent().build();
         }
         /*
          * ok() will not take Collection directly, so convert to array
          */
+        ProxStorDebug.endTimer("getMatchingLocalities", start);
         return Response.ok((Locality[]) localities.toArray(new Locality[localities.size()])).build();
     }
 }

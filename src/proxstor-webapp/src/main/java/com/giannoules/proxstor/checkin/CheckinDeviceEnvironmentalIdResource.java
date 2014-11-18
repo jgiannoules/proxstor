@@ -1,5 +1,6 @@
 package com.giannoules.proxstor.checkin;
 
+import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.api.Locality;
 import com.giannoules.proxstor.api.Environmental;
 import com.giannoules.proxstor.exception.InvalidDeviceId;
@@ -23,7 +24,7 @@ public class CheckinDeviceEnvironmentalIdResource {
 
     private final String devId;
     private final String environmentalId;
-
+            
     public CheckinDeviceEnvironmentalIdResource(String devId, String environmentalId) {
         this.devId = devId;
         this.environmentalId = environmentalId;
@@ -35,6 +36,7 @@ public class CheckinDeviceEnvironmentalIdResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public Response postDeviceDetectEnvironmental() {
+        long start = ProxStorDebug.startTimer();
         Environmental partial = new Environmental();
         partial.setEnvironmentalId(environmentalId);
         try {            
@@ -43,12 +45,15 @@ public class CheckinDeviceEnvironmentalIdResource {
                 return Response.status(400).build();
             }
             URI createdUri = new URI("locality/" + l.getLocalityId());
+            ProxStorDebug.endTimer("postDeviceDetectEnvironmental", start);
             return Response.created(createdUri).entity(l).build();
         } catch (InvalidDeviceId | InvalidLocationId | InvalidEnvironmentalId | InvalidUserId | EnvironmentalNotContainedWithinLocation | UserAlreadyInLocation ex) {
             Logger.getLogger(CheckinDeviceEnvironmentalIdResource.class.getName()).log(Level.SEVERE, null, ex);
+            ProxStorDebug.endTimer("postDeviceDetectEnvironmental400", start);
             return Response.status(400).build();
         } catch (URISyntaxException ex) {
             Logger.getLogger(CheckinDeviceEnvironmentalIdResource.class.getName()).log(Level.SEVERE, null, ex);
+            ProxStorDebug.endTimer("postDeviceDetectEnvironmental500", start);
             return Response.serverError().build();
         }
     }
@@ -57,16 +62,19 @@ public class CheckinDeviceEnvironmentalIdResource {
      * devId un-detects environmentalId
      */
     @DELETE
-    public Response deleteDeviceUndetectEnvironmental() {
+    public Response deleteDeviceUndetectEnvironmental() {        
+        long start = ProxStorDebug.startTimer();
         Environmental partial = new Environmental();
         partial.setEnvironmentalId(environmentalId);
         try {
             if (CheckinDao.instance.deviceUndetectEnvironmental(devId, partial)) {
+                ProxStorDebug.endTimer("deleteDeviceUndetectEnvironmental", start);
                 return Response.noContent().build();
             }
         } catch (InvalidUserId | InvalidDeviceId | InvalidEnvironmentalId ex) {
             Logger.getLogger(CheckinDeviceEnvironmentalIdResource.class.getName()).log(Level.SEVERE, null, ex);
         }
+        ProxStorDebug.endTimer("deleteDeviceUndetectEnvironmental404", start);
         return Response.status(404).build();
     }
 
