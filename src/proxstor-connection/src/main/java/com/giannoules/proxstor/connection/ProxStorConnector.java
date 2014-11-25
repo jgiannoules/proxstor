@@ -207,11 +207,15 @@ public class ProxStorConnector {
     }
 
     /**
+     * establish a user knows relationship between two users. the strength of
+     * the relationship must be specified.
      * 
-     * @param u
-     * @param v
-     * @param strength
-     * @return 
+     * User u --- knows {strength: strength} ---> User v
+     * 
+     * @param u the user who knows the other user
+     * @param v the user who is known by the other user
+     * @param strength the strength of the knows relationship. valid values [1..100].
+     * @return true if the relationship is established; false otherwise
      */
     public boolean addUserKnows(User u, User v, int strength) {        
         String path = cleanPath("user/" + u.getUserId() + "/knows/strength/" + strength
@@ -223,11 +227,13 @@ public class ProxStorConnector {
     }
 
     /**
+     * update the knows relationship strength between users. a previous knows
+     * must have been established from User u to User v.
      * 
-     * @param u
-     * @param v
-     * @param strength
-     * @return 
+     * @param u the user who knows the other user
+     * @param v the user who is known by the other user
+     * @param strength the new strength the knows relationship. valid values [1..100].
+     * @return true if the relationship is updated; false otherwise
      */
     public boolean updateUserKnows(User u, User v, int strength) {
         String path = cleanPath("user/" + u.getUserId() + "/knows/strength/" + strength 
@@ -239,13 +245,15 @@ public class ProxStorConnector {
     }
     
     /**
+     * remove the knows relationship strength between users. a previous knows
+     * must have been established from User u to User v.
      * 
-     * @param u
-     * @param v
-     * @return 
+     * @param u the user who knows the other user
+     * @param v the user who is known by the other user
+     * @return true if the relationship is removed; false otherwise
      */
     public boolean deleteKnows(User u, User v) {
-        String path = cleanPath("user/" + u.getUserId() + "/knows/strength/0/user/" 
+        String path = cleanPath("user/" + u.getUserId() + "/knows/user/" 
                 + v.getUserId());
         Response response = target.path(path)
                 .request(MediaType.TEXT_PLAIN)
@@ -256,9 +264,11 @@ public class ProxStorConnector {
     // END user knows actions
     
     /**
+     * add a new location to the database
      * 
-     * @param l
-     * @return 
+     * @param l the new location to add
+     * @return Location instance with correct location id (locId) reference for
+     * the running database behind proxstor.
      */
     public Location addLocation(Location l) {
         String path = "/location";
@@ -272,9 +282,10 @@ public class ProxStorConnector {
     }
 
     /**
+     * retrieve location based on location id (locId)
      * 
-     * @param locId
-     * @return 
+     * @param locId the location id corresponding to a valid location within proxstor
+     * @return location associated with locId; null otherwise
      */
     public Location getLocation(String locId) {
         String path = cleanPath("location/" + locId);
@@ -288,9 +299,11 @@ public class ProxStorConnector {
     }
 
     /**
+     * update an existing location within proxstor. any field of the location
+     * object may be modified except the location id (locId)
      * 
-     * @param l
-     * @return 
+     * @param l updated location object with locId set to the location object which to update
+     * @return true if updated; false otherwise
      */
     public boolean updateLocation(Location l) {
         String path = cleanPath("location/" + l.getLocId());
@@ -301,9 +314,10 @@ public class ProxStorConnector {
     }
 
     /**
+     * remove an existing location from proxstor.
      * 
-     * @param locId
-     * @return 
+     * @param locId id of location to remove
+     * @return true if location removed; false otherwise
      */
     public boolean deleteLocation(String locId) {
         String path = cleanPath("location/" + locId);
@@ -314,10 +328,14 @@ public class ProxStorConnector {
     }
 
     /**
+     * retrieve a specific device associated with a user.
      * 
-     * @param userId
-     * @param devId
-     * @return 
+     * note that all devices are associated with a user. devices cannot be
+     * retrieved in a vacuum without knowing the associated user.
+     * 
+     * @param userId user owning the device
+     * @param devId device to retrieve
+     * @return Device object if userId and deviceId are valid; null otherwise
      */
     public Device getDevice(String userId, String devId) {
         String path = cleanPath("/user/" + userId + "/device/" + devId);
@@ -331,9 +349,11 @@ public class ProxStorConnector {
     }
 
     /**
+     * retrieve all devices used by a user.
      * 
-     * @param userId
-     * @return 
+     * @param userId id of the user whose devices to retrieve
+     * @return list of devices associated with user, including possibly an 
+     * empty list if the user has no devices; null if userId is invalid.
      */
     public Collection<Device> getDevices(String userId) {
         String path = cleanPath("/user/" + userId + "/device");
@@ -352,10 +372,12 @@ public class ProxStorConnector {
     }
 
     /**
+     * add a new device to the database and associate it with a user. the user
+     * already exists in the database. the device will be newly added.
      * 
-     * @param userId
-     * @param dev
-     * @return 
+     * @param userId id of user who uses the new device.
+     * @param dev new device to add
+     * @return Device object with correct devId if successfully added; null otherwise
      */
     public Device addDevice(String userId, Device dev) {
         String path = cleanPath("/user/" + userId + "/device/");
@@ -369,10 +391,13 @@ public class ProxStorConnector {
     }
 
     /**
-     *  using d.devId to update Device; return of true is success
-     * @param userId
-     * @param d
-     * @return 
+     * update device associated with user.
+     * 
+     * the userId user must already use the device d.devId
+     * 
+     * @param userId user who uses the device
+     * @param d device to update. note that d.devId must be correct
+     * @return true if successful; false otherwise
      */
     public boolean updateDevice(String userId, Device d) {
         String path = cleanPath("/user/" + userId + "/device/" + d.getDevId());
@@ -383,10 +408,11 @@ public class ProxStorConnector {
     }
 
     /**
-     * delete device based on devId; return true if successful
-     * @param userId
-     * @param devId
-     * @return 
+     * delete device used by user.
+     * 
+     * @param userId user who uses device
+     * @param devId device id to remove
+     * @return true if removal is successful; false otherwise
      */
     public boolean deleteDevice(String userId, String devId) {
         String path = cleanPath("/user/" + userId + "/device/" + devId);
