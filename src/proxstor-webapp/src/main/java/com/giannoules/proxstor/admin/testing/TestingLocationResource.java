@@ -2,9 +2,7 @@ package com.giannoules.proxstor.admin.testing;
 
 import com.giannoules.proxstor.ProxStorGraph;
 import com.giannoules.proxstor.api.Location;
-import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.exception.InvalidLocationId;
-import com.giannoules.proxstor.exception.InvalidUserId;
 import com.giannoules.proxstor.exception.ProxStorGraphDatabaseNotRunningException;
 import com.giannoules.proxstor.location.LocationDao;
 import com.giannoules.proxstor.user.UserDao;
@@ -87,7 +85,7 @@ public class TestingLocationResource {
             return null;
         }
         q.has("_type", "location");
-        q.limit(1000000);
+//        q.limit(1000000);
         Iterator<Vertex> it = q.vertices().iterator();
         i = k;
         while ((i > 0) && (it.hasNext())) {

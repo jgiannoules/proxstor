@@ -1,6 +1,5 @@
 package com.giannoules.proxstor.admin.testing;
 
-import com.giannoules.proxstor.ProxStorDebug;
 import com.giannoules.proxstor.api.Device;
 import com.giannoules.proxstor.api.User;
 import com.giannoules.proxstor.device.DeviceDao;
