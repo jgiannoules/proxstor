@@ -122,6 +122,11 @@ public class GraphResource {
         return Response.ok().build();
     }
     
+    /**
+     * Provide user performance metrics on time taken by various participating
+     * request handlers within proxstor
+     * @return string representation of performance
+     */
     @Path("perf")
     @GET
     public Response getPerf() {
