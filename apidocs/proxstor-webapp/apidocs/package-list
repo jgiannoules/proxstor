@@ -1,0 +1,16 @@
+com.giannoules.proxstor
+com.giannoules.proxstor.admin
+com.giannoules.proxstor.admin.graph
+com.giannoules.proxstor.admin.testing
+com.giannoules.proxstor.checkin
+com.giannoules.proxstor.device
+com.giannoules.proxstor.environmental
+com.giannoules.proxstor.exception
+com.giannoules.proxstor.knows
+com.giannoules.proxstor.locality
+com.giannoules.proxstor.location
+com.giannoules.proxstor.nearby
+com.giannoules.proxstor.query
+com.giannoules.proxstor.search
+com.giannoules.proxstor.user
+com.giannoules.proxstor.within
