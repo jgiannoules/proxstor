@@ -20,18 +20,45 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Location {
+    /**
+     * database unique identifier for this location
+     */
     public String locId;
+    /**
+     * description of location
+     */
     public String description;
+    /**
+     * location address
+     */
     public String address;
+    /**
+     * type of location (see LocationType)
+     */
     public LocationType type;
+    /**
+     * latitude of location (if known)
+     */
     public Double latitude;
+    /**
+     * longitude of location (if known)
+     */
     public Double longitude;
-    /*
+    /**
      * contains environmentalId of unique environmentals found in this location
      */
     public Set<String> environmentals;
+    /**
+     * locations within this location
+     */
     public Set<String> within;
+    /**
+     * locations defined with nearby relation to this location
+     */
     public List<String> nearbyLocId;
+    /**
+     * distance to locations nearby this location (see nearbyLocId list)
+     */
     public List<Integer> nearbyDistance;
     
     public Location() {        

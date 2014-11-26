@@ -21,18 +21,33 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class User {
 
+    /**
+     * database unique identifier for user
+     */
     public String userId;
+    /**
+     * user's first name
+     */
     public String firstName;
+    /**
+     * user's last name
+     */
     public String lastName;
+    /**
+     * user's email address
+     */
     public String email;
-    /*
+    /**
      * contains devIDs of unique devices used by this user
      */
     public Set<String> devices;
-    /*
+    /**
      * track userId of known users and the getKnowsStrength relationship strength
      */
     public List<String> knows;
+    /**
+     * strength of knows relationships to users in knows list
+     */
     public List<Integer> strength;
 
     public User() {

@@ -15,11 +15,30 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Query {
+    /**
+     * id of user submitting query
+     */
     public String userId;
+    /**
+     * location id constraint (if any)
+     */
     public String locationId;
+    /**
+     * strength of knows relationship constraint (if any)
+     */
     public Integer strength;
+    /**
+     * distance, in meters, constraining query (if any)
+     */
     public Double distance;    // in meters
+    /**
+     * beginning date/time constraining query (if any)
+     * not defining a dateEnd assumes dateStart up to now
+     */
     public Date dateStart;
+    /**
+     * ending date/time constraining query. must also specify dateStart
+     */
     public Date dateEnd;    
 
     public String getUserId() {
