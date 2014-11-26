@@ -31,7 +31,7 @@ public class DeviceConnectorTester {
     public DeviceConnectorTester() {        
     }
     
-    /*
+    /**
      * create new connection to ProxStor
      */
     @BeforeClass
@@ -43,7 +43,7 @@ public class DeviceConnectorTester {
     public static void tearDownClass() {
     }
 
-    /*
+    /**
      * always setup a "good user" with known fields then associated a known
      * "good device", also with known fields
      *
@@ -69,7 +69,7 @@ public class DeviceConnectorTester {
     public void tearDown() {
     }
     
-    /*
+    /**
      * add simple device
      *  - expect new device devID != null
      *  - expect that new device == goodDevice
@@ -88,7 +88,7 @@ public class DeviceConnectorTester {
         assertEquals(d, d2);
     }
     
-    /*
+    /**
      * add empty device
      *  - expect null return from connector
      */
@@ -98,7 +98,7 @@ public class DeviceConnectorTester {
         assertNull(d);        
     }
     
-    /*
+    /**
      * get specific gooddevice from gooduser
      *  - expect gooddevice to be returned
      */
@@ -109,7 +109,7 @@ public class DeviceConnectorTester {
         assertEquals(goodDevice, d);
     }
     
-    /*
+    /**
      * get all devices belonging to goodUser
      *  - first add another instnace of the goodDevice
      *  - expect two devices to be returned
@@ -129,7 +129,7 @@ public class DeviceConnectorTester {
         assertTrue(devices.contains(d2));
     }
     
-    /*
+    /**
      * attempt to retrieve invalid device on invalid user
      * attempt to retrieve invlalid device on valid user
      * - expect null in both cases
@@ -140,7 +140,7 @@ public class DeviceConnectorTester {
         assertNull(conn.getDevice(goodUser.getUserId(), invalidDeviceId));
     }
     
-    /*
+    /**
      * change goodDevice description and update
      * - expect true
      */
@@ -150,7 +150,7 @@ public class DeviceConnectorTester {
         assertTrue(conn.updateDevice(goodUser.getUserId(), goodDevice));
     }
     
-    /*
+    /**
      * attempt to update a device, but pass in unconfigured device
      * - expect false
      */
@@ -160,7 +160,7 @@ public class DeviceConnectorTester {
         assertFalse(conn.updateDevice(goodUser.getUserId(), d));
     }
    
-    /*
+    /**
      * delete a valid device from a valid user
      * - expect true
      */
@@ -169,7 +169,7 @@ public class DeviceConnectorTester {
         assertTrue(conn.deleteDevice(goodUser.getUserId(), goodDevice.getDevId()));
     }
     
-    /*
+    /**
      * delete an invalid device from a valid user
      * delete a valid device from an invalid user
      * delete a valid device from a valid user - but wrong combination

@@ -35,7 +35,7 @@ public class UserConnectorTester  {
     public static void tearDownClass() {
     }
     
-    /*
+    /**
      * known good user for each @Test
      * invalidId calculated as last userId + 1
      */
@@ -50,7 +50,7 @@ public class UserConnectorTester  {
     public void tearDown() {
     }
 
-    /*
+    /**
      * retrieve good user
      * - expect retrieved user equals goodUser
      */
@@ -60,7 +60,7 @@ public class UserConnectorTester  {
         assertEquals(u, goodUser);
     }
     
-    /*
+    /**
      * attempt to retrieve invalid user id
      * - expect null
      */
@@ -69,7 +69,7 @@ public class UserConnectorTester  {
         assertNull(conn.getUser(invalidId));
     }
     
-    /*
+    /**
      * delete goodUser
      * - expect true
      */
@@ -78,7 +78,7 @@ public class UserConnectorTester  {
         assertTrue(conn.deleteUser(goodUser.getUserId()));
     }
     
-    /*
+    /**
      * delete invalid user id
      * - expect false
      */
@@ -87,7 +87,7 @@ public class UserConnectorTester  {
         assertFalse(conn.deleteUser(invalidId));
     }
     
-    /*
+    /**
      * change a field in goodUser and update
      * - expect true
      */
@@ -97,7 +97,7 @@ public class UserConnectorTester  {
         assertTrue(conn.updateUser(goodUser));
     }
     
-    /*
+    /**
      * attempt to update an invalid user id
      * attempt to udpate user with valid id, but no other data
      * - expect false
@@ -111,7 +111,7 @@ public class UserConnectorTester  {
         assertFalse(conn.updateUser(u));
     }
 
-    /*
+    /**
      * attempt to add a User without necessary data     
      * - expect false
      */
@@ -121,7 +121,7 @@ public class UserConnectorTester  {
         assertNull(conn.addUser(u));
     }
     
-    /*
+    /**
      * attempt to add a valid user
      * - expect userid to be populated
      * - expect user mirrored back properly

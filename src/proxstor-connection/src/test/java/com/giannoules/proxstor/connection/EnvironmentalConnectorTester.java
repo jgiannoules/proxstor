@@ -39,7 +39,7 @@ public class EnvironmentalConnectorTester {
     public static void tearDownClass() {
     }
     
-    /*
+    /**
      * create one location with two environmentals
      */
     @Before
@@ -79,7 +79,7 @@ public class EnvironmentalConnectorTester {
     public void tearDown() {
     }
     
-    /*
+    /**
      * add a third environmental to goodLocation
      * - expect environmental to be reflected with environmentalId added
      */
@@ -94,7 +94,7 @@ public class EnvironmentalConnectorTester {
         assertEquals(s, s2);
     }
     
-    /*
+    /**
      * add blank environmental to goodLocation and invalidLocation
      * - expect null for both
      */
@@ -105,7 +105,7 @@ public class EnvironmentalConnectorTester {
         assertNull(conn.addEnvironmental(invalidId, goodEnvironmental));
     }
     
-    /*
+    /**
      * update goodEnvironmental
      * - expect true
      */
@@ -115,7 +115,7 @@ public class EnvironmentalConnectorTester {
         assertTrue(conn.updateEnvironmental(goodLocation.getLocId(), goodEnvironmental));
     }
     
-    /*
+    /**
      * update goodEnvironmental in invalidLocation
      * update new Environmental in goodLocation
      * update new Environmental in invalidLocation
@@ -128,7 +128,7 @@ public class EnvironmentalConnectorTester {
         assertFalse(conn.updateEnvironmental(invalidId, new Environmental()));        
     }
     
-    /*
+    /**
      * get all environmentals in goodLocation
      * - expect {goodEnvironmental, goodEnvironmental2}
      * get all environmentals from new Location
@@ -155,7 +155,7 @@ public class EnvironmentalConnectorTester {
         assertEquals(environmentals, Collections.EMPTY_LIST);
     }    
     
-    /*
+    /**
      * get environmentals in invalid location
      * - expect null
      */
@@ -164,7 +164,7 @@ public class EnvironmentalConnectorTester {
         assertNull(conn.getEnvironmentals(invalidId));        
     }
     
-    /*
+    /**
      * delete goodEnvironmental and goodEnvironmental2 from goodLocation
      * - expect true
      * delete goodEnvironmental and goodEnvironmental2 from goodLocation (again)
@@ -178,7 +178,7 @@ public class EnvironmentalConnectorTester {
         assertFalse(conn.deleteEnvironmental(goodLocation.getLocId(), goodEnvironmental2.getEnvironmentalId()));
     }
     
-    /*
+    /**
      * delete goodEnvironmental from invalidId
      * delete goodEnvironmental2 from invalidId
      * delete invalidId from goodLocation

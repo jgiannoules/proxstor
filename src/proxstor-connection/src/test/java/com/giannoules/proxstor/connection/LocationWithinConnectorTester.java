@@ -38,7 +38,7 @@ public class LocationWithinConnectorTester {
     public static void tearDownClass() {
     }
     
-    /*
+    /**
      * create four locations (a, b, c, d) and establish within relationship
      *
      * a within b
@@ -93,7 +93,7 @@ public class LocationWithinConnectorTester {
     public void tearDown() {
     }
     
-    /*
+    /**
      * add c --within--> a
      * - expect true
      */
@@ -113,7 +113,7 @@ public class LocationWithinConnectorTester {
         assertFalse(conn.addLocationWithin(invalidLocId, invalidLocId));       
     }
     
-    /*
+    /**
      * get all locations within d
      * - expect empty list
      * get all locations wtihin b
@@ -127,7 +127,7 @@ public class LocationWithinConnectorTester {
         assertTrue(locations.contains(d));
     }
     
-    /*
+    /**
      * get all locations within invalidlocId
      * - expect null
      */
@@ -136,7 +136,7 @@ public class LocationWithinConnectorTester {
         assertNull(conn.getLocationsWithin(invalidLocId)); 
     }
     
-    /*
+    /**
      * get locations which a is within
      * - expect []
      * get locations which d is within
@@ -151,7 +151,7 @@ public class LocationWithinConnectorTester {
         assertTrue(locations.contains(b));
     }
     
-    /*
+    /**
      * get locations which invalidid is within
      * - expect null
      */
@@ -160,7 +160,7 @@ public class LocationWithinConnectorTester {
         assertNull(conn.getLocationsWithinReverse(invalidLocId)); 
     }
     
-    /*
+    /**
      * test that c is within d
      * test that b is within d
      * - expect true for both
@@ -189,7 +189,7 @@ public class LocationWithinConnectorTester {
         assertFalse(conn.isLocationWithin(invalidLocId, invalidLocId));
     }    
     
-    /*
+    /**
      * delete two times:
      *  - c within a
      *  - a within b
@@ -209,7 +209,7 @@ public class LocationWithinConnectorTester {
         assertFalse(conn.deleteLocationWithin(c.getLocId(), d.getLocId()));
     }
     
-    /*
+    /**
      * delete a within invalid, invalid within b, invalid within invalid
      * - expect false for all
      */

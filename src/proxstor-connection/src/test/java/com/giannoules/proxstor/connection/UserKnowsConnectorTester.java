@@ -36,7 +36,7 @@ public class UserKnowsConnectorTester {
     public static void tearDownClass() {
     }
     
-    /*
+    /**
      * create a known series of knows relationships between predetermined users
      *
      * a <--knows--> b
@@ -72,7 +72,7 @@ public class UserKnowsConnectorTester {
     public void tearDown() {    
     }
 
-    /*
+    /**
      * get all the users that user "a" knows
      * - expect a complete and full collection - and exect proper set
      */
@@ -93,7 +93,7 @@ public class UserKnowsConnectorTester {
         assertEquals(users.size(), 0);
     }
     
-    /*
+    /**
      * use a strength value above the known users
      * - expect []
      */
@@ -102,7 +102,7 @@ public class UserKnowsConnectorTester {
         assertEquals(conn.getKnows(a.getUserId(), 99), Collections.EMPTY_LIST);
     }
     
-    /*
+    /**
      * use invalid user id
      * - expect null
      */
@@ -111,7 +111,7 @@ public class UserKnowsConnectorTester {
         assertNull(conn.getKnows(invalidUserId, 0));
     }
     
-    /*
+    /**
      * add a knows relationship
      *
      * b --knows:1--> d    
@@ -125,7 +125,7 @@ public class UserKnowsConnectorTester {
         assertTrue(conn.addUserKnows(d, b, 100));
     }
     
-    /*
+    /**
      * combinations of invalid user knows:
      * a) a knows a
      * b) blank user knows blank user
@@ -144,7 +144,7 @@ public class UserKnowsConnectorTester {
         assertFalse(conn.addUserKnows(a, b, 50));
     }
     
-    /*
+    /**
      * update knows strength
      * - expect true
      */
@@ -162,7 +162,7 @@ public class UserKnowsConnectorTester {
         assertTrue(conn.updateUserKnows(d, c, 2));
     }
     
-    /*
+    /**
      * update knows, but with invalid combinations of user ids
      * - expect false
      */
@@ -174,7 +174,7 @@ public class UserKnowsConnectorTester {
         assertFalse(conn.updateUserKnows(new User(), a, 50));
     }
     
-    /*
+    /**
      * retrieve users who know a certain user
      * - expect exact matching set
      */
@@ -195,7 +195,7 @@ public class UserKnowsConnectorTester {
         assertEquals(users.size(), 0);
     }
     
-    /*
+    /**
      * confirm that reverse knows returns null with invalid strength value
      * - expect null
      */
@@ -204,7 +204,7 @@ public class UserKnowsConnectorTester {
         assertNull(conn.getKnowsReverse(a.getUserId(), 101));
     }
     
-    /*
+    /**
      * confirm that reverse knows returns null with invalid user id
      * - expect null
      */
@@ -213,7 +213,7 @@ public class UserKnowsConnectorTester {
         assertNull(conn.getKnows(invalidUserId, 0));
     }
     
-    /*
+    /**
      * remove knows relationship from valid knows
      * - expect true
      */
@@ -231,7 +231,7 @@ public class UserKnowsConnectorTester {
         assertTrue(conn.deleteKnows(d, c));
     }
     
-    /*
+    /**
      * remove knows relationship from invalid knows
      * - expect false
      */

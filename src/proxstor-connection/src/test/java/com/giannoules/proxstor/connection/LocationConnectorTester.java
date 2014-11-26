@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-/* 
+/**
  * unit tests for proxstorconnector's Location-centric methods
  */
 
@@ -32,7 +32,7 @@ public class LocationConnectorTester {
     public static void tearDownClass() {
     }
     
-    /*
+    /**
      * tests leverage a known good location
      */
     @Before
@@ -51,7 +51,7 @@ public class LocationConnectorTester {
     public void tearDown() {
     }
 
-    /*
+    /**
      * retrieve the goodLocation based on the LocId
      * - expect a match
      */
@@ -61,7 +61,7 @@ public class LocationConnectorTester {
         assertEquals(l, goodLocation);
     }
   
-    /*
+    /**
      * retrieve a location with known bad locid
      * - expect null
      */
@@ -70,7 +70,7 @@ public class LocationConnectorTester {
         assertNull(conn.getLocation(invalidLocId));
     }
     
-    /*
+    /**
      * delete a valid location
      * - expect true
      */
@@ -79,7 +79,7 @@ public class LocationConnectorTester {
         assertTrue(conn.deleteLocation(goodLocation.getLocId()));
     }
     
-    /*
+    /**
      * delete an invalid locid
      * - expect false
      */
@@ -88,7 +88,7 @@ public class LocationConnectorTester {
         assertFalse(conn.deleteLocation(invalidLocId));
     }
     
-    /*
+    /**
      * update field in goodLocation and update in db
      * - expect true
      */
@@ -98,7 +98,7 @@ public class LocationConnectorTester {
         assertTrue(conn.updateLocation(goodLocation));
     }
     
-    /*
+    /**
      * attempt to udpate a fresh location which isn't in the db
      * - expect false
      */
@@ -109,7 +109,7 @@ public class LocationConnectorTester {
         assertFalse(conn.updateLocation(l));        
     }
     
-    /*
+    /**
      * add a fresh location with no valid fields
      * - expect null
      */
@@ -119,7 +119,7 @@ public class LocationConnectorTester {
         assertNull(conn.addLocation(l));
     }
     
-    /*
+    /**
      * add a new location with valid fields
      * - exect not null
      * - expect returned location = sent location

@@ -38,7 +38,7 @@ public class LocationNearbyConnectorTester {
     public static void tearDownClass() {
     }
     
-    /*
+    /**
      * create known locations and prearrange the distance between
      *
      * locationA is 10m from locationB
@@ -90,7 +90,7 @@ public class LocationNearbyConnectorTester {
     public void tearDown() {
     }
     
-    /*
+    /**
      * add location nearby which doesn't exist
      * - expect true
      */
@@ -99,7 +99,7 @@ public class LocationNearbyConnectorTester {
         assertTrue(conn.addLocationNearby(a.getLocId(), d.getLocId(), 10000));
     }
     
-    /*
+    /**
      * add location nearby, but relationship already established
      * add location nearby with starting location invalid
      * add location nearby with ending location invalid
@@ -114,7 +114,7 @@ public class LocationNearbyConnectorTester {
         assertFalse(conn.addLocationNearby(invalidLocId, invalidLocId, 1000));
     }
     
-    /*
+    /**
      * get all locations within 9m of location a
      * - expect empty lisy
      * get all locations within 10m of location a
@@ -128,7 +128,7 @@ public class LocationNearbyConnectorTester {
         assertTrue(locations.contains(b));
     }
     
-    /*
+    /**
      * get all locations within 1km of an invalid id
      * - expect null
      */
@@ -137,7 +137,7 @@ public class LocationNearbyConnectorTester {
         assertNull(conn.getLocationsNearby(invalidLocId, 1000));        
     }
     
-    /*
+    /**
      * test location c within 1000m of location d
      * test location b within 100000m of location c
      * - expect true for both
@@ -153,7 +153,7 @@ public class LocationNearbyConnectorTester {
         assertFalse(conn.isLocationNearby(a.getLocId(), b.getLocId(), 9));
     }
     
-    /*
+    /**
      * update distance between a -> b, b -> c, c -> d
      * - expect true for all
      */
@@ -164,7 +164,7 @@ public class LocationNearbyConnectorTester {
         assertTrue(conn.updateLocationNearby(c.getLocId(), d.getLocId(), 1));        
     }
     
-    /*
+    /**
      * update distance between a -> c (not valid nearby), invalidid -> c, c -> invalid, invalid -> invalid
      * - expect false for all
      */
@@ -176,7 +176,7 @@ public class LocationNearbyConnectorTester {
         assertFalse(conn.updateLocationNearby(invalidLocId, invalidLocId, 900));
     }
     
-    /*
+    /**
      * delete nearby relationship for all those created in @Before, then do it again
      * - expect 1st delete to return true
      * - expect 2nd delete to return false
@@ -192,7 +192,7 @@ public class LocationNearbyConnectorTester {
         assertFalse(conn.deleteLocationNearby(c.getLocId(), d.getLocId()));
     }
     
-    /*
+    /**
      * delete nearby from a -> invalid, invalid -> b, invalid -> invalid
      * - expect false for all
      */
