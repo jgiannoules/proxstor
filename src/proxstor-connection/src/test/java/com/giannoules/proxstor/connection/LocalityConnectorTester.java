@@ -47,7 +47,7 @@ public class LocalityConnectorTester  {
     public static void tearDownClass() {
     }
     
-    /*
+    /**
      * known good locality for each @Test
      * invalidId calculated as last localityId + 1
      */
@@ -97,7 +97,7 @@ public class LocalityConnectorTester  {
     public void tearDown() {
     }
 
-    /*
+    /**
      * retrieve good Locality
      * - expect retrieved user equals goodLocality
      */
@@ -107,7 +107,7 @@ public class LocalityConnectorTester  {
         assertEquals(l, goodLocality);
     }
     
-    /*
+    /**
      * attempt to retrieve invalid locality id
      * - expect null
      */
@@ -116,7 +116,7 @@ public class LocalityConnectorTester  {
         assertNull(conn.getLocality(invalidId));
     }
     
-    /*
+    /**
      * delete goodLocality
      * - expect true
      */
@@ -125,7 +125,7 @@ public class LocalityConnectorTester  {
         assertTrue(conn.deleteLocality(goodLocality.getLocalityId()));
     }
     
-    /*
+    /**
      * delete invalid locality id
      * - expect false
      */
@@ -134,7 +134,7 @@ public class LocalityConnectorTester  {
         assertFalse(conn.deleteLocality(invalidId));
     }
     
-    /*
+    /**
      * change a field in goodLocality and update
      * - expect true
      */
@@ -145,7 +145,7 @@ public class LocalityConnectorTester  {
         assertTrue(conn.updateLocality(goodLocality));
     }
     
-    /*
+    /**
      * attempt to update an invalid locality id
      * attempt to update locality with valid id, but no other data
      * - expect false
@@ -159,7 +159,7 @@ public class LocalityConnectorTester  {
         assertFalse(conn.updateLocality(l));
     }
 
-    /*
+    /**
      * attempt to add a Locality without necessary data     
      * - expect false
      */
@@ -169,7 +169,7 @@ public class LocalityConnectorTester  {
         assertNull(conn.addLocality(l));
     }
     
-    /*
+    /**
      * attempt to add a valid locality
      * - expect localityId to be populated
      * - expect locality mirrored back properly
