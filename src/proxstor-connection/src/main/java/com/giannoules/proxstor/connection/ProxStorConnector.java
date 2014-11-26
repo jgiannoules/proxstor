@@ -732,6 +732,12 @@ public class ProxStorConnector {
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
     
+    /**
+     * check into location when user manually specifies location
+     * @param userId user id checking in
+     * @param locId location id being checked into
+     * @return new Locality object if checkin successful; null otherwise
+     */
     public Locality userCheckinLocation(String userId, String locId) {
         String path = cleanPath("/checkin/user/" + userId + "/location/" + locId);
         Response response = target.path(path)
@@ -743,6 +749,14 @@ public class ProxStorConnector {
         return null;
     }
     
+    /**
+     * check out of location when user manually reports no longer being in
+     * a location
+     * 
+     * @param userId user id checking out
+     * @param locId location id the user has left
+     * @return true if checkout successful; false otherwise
+     */
     public boolean userCheckoutLocation(String userId, String locId) {
         String path = cleanPath("/checkin/user/" + userId + "/location/" + locId);
         Response response = target.path(path)
@@ -751,6 +765,13 @@ public class ProxStorConnector {
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }     
      
+    /**
+     * check into location when a device detects an environmental
+     * 
+     * @param devId device id performing the detection
+     * @param environmentalId the id of the environmental being detected
+     * @return new Locality object if checkin successful; null otherwise
+     */
     public Locality deviceDetectsEnvironmentalId(String devId, String environmentalId) {
         String path = cleanPath("/checkin/device/" + devId + "/environmental/" + environmentalId);
         Response response = target.path(path)
@@ -762,6 +783,13 @@ public class ProxStorConnector {
         return null;
     }
     
+    /**
+     * check out of location when a device no longer detects an environmental
+     * 
+     * @param devId device id of device no longer detecting
+     * @param environmentalId the id of the environmental no longer detected
+     * @return true if checkout successful; false otherwise
+     */
     public boolean deviceUndetectsEnvironmentalId(String devId, String environmentalId) {
         String path = cleanPath("/checkin/device/" + devId + "/environmental/" + environmentalId);
         Response response = target.path(path)
@@ -770,17 +798,32 @@ public class ProxStorConnector {
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
     
-    public Locality deviceDetectsEnvironmental(String devId, Environmental s) {
+    /**
+     * check into location when device detects environmental fingerprint
+     * 
+     * @param devId device id performing the detection
+     * @param e partially specified Environmental representing what the device
+     * currently is detecting
+     * @return new Locality object if checkin successful; null otherwise
+     */
+    public Locality deviceDetectsEnvironmental(String devId, Environmental e) {
         String path = cleanPath("/checkin/device/" + devId + "/environmental/");
         Response response = target.path(path)
                 .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.entity(s, MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(e, MediaType.APPLICATION_JSON_TYPE));
         if (response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL) {
             return response.readEntity(Locality.class);
         }
         return null;
     }
     
+    /**
+     * check out of location, when a device no longer detects an environmental
+     * 
+     * @param devId device id performing the detection
+     * @param s envorinmental detected
+     * @return true if checkout successful; false otherwise
+     */
     public boolean deviceUndetectsEnvironmental(String devId, Environmental s) {
         String path = cleanPath("/checkin/device/" + devId + "/environmental/");
         Response response = target.path(path)
@@ -789,6 +832,12 @@ public class ProxStorConnector {
         return response.getStatusInfo().getFamily() == Status.Family.SUCCESSFUL;
     }
     
+    /**
+     * submit Query to proxstor
+     * 
+     * @param q Query to submit
+     * @return results of query, as list of Locality
+     */
     public Collection<Locality> query(Query q) {
         String path = "/query";
         Response response = target.path(path)
@@ -804,11 +853,25 @@ public class ProxStorConnector {
         return null;
     }
     
-    // @TODO
+    /**
+     * @TODO
+     * not implemented
+     */
     public Collection<Locality> queryComplex() {
         return null;
     }
     
+    /**
+     * replace all non-standard characters in path/URL in the appropriate
+     * percent encoding
+     * 
+     * currently supports
+     *  # -> %23
+     *  : -> %3A
+     * 
+     * @param path path to encode
+     * @return encoded path
+     */
     private String cleanPath(String path) {
         String s;
         s = path.replaceAll("#", "%23");
@@ -816,6 +879,14 @@ public class ProxStorConnector {
         return s;   
     }
     
+    /**
+     * retrieve count random devices from proxstor
+     * 
+     * for testing and evaluation purposes only.
+     *  
+     * @param count number of devices to retrieve
+     * @return list of devices, count in length
+     */
     public Collection<Device> getTestingRandomDevices(Integer count) {
         String path = cleanPath("/admin/testing/devices/retrieve/" + count);
         Response response = target.path(path)
@@ -832,6 +903,14 @@ public class ProxStorConnector {
         return null;
     }
     
+    /**
+     * retrieve count random users from proxstor
+     * 
+     * for testing and evaluation purposes only.
+     *  
+     * @param count number of users to retrieve
+     * @return list of users, count in length
+     */
     public Collection<User> getTestingRandomUsers(Integer count) {
         String path = cleanPath("/admin/testing/users/retrieve/" + count);
         Response response = target.path(path)
@@ -848,6 +927,14 @@ public class ProxStorConnector {
         return null;
     }
     
+    /**
+     * retrieve count random locations from proxstor
+     * 
+     * for testing and evaluation purposes only.
+     *  
+     * @param count number of locations to retrieve
+     * @return list of locations, count in length
+     */
     public Collection<Location> getTestingRandomLocations(Integer count) {
         String path = cleanPath("/admin/testing/locations/retrieve/" + count);
         Response response = target.path(path)
@@ -864,6 +951,14 @@ public class ProxStorConnector {
         return null;
     }
     
+    /**
+     * retrieve count random environmentals from proxstor
+     * 
+     * for testing and evaluation purposes only.
+     *  
+     * @param count number of environmentals to retrieve
+     * @return list of environmentals, count in length
+     */
     public Collection<Environmental> getTestingRandomEnvironmentals(Integer count) {
         String path = cleanPath("/admin/testing/environmentals/retrieve/" + count);
         Response response = target.path(path)
