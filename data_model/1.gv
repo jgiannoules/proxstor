@@ -1,7 +1,0 @@
-digraph data_model_1 {
-		Bob -> Sally [label="Knows"];
-		Bob [shape=box];
-		Sally [shape=box];
-
-		UserLegend [shape=box, label="User"];
-}
